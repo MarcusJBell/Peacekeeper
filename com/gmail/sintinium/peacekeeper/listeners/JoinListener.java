@@ -1,0 +1,41 @@
+package com.gmail.sintinium.peacekeeper.listeners;
+
+import com.gmail.sintinium.peacekeeper.Peacekeeper;
+import com.gmail.sintinium.peacekeeper.data.BanData;
+import com.gmail.sintinium.peacekeeper.db.tables.UserTable;
+import com.gmail.sintinium.peacekeeper.utils.BanUtils;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+
+public class JoinListener implements Listener {
+
+    Peacekeeper peacekeeper;
+
+    public JoinListener(Peacekeeper peacekeeper) {
+        this.peacekeeper = peacekeeper;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onLogin(PlayerLoginEvent event) {
+        BanData highestBan = peacekeeper.handleBan(event.getPlayer());
+        if (highestBan == null) return;
+        event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+        event.setKickMessage(BanUtils.generateBanMessage(peacekeeper, highestBan));
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        UserTable db = peacekeeper.userTable;
+        // Add player to database if not already, else update it to keep up with current usernames and IPs
+        if (!db.doesPlayerExist(event.getPlayer())) {
+            db.addUser(event.getPlayer());
+            peacekeeper.getLogger().info("Added user " + event.getPlayer().getName() + " to database");
+        } else {
+            db.updateUser(event.getPlayer(), db.getId(event.getPlayer().getUniqueId().toString()));
+        }
+    }
+
+}
