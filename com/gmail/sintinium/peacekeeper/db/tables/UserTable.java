@@ -6,6 +6,8 @@ import com.gmail.sintinium.peacekeeper.db.utils.SQLTableUtils;
 import com.gmail.sintinium.peacekeeper.db.utils.SQLUtils;
 import org.bukkit.entity.Player;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class UserTable extends BaseTable {
@@ -59,11 +61,16 @@ public class UserTable extends BaseTable {
         return getInt("PlayerID", "UUID", uuid);
     }
 
-    public PlayerData getPlayerData(int id) {
-        return new PlayerData(id, getUserTime(id), getUsername(id), UUID.fromString(getUserUUID(id)), getIP(id));
+    public PlayerData getPlayerData(int playerID) {
+        try {
+            return getDataFromStarSet(getStarSet(playerID));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public long getUserTime(int id) {
+    public Long getUserTime(int id) {
         return getLong("Time", "PlayerID", id);
     }
 
@@ -78,6 +85,10 @@ public class UserTable extends BaseTable {
 
     public String getIP(int id) {
         return getString("IP", "PlayerID", id);
+    }
+
+    public PlayerData getDataFromStarSet(ResultSet set) throws SQLException {
+        return new PlayerData(set.getInt("PlayerID"), set.getLong("Time"), set.getString("Username"), UUID.fromString(set.getString("UUID")), set.getString("IP"));
     }
 
 }

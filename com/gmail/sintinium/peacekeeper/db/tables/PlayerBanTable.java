@@ -46,9 +46,13 @@ public class PlayerBanTable extends BaseTable {
         );
     }
 
-    @Nonnull
     public BanData getBanData(int banID) {
-        return new BanData(banID, getBanTime(banID), getPlayerID(banID), getIP(banID), getReason(banID), getAdminID(banID), getLength(banID), getType(banID), getRecordID(banID));
+        try {
+            return getDataFromStarSet(getStarSet(banID));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public int[] getPlayersBans(int playerID, String ip) {
@@ -120,6 +124,10 @@ public class PlayerBanTable extends BaseTable {
 
     public Integer getRecordID(int banID) {
         return getInt("RecordID", "BanID", banID);
+    }
+
+    public BanData getDataFromStarSet(ResultSet set) throws SQLException {
+        return new BanData(set.getInt("BanID"), set.getLong("Time"), set.getInt("PlayerID"), set.getString("IP"), set.getString("Reason"), set.getInt("AdminID"), set.getLong("Length"), set.getInt("Type"), set.getInt("RecordID"));
     }
 
 }
