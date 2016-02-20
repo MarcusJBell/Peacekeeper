@@ -8,10 +8,12 @@ import com.gmail.sintinium.peacekeeper.db.utils.SQLUtils;
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerRecordTable extends BaseTable {
 
-    // (RecordID, @Nullable PlayerID, @Nullable IP, Type, @Nullable Length, Reason, @Nullable Admin, @Nullable Severity)
+    // (RecordID, @Nullable PlayerID, @Nullable IP, Type, Time, @Nullable Length, Reason, @Nullable Admin, @Nullable Severity)
 
     public static final int WARNING = 0, KICK = 1, MUTE = 2, BAN = 3, IP = 4;
 
@@ -19,16 +21,16 @@ public class PlayerRecordTable extends BaseTable {
         super(peacekeeper, "PlayerRecords");
         db = peacekeeper.database;
         String tableSet = SQLTableUtils.getTableSet(
-                new String[]{"RecordID", "PlayerID", "IP", "Type", "Length", "Reason", "Admin", "Severity"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
+                new String[]{"RecordID", "PlayerID", "IP", "Type", "Time", "Length", "Reason", "Admin", "Severity"},
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
         );
         init(tableSet);
     }
 
     public int addRecord(@Nullable Integer PlayerID, @Nullable Integer adminID, int type, @Nullable Long length, String reason, @Nullable Integer severity) {
         return insert(
-                new String[]{"PlayerID", "Type", "Length", "Reason", "Admin", "Severity"},
-                new String[]{String.valueOf(PlayerID), String.valueOf(type), String.valueOf(length), reason, String.valueOf(adminID), String.valueOf(severity)}
+                new String[]{"PlayerID", "Type", "Time", "Length", "Reason", "Admin", "Severity"},
+                new String[]{String.valueOf(PlayerID), String.valueOf(type), String.valueOf(System.currentTimeMillis()), String.valueOf(length), reason, String.valueOf(adminID), String.valueOf(severity)}
         );
     }
 
@@ -37,31 +39,63 @@ public class PlayerRecordTable extends BaseTable {
     }
 
     public void updateRecord(RecordData data) {
-        String[] colList = SQLUtils.getAsSQLArray(new String[]{"PlayerID", "Type", "Length", "Reason", "Admin"});
-        String[] valueList = SQLUtils.getAsSQLArray(new Object[]{data.playerID, data.type, data.length, data.reason, data.adminID});
+        String[] colList = SQLUtils.getAsSQLArray(new String[]{"PlayerID", "Type", "Length", "Reason", "Admin", "Severity"});
+        String[] valueList = SQLUtils.getAsSQLArray(new Object[]{data.playerID, data.type, data.length, data.reason, data.adminID, data.severity});
         String set = SQLUtils.getAsSQLSet(colList, valueList);
         updateValue(set, "RecordID", String.valueOf(data.recordID));
     }
 
     public RecordData getRecordData(int recordID) {
-        return new RecordData(recordID, getUser(recordID), getType(recordID), getLength(recordID), getReason(recordID), getAdmin(recordID), getSeverity(recordID));
+        try {
+            return getDataFromStarSet(getStarSet(recordID));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public int[] getRecordsForUser(int PlayerID) {
-        int[] result;
+    @Nullable
+    public List<RecordData> getRecordsForUser(int playerID, Long time) {
+        List<RecordData> result = new ArrayList<>();
         try {
-            Integer recordCount = valueCount("PlayerID", String.valueOf(PlayerID));
+            Integer recordCount = recordCount(playerID);
             if (recordCount == null) return null;
-            ResultSet set = getSet("RecordID", "PlayerID", String.valueOf(PlayerID));
-            result = new int[recordCount];
-            for (int i = 0; i < recordCount; i++) {
-                result[i] = set.getInt(i);
+            ResultSet set = getStarSet(playerID);
+            while (set.next()) {
+                result.add(getDataFromStarSet(set));
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
         return result;
+    }
+
+    @Nullable
+    public List<RecordData> getRecordsForUser(int playerID) {
+        return getRecordsForUser(playerID, null);
+    }
+
+    @Nullable
+    public List<RecordData> getRecordsByTypeWithinTime(int playerID, int recordType, Long time) {
+        List<RecordData> result = new ArrayList<>();
+        try {
+            Integer recordCount = recordCount(playerID);
+            if (recordCount == null) return null;
+            ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " AND " + " Time>=" + time + ";");
+            while (set.next()) {
+                result.add(getDataFromStarSet(set));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return result;
+    }
+
+    @Nullable
+    public List<RecordData> getRecordsByType(int playerID, int recordType) {
+        return getRecordsByTypeWithinTime(playerID, recordType, null);
     }
 
     @Nullable
@@ -89,6 +123,10 @@ public class PlayerRecordTable extends BaseTable {
         return getInt("Type", "RecordID", recordID);
     }
 
+    public Long getTime(int recordID) {
+        return getLong("Time", "RecordID", recordID);
+    }
+
     @Nullable
     public Long getLength(int recordID) {
         return getLong("Length", "RecordID", recordID);
@@ -106,6 +144,10 @@ public class PlayerRecordTable extends BaseTable {
     @Nullable
     public Integer getSeverity(int recordID) {
         return getInt("Severity", "RecordID", recordID);
+    }
+
+    public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
+        return new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getInt("Severity"));
     }
 
 }

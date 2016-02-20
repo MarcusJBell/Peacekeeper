@@ -57,17 +57,10 @@ public class PlayerBanTable extends BaseTable {
             if (valueCount("PlayerID", playerID) == 0 && valueCount("IP", "'" + ip + "'") == 0)
                 return new int[0];
             ResultSet set = db.query("SELECT BanID FROM " + tableName + " WHERE playerID=" + playerID + " OR " + "IP='" + ip + "';");
-
-            do {
+            while (set.next()) {
                 int banID = set.getInt("BanID");
                 bans.add(banID);
-            } while (set.next());
-
-//            ResultSet ipSet = getSet("BanID", "IP", ip);
-//            do {
-//                bans.add(ipSet.getInt(1));
-//            } while (ipSet.next());
-
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

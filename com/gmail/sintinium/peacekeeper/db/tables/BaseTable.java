@@ -335,6 +335,17 @@ public abstract class BaseTable {
     }
 
     /**
+     * Gets a result set for all data at the given row
+     *
+     * @param rowID Row to fetch data
+     * @return Returns a result set for all columns in a row
+     * @throws SQLException Thrown if database exception occurred
+     */
+    public ResultSet getStarSet(int rowID) throws SQLException {
+        return db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
+    }
+
+    /**
      * Gets ResultSet from table
      *
      * @param select Name of column to select
