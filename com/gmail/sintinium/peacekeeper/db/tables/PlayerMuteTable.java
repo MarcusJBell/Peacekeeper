@@ -81,4 +81,5 @@ public class PlayerMuteTable extends BaseTable {
         return getInt("AdminID", "MuteID", muteID);
     }
 
+
 }

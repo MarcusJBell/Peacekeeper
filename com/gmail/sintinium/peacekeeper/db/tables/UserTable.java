@@ -80,17 +80,9 @@ public class UserTable extends BaseTable {
     public PlayerData getPlayerData(String username) {
         try {
             ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE Username LIKE '" + username + "%' ORDER BY LENGTH(Username) ASC;");
-            return getDataFromStarSet(set);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Nullable
-    public PlayerData getPlayerData(UUID uuid) {
-        try {
-            ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE UUID='" + uuid.toString() + "';");
+            if (!set.next()) {
+                return null;
+            }
             return getDataFromStarSet(set);
         } catch (SQLException e) {
             e.printStackTrace();

@@ -48,6 +48,8 @@ public class PlayerBanTable extends BaseTable {
 
     public BanData getBanData(int banID) {
         try {
+            BanData banData = getDataFromStarSet(getStarSet(banID));
+            if (banData == null) return null;
             return getDataFromStarSet(getStarSet(banID));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -127,6 +129,7 @@ public class PlayerBanTable extends BaseTable {
     }
 
     public BanData getDataFromStarSet(ResultSet set) throws SQLException {
+        if (set == null) return null;
         return new BanData(set.getInt("BanID"), set.getLong("Time"), set.getInt("PlayerID"), set.getString("IP"), set.getString("Reason"), set.getInt("AdminID"), set.getLong("Length"), set.getInt("Type"), set.getInt("RecordID"));
     }
 

@@ -146,7 +146,6 @@ public abstract class BaseTable {
      */
     private String getString(@Nonnull String select, @Nonnull String where, @Nonnull String value, boolean like) {
         try {
-            if (!doesValueExist(where, value, like)) return null;
             if (!StringUtils.isNumeric(value))
                 value = "'" + value + "'";
             ResultSet set;
@@ -155,7 +154,9 @@ public abstract class BaseTable {
             } else {
                 set = db.query("SELECT " + select + " FROM " + tableName + " WHERE " + where + "=" + value + ";");
             }
-
+            if (!set.next()) {
+                return null;
+            }
             return set.getString(1);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -320,6 +321,7 @@ public abstract class BaseTable {
      * @param value  Value of variable found
      * @return returns ResultSet of found rows
      */
+    @Nullable
     public ResultSet getSet(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
         ResultSet set = null;
         try {
@@ -328,6 +330,7 @@ public abstract class BaseTable {
                 value = "'" + value + "'";
             }
             set = db.query("SELECT " + select + " FROM " + tableName + " WHERE " + where + "=" + value + ";");
+            if (!set.next()) return null;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -342,7 +345,9 @@ public abstract class BaseTable {
      * @throws SQLException Thrown if database exception occurred
      */
     public ResultSet getStarSet(int rowID) throws SQLException {
-        return db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
+        ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
+        if (!set.next()) return null;
+        return set;
     }
 
     /**
@@ -353,6 +358,7 @@ public abstract class BaseTable {
      * @param value  Value of variable found
      * @return returns ResultSet of found rows
      */
+    @Nullable
     public ResultSet getSet(@Nonnull String select, @Nonnull String where, int value) {
         return getSet(select, where, String.valueOf(value));
     }

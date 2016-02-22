@@ -65,7 +65,9 @@ public class MuteCommand extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!(sender instanceof Player))
             return handleConsole(sender, args);
-
+        if (args.length < 2) {
+            return false;
+        }
         String usernameInput = args[0];
         String reasonInput = CommandUtils.argsToReason(args, 1);
         PlayerData playerData = peacekeeper.userTable.getPlayerData(usernameInput);
