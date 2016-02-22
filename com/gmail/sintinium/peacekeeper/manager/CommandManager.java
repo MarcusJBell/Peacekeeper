@@ -24,13 +24,14 @@ public class CommandManager {
     }
 
     public void registerDefaults() {
-        registerCommand("peacekeepercancel", new PeacekeeperCancelCommand(peacekeeper));
-        registerCommand("release", new ReleaseCommand(peacekeeper));
-        registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
-        registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
-        registerCommand("ipban", new IPBanCommand(peacekeeper));
+//        registerCommand("peacekeepercancel", new PeacekeeperCancelCommand(peacekeeper));
+//        registerCommand("release", new ReleaseCommand(peacekeeper));
+//        registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
+//        registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
+//        registerCommand("ipban", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
-        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
+//        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
+        vanishCommand = new VanishCommand(peacekeeper);
         registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
     }
 
@@ -40,5 +41,4 @@ public class CommandManager {
         command.setPermissionMessage(ChatColor.DARK_RED + "You do not have permission to use this command.");
         commands.add(command);
     }
-
 }

@@ -2,36 +2,12 @@ name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
 version: 0.98
 depend: [SQLibrary, ProtocolLib]
-loadbefore: [Essentials]
 softdepend: [ScoreboardStats, Essentials, SuperTrails]
 commands:
-  peacekeepercancel:
-    description: escaped player out of conversation system
-  suspend:
-    description: Suspends a player from the server
-    permission: peacekeeper.command.suspend
-    usage: §4Syntax error! Usage §r§c/suspend <player> <reason>
-  mute:
-    description: Mutes a player from chat
-    permission: peacekeeper.command.mute
-    usage: §4Syntax error! Usage §r§c/mute <player> <reason>
-  ipban:
-    description: Bans an IP
-    permission: peacekeeper.command.ipban
-    usage: §4Syntax error! Usage §r§c/ipban <player|IP> <reason>
-  release:
-    description: Releases a user, including jail, mute, and bans
-    permission: peacekeeper.release
-    usage: §4Syntax error! Usage §r§c/release <player|IP>
   playerinfo:
     description: Get a player's information
     permission: peacekeeper.command.playerinfo
     usage: Syntax error! Usage §r§c/playerinfo <player>!
-  vanish:
-    aliases: [v]
-    description: Hides the player from other players
-    permission: peacekeeper.command.vanish
-    usage: /vanish
   supervanish:
     aliases: [sv]
     description: Hides the player from other players in a super fashion!
