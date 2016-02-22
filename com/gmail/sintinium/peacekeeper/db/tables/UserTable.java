@@ -28,8 +28,8 @@ public class UserTable extends BaseTable {
     public void updateUser(Player player, int playerID) {
         if (player == null) return;
         String set = SQLUtils.getAsSQLSet(
-                new String[]{"Username", "UUID", "IP"},
-                new String[]{player.getName(), player.getUniqueId().toString(), player.getAddress().getHostName()}
+                new String[]{"Username", "IP"},
+                new String[]{player.getName(), player.getAddress().getHostName()}
         );
         updateValue(set, "PlayerID", playerID);
     }
@@ -62,7 +62,7 @@ public class UserTable extends BaseTable {
         return null;
     }
 
-    public Integer getId(String uuid) {
+    public Integer getPlayerIDFromUUID(String uuid) {
         return getInt("PlayerID", "UUID", uuid);
     }
 

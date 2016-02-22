@@ -25,7 +25,6 @@ public class PlayerInfoCommand extends BaseCommand {
         if (args.length < 1) {
             return false;
         }
-
         PlayerData playerData = peacekeeper.userTable.getPlayerData(args[0]);
         if (playerData == null) {
             ChatUtils.playerNotFoundMessage(sender, args[0]);

@@ -34,7 +34,7 @@ public class JoinListener implements Listener {
             db.addUser(event.getPlayer());
             peacekeeper.getLogger().info("Added user " + event.getPlayer().getName() + " to database");
         } else {
-            db.updateUser(event.getPlayer(), db.getId(event.getPlayer().getUniqueId().toString()));
+            db.updateUser(event.getPlayer(), db.getPlayerIDFromUUID(event.getPlayer().getUniqueId().toString()));
         }
     }
 

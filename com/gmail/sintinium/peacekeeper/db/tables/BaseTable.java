@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -116,9 +117,10 @@ public abstract class BaseTable {
         try {
             if (!StringUtils.isNumeric(value))
                 value = "'" + value + "'";
-            db.query("UPDATE " + tableName +
+            PreparedStatement statement = db.prepare("UPDATE " + tableName +
                     " SET " + set +
                     " WHERE " + where + "=" + value + ";");
+            db.query(statement);
         } catch (SQLException e) {
             e.printStackTrace();
         }

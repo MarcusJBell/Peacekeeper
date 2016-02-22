@@ -83,3 +83,6 @@ permissions:
   peacekeeper.command.vanish:
     description: Has permission to use the vanish command
     default: op
+  peacekeeper.command.vanish.cansee:
+    description: Has permission to see vanished players
+    default: op

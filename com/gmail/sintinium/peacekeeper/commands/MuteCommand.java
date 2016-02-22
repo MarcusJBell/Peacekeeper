@@ -46,14 +46,14 @@ public class MuteCommand extends BaseCommand {
 
     // Method that is actually called to mute a user
     public static void muteUser(CommandSender sender, Peacekeeper peacekeeper, String uuid, String username, int playerID, Long length, String reason, Integer severity) {
-        Integer adminID = peacekeeper.userTable.getId(((Player) sender).getUniqueId().toString());
+        Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
         int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.MUTE, length, reason, severity);
         int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
         MuteData muteData = peacekeeper.muteTable.muteData(muteID);
         peacekeeper.muteTable.mutedPlayers.put(UUID.fromString(uuid), muteData);
         ChatUtils.muteMessage(sender, username, length, reason);
 
-        Player player = Peacekeeper.getPlayer(sender, username);
+        Player player = Peacekeeper.getPlayer(username);
         if (player != null) {
             player.sendMessage(ChatColor.DARK_RED + "You have been muted by: " + ChatColor.RED + muteData.adminName);
             if (length != null)

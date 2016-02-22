@@ -57,8 +57,8 @@ public class Peacekeeper extends JavaPlugin {
     }
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
-    public static Player getPlayer(CommandSender sender, String name) {
-        List<Player> players = sender.getServer().matchPlayer(name);
+    public static Player getPlayer(String name) {
+        List<Player> players = Bukkit.getServer().matchPlayer(name);
         if (players.isEmpty()) {
             return null;
         } else {
@@ -146,7 +146,7 @@ public class Peacekeeper extends JavaPlugin {
     // Handles ban by getting player's ID from player object
     public BanData handleBan(@Nonnull Player player) {
         if (!userTable.doesPlayerExist(player)) return null;
-        Integer playerID = userTable.getId(player.getUniqueId().toString());
+        Integer playerID = userTable.getPlayerIDFromUUID(player.getUniqueId().toString());
         if (playerID == null) {
             return null;
         }

