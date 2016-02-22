@@ -5,7 +5,6 @@ import com.gmail.sintinium.peacekeeper.commands.MuteCommand;
 import com.gmail.sintinium.peacekeeper.commands.SuspendCommand;
 import com.gmail.sintinium.peacekeeper.data.ConversationData;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
-import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import org.apache.commons.lang3.StringUtils;
@@ -98,7 +97,7 @@ public class ConversationListener implements Listener {
         //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
         final Integer severity = Integer.parseInt(event.getMessage());
         final ConversationData data = conversations.get(event.getPlayer());
-        final Long length = PunishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.MUTE);
+        final Long length = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.MUTE);
         final String username = peacekeeper.userTable.getUsername(data.playerID);
 
         //Since we're Async we need to run on the same thread
@@ -120,7 +119,7 @@ public class ConversationListener implements Listener {
         //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
         final Integer severity = Integer.parseInt(event.getMessage());
         final ConversationData data = conversations.get(event.getPlayer());
-        final Long time = PunishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.SUSPEND);
+        final Long time = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.SUSPEND);
 
         //Since we're Async we need to run on the same thread
         Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {

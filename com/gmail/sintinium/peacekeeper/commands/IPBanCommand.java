@@ -8,7 +8,6 @@ import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,13 +33,12 @@ public class IPBanCommand extends BaseCommand {
 
     public boolean handlePlayer(CommandSender sender, String[] args) {
         BanData banData;
-        String offlineUUID = peacekeeper.userTable.getOfflineUUID(args[0]);
-        if (offlineUUID == null) {
-            sender.sendMessage(ChatColor.DARK_RED + "Player " + args[0] + " was not found in the database");
+        String reason = CommandUtils.argsToReason(args, 1);
+        Integer playerID = peacekeeper.userTable.getId(args[0]);
+        if (playerID == null) {
+            ChatUtils.playerNotFoundMessage(sender, args[0]);
             return true;
         }
-        String reason = CommandUtils.argsToReason(args, 1);
-        int playerID = peacekeeper.userTable.getId(offlineUUID);
         Integer adminID = null;
         if (sender instanceof Player) {
             adminID = peacekeeper.userTable.getId(((Player) sender).getUniqueId().toString());

@@ -3,6 +3,7 @@ package com.gmail.sintinium.peacekeeper.commands;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.ConversationData;
 import com.gmail.sintinium.peacekeeper.data.MuteData;
+import com.gmail.sintinium.peacekeeper.data.PlayerData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
@@ -13,7 +14,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +24,7 @@ public class MuteCommand extends BaseCommand {
         super(peacekeeper);
     }
 
-    // Gives messages a number and colors it for the user
+    //TODO: Replace this placeholder code for something that reads a modifiable YAML
     public static List<String> generateSeverities() {
         List<String> strings = new ArrayList<>();
         List<String> messages = generateSeveritiesMessages();
@@ -35,8 +35,7 @@ public class MuteCommand extends BaseCommand {
         return strings;
     }
 
-    // Creates the list of reasons, which will later be processed and shown to the player ranking from
-    // low severity to high.
+    //TODO: Replace this placeholder code for something that reads a modifiable YAML
     public static List<String> generateSeveritiesMessages() {
         List<String> strings = new ArrayList<>();
         strings.add("Common spam such as: CAPS and ijijiajsd");
@@ -60,7 +59,6 @@ public class MuteCommand extends BaseCommand {
             if (length != null)
                 player.sendMessage(ChatColor.YELLOW + "Mute will end in: " + TimeUtils.millsToString(length));
         }
-
     }
 
     @Override
@@ -70,14 +68,14 @@ public class MuteCommand extends BaseCommand {
 
         String usernameInput = args[0];
         String reasonInput = CommandUtils.argsToReason(args, 1);
-        PlayerInfo playerInfo = getPlayerInfo(usernameInput);
-        if (playerInfo == null) {
+        PlayerData playerData = peacekeeper.userTable.getPlayerData(usernameInput);
+        if (playerData == null) {
             playerNotFoundMessage(sender, usernameInput);
             return true;
         }
 
         ConversationData data = new ConversationData(generateSeverities(), ConversationListener.ConversationType.MUTE);
-        data.setupMuteConversation(playerInfo.playerID, reasonInput, playerInfo.uuid);
+        data.setupMuteConversation(playerData.playerID, reasonInput, playerData.uuid.toString());
         peacekeeper.conversationListener.conversations.put((Player) sender, data);
         peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
         return true;
@@ -93,44 +91,18 @@ public class MuteCommand extends BaseCommand {
         String nameInput = args[0];
         String lengthInput = args[1];
         String reasonInput = CommandUtils.argsToReason(args, 2);
-        PlayerInfo playerInfo = getPlayerInfo(nameInput);
-        if (playerInfo == null) {
+        PlayerData playerData = peacekeeper.userTable.getPlayerData(nameInput);
+        if (playerData == null) {
             playerNotFoundMessage(sender, nameInput);
             return true;
         }
 
-        muteUser(sender, peacekeeper, playerInfo.uuid, playerInfo.username, playerInfo.playerID, TimeUtils.stringToMillis(lengthInput), reasonInput, null);
+        muteUser(sender, peacekeeper, playerData.uuid.toString(), playerData.username, playerData.playerID, TimeUtils.stringToMillis(lengthInput), reasonInput, null);
         return true;
-    }
-
-    /**
-     * Gets player from database and returns a private nested variable class for the required variables to mute a player
-     *
-     * @param usernameInput Input of username will output the info for the player
-     * @return returns PlayerInfo, null if player doesn't exist
-     */
-    @Nullable
-    public PlayerInfo getPlayerInfo(String usernameInput) {
-        String uuid = peacekeeper.userTable.getOfflineUUID(usernameInput);
-        Integer playerID = peacekeeper.userTable.getId(uuid);
-        if (uuid == null || playerID == null) return null;
-        String username = peacekeeper.userTable.getUsername(playerID);
-        return new PlayerInfo(playerID, uuid, username);
     }
 
     public void playerNotFoundMessage(CommandSender sender, String name) {
         sender.sendMessage(ChatColor.DARK_RED + "Player " + name + " was not found in the database");
-    }
-
-    private class PlayerInfo {
-        Integer playerID;
-        String uuid, username;
-
-        public PlayerInfo(Integer playerID, String uuid, String username) {
-            this.playerID = playerID;
-            this.uuid = uuid;
-            this.username = username;
-        }
     }
 
 }

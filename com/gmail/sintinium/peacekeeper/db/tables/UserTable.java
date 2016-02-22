@@ -6,6 +6,7 @@ import com.gmail.sintinium.peacekeeper.db.utils.SQLTableUtils;
 import com.gmail.sintinium.peacekeeper.db.utils.SQLUtils;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -51,19 +52,46 @@ public class UserTable extends BaseTable {
         return doesValueExist("PlayerID", playerID);
     }
 
-    public String getOfflineUUID(String username) {
-        if (username == null)
-            return null;
-        return getStringLike("UUID", "Username", username + "%");
+    public Integer getPlayerIDFromUsername(String username) {
+        try {
+            ResultSet set = db.query("SELECT PlayerID FROM " + tableName + " WHERE Username LIKE '" + username + "%' ORDER BY Length(" + "Username" + ") ASC;");
+            return set.getInt("PlayerID");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Integer getId(String uuid) {
         return getInt("PlayerID", "UUID", uuid);
     }
 
+    @Nullable
     public PlayerData getPlayerData(int playerID) {
         try {
             return getDataFromStarSet(getStarSet(playerID));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Nullable
+    public PlayerData getPlayerData(String username) {
+        try {
+            ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE Username LIKE '" + username + "%' ORDER BY LENGTH(Username) ASC;");
+            return getDataFromStarSet(set);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Nullable
+    public PlayerData getPlayerData(UUID uuid) {
+        try {
+            ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE UUID='" + uuid.toString() + "';");
+            return getDataFromStarSet(set);
         } catch (SQLException e) {
             e.printStackTrace();
         }

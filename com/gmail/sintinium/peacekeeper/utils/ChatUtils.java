@@ -63,4 +63,8 @@ public class ChatUtils {
             }
         }
     }
+
+    public static void playerNotFoundMessage(CommandSender sender, String name) {
+        sender.sendMessage(ChatColor.DARK_RED + "Player " + name + " was not found in the database");
+    }
 }

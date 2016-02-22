@@ -13,6 +13,7 @@ import com.gmail.sintinium.peacekeeper.listeners.MuteListener;
 import com.gmail.sintinium.peacekeeper.listeners.VanishListeners;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
+import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -34,6 +35,7 @@ public class Peacekeeper extends JavaPlugin {
     public PlayerMuteTable muteTable;
     public PlayerBanTable banTable;
     public CommandManager commandManager;
+    public PunishmentHelper punishmentHelper;
 
     public ConversationListener conversationListener;
 
@@ -71,6 +73,7 @@ public class Peacekeeper extends JavaPlugin {
             return;
         }
 
+        punishmentHelper = new PunishmentHelper(this);
         commandManager = new CommandManager(this);
         commandManager.registerDefaults();
         configFile = new ConfigFile(this);
