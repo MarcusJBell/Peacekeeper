@@ -32,7 +32,11 @@ public class ProtocolLib {
                         wrappedGameProfiles.add(profile);
                     }
                     ping.setPlayers(wrappedGameProfiles);
-                    ping.setPlayersOnline(playerListSize - peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.size());
+                    int count = playerListSize;
+                    for (String s : peacekeeper.commandManager.superVanishCommand.superVanishedPlayers) {
+                        if (Bukkit.getPlayer(s) != null) count--;
+                    }
+                    ping.setPlayersOnline(count);
                 }
             }
         });

@@ -59,7 +59,7 @@ public class VanishListeners implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(PlayerJoinEvent event) {
         if (peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.contains(event.getPlayer().getName())) {
             event.setJoinMessage(null);
