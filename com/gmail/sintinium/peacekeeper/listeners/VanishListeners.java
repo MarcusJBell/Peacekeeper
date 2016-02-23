@@ -10,8 +10,11 @@ import org.bukkit.event.player.PlayerChatTabCompleteEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.Iterator;
 
 public class VanishListeners implements Listener {
 
@@ -46,6 +49,17 @@ public class VanishListeners implements Listener {
             Player p = Peacekeeper.getPlayer(s);
             if (p != null) {
                 player.hidePlayer(p);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onServerPing(ServerListPingEvent event) {
+        Iterator iterator = event.iterator();
+        while (iterator.hasNext()) {
+            Player p = (Player) iterator.next();
+            if (peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.contains(p.getName())) {
+                iterator.remove();
             }
         }
     }

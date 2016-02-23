@@ -4,7 +4,6 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.db.utils.SQLUtils;
 import lib.PatPeter.SQLibrary.Database;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -328,7 +327,6 @@ public abstract class BaseTable {
     public ResultSet getSet(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
         ResultSet set = null;
         try {
-            Bukkit.getConsoleSender().sendMessage("SELECT " + select + " FROM " + tableName + " WHERE " + where + "=" + value + ";");
             if (!StringUtils.isNumeric(value)) {
                 value = "'" + value + "'";
             }

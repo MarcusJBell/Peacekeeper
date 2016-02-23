@@ -1,7 +1,7 @@
 name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
 version: 0.98
-depend: [SQLibrary, ProtocolLib]
+depend: [SQLibrary]
 softdepend: [ScoreboardStats, Essentials, SuperTrails]
 commands:
   playerinfo:

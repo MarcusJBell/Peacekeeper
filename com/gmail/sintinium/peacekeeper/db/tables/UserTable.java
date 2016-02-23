@@ -37,7 +37,7 @@ public class UserTable extends BaseTable {
     public void addUser(Player player) {
         if (player == null) return;
         insert(new String[]{"Time", "Username", "UUID", "IP"},
-                new String[]{String.valueOf(System.currentTimeMillis()), player.getName(), player.getUniqueId().toString(), player.getAddress().getHostName()});
+                new String[]{String.valueOf(System.currentTimeMillis()), player.getName(), player.getUniqueId().toString(), player.getAddress().getAddress().getHostName()});
     }
 
     public void removeUser(int playerID) {

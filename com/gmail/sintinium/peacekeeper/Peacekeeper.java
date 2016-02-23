@@ -3,7 +3,6 @@ package com.gmail.sintinium.peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
 import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
-import com.gmail.sintinium.peacekeeper.hooks.ProtocolLib;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.hooks.SuperTrailsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
@@ -128,12 +127,7 @@ public class Peacekeeper extends JavaPlugin {
         if (getServer().getPluginManager().getPlugin("SQLibrary") == null) {
             getLogger().log(Level.SEVERE, "COULDN'T LOAD SQLIBRARY FOR DATABASE PLEASE INSURE YOU HAVE THE PLUGIN INSTALLED.");
             return false;
-        } else if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            getLogger().log(Level.SEVERE, "COULDN'T LOAD PROTOCOLLIB PLEASE INSURE YOU HAVE THE PLUGIN INSTALLED.");
-            return false;
         }
-
-        ProtocolLib.setupProtocolLib(this);
         scoreboardStatsHook = new ScoreboardStatsHook(this);
         scoreboardStatsHook.loadPlugin();
         return true;
