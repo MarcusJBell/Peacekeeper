@@ -43,6 +43,7 @@ public abstract class BaseTable {
     private Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList, boolean replace) {
         String cols = SQLUtils.getAsSQLStringList(columnList);
         String values = SQLUtils.getAsSQLStringList(valueList);
+        long time = System.currentTimeMillis();
         try {
             if (replace) {
                 db.query("INSERT OR REPLACE INTO " + tableName + " " + cols +
@@ -54,6 +55,8 @@ public abstract class BaseTable {
             return db.query("SELECT last_insert_rowid()").getInt(1);
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            Bukkit.getConsoleSender().sendMessage("Insert time - " + (System.currentTimeMillis() - time));
         }
         return null;
     }

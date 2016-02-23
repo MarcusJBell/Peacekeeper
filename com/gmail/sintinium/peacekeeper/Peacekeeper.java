@@ -12,6 +12,7 @@ import com.gmail.sintinium.peacekeeper.listeners.JoinListener;
 import com.gmail.sintinium.peacekeeper.listeners.MuteListener;
 import com.gmail.sintinium.peacekeeper.listeners.VanishListeners;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
+import com.gmail.sintinium.peacekeeper.queue.DatabaseQueueManager;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import lib.PatPeter.SQLibrary.SQLite;
@@ -38,6 +39,7 @@ public class Peacekeeper extends JavaPlugin {
     public PunishmentHelper punishmentHelper;
 
     public ConversationListener conversationListener;
+    public DatabaseQueueManager databaseQueueManager;
 
     public EssentialsHook essentialsHook;
     public SuperTrailsHook superTrailsHook;
@@ -76,6 +78,8 @@ public class Peacekeeper extends JavaPlugin {
         punishmentHelper = new PunishmentHelper(this);
         commandManager = new CommandManager(this);
         commandManager.registerDefaults();
+        databaseQueueManager = new DatabaseQueueManager(this);
+
         configFile = new ConfigFile(this);
         configFile.loadConfiguration();
 
@@ -86,6 +90,7 @@ public class Peacekeeper extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        databaseQueueManager.onExit();
         database.close();
     }
 

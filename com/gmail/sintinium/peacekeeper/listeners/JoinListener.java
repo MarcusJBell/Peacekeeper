@@ -27,12 +27,13 @@ public class JoinListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        UserTable db = peacekeeper.userTable;
+    public void onPlayerJoin(final PlayerJoinEvent event) {
+        final long time = System.currentTimeMillis();
+        final UserTable db = peacekeeper.userTable;
         // Add player to database if not already, else update it to keep up with current usernames and IPs
         if (!db.doesPlayerExist(event.getPlayer())) {
             db.addUser(event.getPlayer());
-            peacekeeper.getLogger().info("Added user " + event.getPlayer().getName() + " to database");
+            peacekeeper.getLogger().info("Added user " + event.getPlayer().getName() + " to database. (" + (System.currentTimeMillis() - time) + "ms)");
         } else {
             db.updateUser(event.getPlayer(), db.getPlayerIDFromUUID(event.getPlayer().getUniqueId().toString()));
         }

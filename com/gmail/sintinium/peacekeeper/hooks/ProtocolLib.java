@@ -22,6 +22,7 @@ public class ProtocolLib {
             @Override
             public void onPacketSending(PacketEvent event) {
                 if (event.getPacketType() == PacketType.Status.Server.OUT_SERVER_INFO) {
+                    if (peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.isEmpty()) return;
                     WrappedServerPing ping = event.getPacket().getServerPings().read(0);
                     int playerListSize = Bukkit.getOnlinePlayers().size();
                     List<WrappedGameProfile> wrappedGameProfiles = new ArrayList<>();

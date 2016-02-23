@@ -23,6 +23,7 @@ public class MuteListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Integer playerID = peacekeeper.userTable.getPlayerIDFromUUID(event.getPlayer().getUniqueId().toString());
+        if (playerID == null) return;
         if (peacekeeper.muteTable.isPlayerMuted(playerID)) {
             Integer muteID = peacekeeper.muteTable.getMuteIDFromPlayerID(playerID);
             if (muteID != null)
