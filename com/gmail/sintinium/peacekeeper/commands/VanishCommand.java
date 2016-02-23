@@ -23,7 +23,7 @@ public class VanishCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (args.length > 0) {
-            Player player = Peacekeeper.getPlayer(sender, args, 0);
+            Player player = Peacekeeper.getPlayer(args[0]);
             if (player != null) {
                 boolean state = vanishPlayer(player);
                 sender.sendMessage(ChatColor.YELLOW + "Player - " + args[0] + " is now " + (state ? "Vanished" : "Un-Vanished"));

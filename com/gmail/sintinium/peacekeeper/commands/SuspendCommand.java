@@ -7,10 +7,12 @@ import com.gmail.sintinium.peacekeeper.data.PlayerData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerBanTable;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
+import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -47,50 +49,77 @@ public class SuspendCommand extends BaseCommand {
     }
 
     // Suspends the given player from the server
-    public static void suspendUser(Peacekeeper peacekeeper, CommandSender sender, int playerID, String username, Long time, String reason, Integer severity) {
-        ChatUtils.banPlayerMessage(sender, username, time, reason);
-        Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-        int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.BAN, time, reason, severity);
-        BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
-        peacekeeper.banTable.banUser(playerID, banData);
+    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long time, final String reason, final Integer severity) {
+        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                ChatUtils.banPlayerMessage(sender, username, time, reason);
+                Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.BAN, time, reason, severity);
+                BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
+                peacekeeper.banTable.banUser(playerID, banData);
+                final String banMessage = BanUtils.generateBanMessage(peacekeeper, banData);
 
-        Player player = Peacekeeper.getPlayer(username);
-        if (player != null)
-            player.kickPlayer(BanUtils.generateBanMessage(peacekeeper, banData));
+                // Kick player back on main thread
+                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+                    @Override
+                    public void run() {
+                        Player player = Peacekeeper.getExactPlayer(username);
+                        if (player != null)
+                            player.kickPlayer(banMessage);
+                    }
+                });
+            }
+        });
+
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(final CommandSender sender, final Command command, String s, final String[] args) {
         // suspend <player> <reason>
-        if (!(sender instanceof Player))
-            return handleConsole(sender, args);
+        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                if (!(sender instanceof Player)) {
+                    handleConsole(sender, args);
+                    return;
+                }
 
-        if (args.length < 2) {
-            return false;
-        }
+                if (args.length < 2) {
+                    sender.sendMessage(command.getUsage());
+                    return;
+                }
 
-        String nameInput = args[0];
-        String reasonInput = CommandUtils.argsToReason(args, 1);
-        PlayerData playerData = peacekeeper.userTable.getPlayerData(nameInput);
-        if (playerData == null) {
-            ChatUtils.playerNotFoundMessage(sender, nameInput);
-            return true;
-        }
+                String nameInput = args[0];
+                final String reasonInput = CommandUtils.argsToReason(args, 1);
+                final PlayerData playerData = peacekeeper.userTable.getPlayerData(nameInput);
+                if (playerData == null) {
+                    ChatUtils.playerNotFoundMessage(sender, nameInput);
+                    return;
+                }
 
-        ConversationData data = new ConversationData(generateSeverities(), ConversationListener.ConversationType.SUSPEND);
-        data.setupSuspendConversation(playerData.playerID, reasonInput, playerData.username);
-        peacekeeper.conversationListener.conversations.put((Player) sender, data);
-        peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
+                // Add player to conversations in main thread
+                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+                    @Override
+                    public void run() {
+                        ConversationData data = new ConversationData(generateSeverities(), ConversationListener.ConversationType.SUSPEND);
+                        data.setupSuspendConversation(playerData.playerID, reasonInput, playerData.username);
+                        peacekeeper.conversationListener.conversations.put((Player) sender, data);
+                        peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
+                    }
+                });
+            }
+        });
 
         return true;
     }
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
     // console without it being annoying
-    public boolean handleConsole(CommandSender sender, String args[]) {
+    public void handleConsole(CommandSender sender, String args[]) {
         if (args.length < 3) {
             sender.sendMessage("Args: suspend <player> <length> <reason>");
-            return true;
+            return;
         }
         String nameInput = args[0];
         String lengthInput = args[1];
@@ -98,11 +127,10 @@ public class SuspendCommand extends BaseCommand {
         PlayerData playerData = peacekeeper.userTable.getPlayerData(nameInput);
         if (playerData == null) {
             ChatUtils.playerNotFoundMessage(sender, nameInput);
-            return true;
+            return;
         }
 
         suspendUser(peacekeeper, sender, playerData.playerID, playerData.username, TimeUtils.stringToMillis(lengthInput), reasonInput, null);
-        return true;
     }
 
 }

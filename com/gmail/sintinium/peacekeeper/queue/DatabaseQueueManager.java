@@ -8,45 +8,51 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class DatabaseQueueManager {
 
+    public final Runnable thread;
     public Peacekeeper peacekeeper;
     public Queue<IQueueableTask> queue;
-    public Runnable thread;
     private IQueueableTask currentTask;
     private boolean running = true;
 
     public DatabaseQueueManager(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
         queue = new ConcurrentLinkedQueue<>();
-        Bukkit.getScheduler().runTaskAsynchronously(peacekeeper, thread);
-        initThread();
-    }
-
-    public void initThread() {
         thread = new Runnable() {
             @Override
             public void run() {
                 while (running) {
                     try {
-                        while (queue.isEmpty()) wait();
+                        while (queue.isEmpty()) {
+                            synchronized (thread) {
+                                wait();
+                            }
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    Bukkit.getConsoleSender().sendMessage("RUNNING");
                     currentTask = queue.poll();
                     if (currentTask == null) return;
                     currentTask.runTask();
                 }
             }
         };
+        Bukkit.getScheduler().runTaskAsynchronously(peacekeeper, thread);
     }
 
-    public void schedualTask(IQueueableTask task) {
+    public void scheduleTask(IQueueableTask task) {
         queue.add(task);
-        thread.notify();
+        synchronized (thread) {
+            thread.notify();
+        }
     }
 
-    public void onExit() {
-        queue.clear();
+    public boolean canExit() {
+        if (!queue.isEmpty()) {
+            return false;
+        }
         running = false;
+        return true;
     }
 
 }

@@ -34,7 +34,7 @@ public class SuperVanishCommand extends BaseCommand {
         }
         if (((Player) sender).getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || ((Player) sender).getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
         if (args.length > 0) {
-            Player player = Peacekeeper.getPlayer(sender, args, 0);
+            Player player = Peacekeeper.getPlayer(args[0]);
             if (player != null) {
                 sender.sendMessage(ChatColor.YELLOW + "Player - " + args[0] + " SuperVanish set to: " + superVanishPlayer(player));
                 return true;

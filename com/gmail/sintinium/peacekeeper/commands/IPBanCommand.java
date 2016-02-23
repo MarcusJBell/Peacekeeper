@@ -4,6 +4,7 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerBanTable;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
+import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
@@ -48,12 +49,6 @@ public class IPBanCommand extends BaseCommand {
         banData = new BanData(null, System.currentTimeMillis(), playerID, ip, reason, adminID, null, PlayerBanTable.IP, recordID);
         peacekeeper.banTable.banIP(banData);
 
-        // Kick player if they're on the server
-//        Player player = Peacekeeper.getPlayer(sender, args, 0);
-//        if (player != null) {
-//            player.kickPlayer(BanUtils.generateBanMessage(peacekeeper, banData));
-//        }
-
         // Kick all players who have the same IP as IP banned player
         for (Player p : Bukkit.getServer().getOnlinePlayers()) {
             if (p.getAddress().getHostName().equals(ip)) {
@@ -65,25 +60,36 @@ public class IPBanCommand extends BaseCommand {
         return true;
     }
 
-    public boolean handleIP(CommandSender sender, String[] args) {
-        BanData banData;
-        Integer adminID = null;
-        if (sender instanceof Player) {
-            adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-        }
-        String reason = CommandUtils.argsToReason(args, 1);
-        banData = new BanData(null, null, null, args[0], reason, adminID, null, PlayerBanTable.IP, null);
-        peacekeeper.recordTable.addRecord(null, adminID, PlayerRecordTable.IP, null, reason, null);
-        peacekeeper.banTable.banIP(banData);
+    public boolean handleIP(final CommandSender sender, final String[] args) {
+        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                final BanData banData;
+                Integer adminID = null;
+                if (sender instanceof Player) {
+                    adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                }
+                final String reason = CommandUtils.argsToReason(args, 1);
+                banData = new BanData(null, null, null, args[0], reason, adminID, null, PlayerBanTable.IP, null);
+                peacekeeper.recordTable.addRecord(null, adminID, PlayerRecordTable.IP, null, reason, null);
+                peacekeeper.banTable.banIP(banData);
 
-        // Kick all online players who have the same IP as banned IP
-        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-            if (p.getAddress().getHostName().equals(args[0])) {
-                p.kickPlayer(BanUtils.generateBanMessage(peacekeeper, banData));
-                ChatUtils.banIPMessage(sender, banData.ip, null, banData.reason);
+                // Kick player inside main thread
+                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+                    @Override
+                    public void run() {
+                        // Kick all online players who have the same IP as banned IP
+                        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                            if (p.getAddress().getHostName().equals(args[0])) {
+                                p.kickPlayer(BanUtils.generateBanMessage(peacekeeper, banData));
+                                ChatUtils.banIPMessage(sender, banData.ip, null, banData.reason);
+                            }
+                        }
+                        ChatUtils.banIPMessage(sender, args[0], null, reason);
+                    }
+                });
             }
-        }
-        ChatUtils.banIPMessage(sender, args[0], null, reason);
+        });
         return true;
     }
 

@@ -17,7 +17,6 @@ import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -48,17 +47,6 @@ public class Peacekeeper extends JavaPlugin {
     public ConfigFile configFile;
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
-    public static Player getPlayer(CommandSender sender, String[] args, int index) {
-        List<Player> players = sender.getServer().matchPlayer(args[index]);
-
-        if (players.isEmpty()) {
-            return null;
-        } else {
-            return players.get(0);
-        }
-    }
-
-    // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
     public static Player getPlayer(String name) {
         List<Player> players = Bukkit.getServer().matchPlayer(name);
         if (players.isEmpty()) {
@@ -66,6 +54,10 @@ public class Peacekeeper extends JavaPlugin {
         } else {
             return players.get(0);
         }
+    }
+
+    public static Player getExactPlayer(String name) {
+        return Bukkit.getServer().getPlayer(name);
     }
 
     @Override
@@ -90,7 +82,19 @@ public class Peacekeeper extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        databaseQueueManager.onExit();
+        getLogger().info("Finishing up tasks...");
+        long closeTime = System.currentTimeMillis();
+        boolean messaged = false;
+        while (!databaseQueueManager.canExit()) {
+            if (System.currentTimeMillis() - closeTime >= 20000) {
+                getLogger().log(Level.SEVERE, "Couldn't finish task queue, force closing database thread.");
+                break;
+            }
+            if (System.currentTimeMillis() - closeTime >= 5000 && !messaged) {
+                getLogger().info("Finishing tasks taking longer than expected...");
+                messaged = true;
+            }
+        }
         database.close();
     }
 
