@@ -30,7 +30,6 @@ public class DatabaseQueueManager {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Bukkit.getConsoleSender().sendMessage("RUNNING");
                     currentTask = queue.poll();
                     if (currentTask == null) return;
                     currentTask.runTask();

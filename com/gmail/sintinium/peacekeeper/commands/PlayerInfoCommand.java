@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class PlayerInfoCommand extends BaseCommand {
 
@@ -35,10 +36,10 @@ public class PlayerInfoCommand extends BaseCommand {
                     return;
                 }
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ssa z");
+                sdf.setTimeZone(TimeZone.getTimeZone("EST"));
                 Date joinDate = new Date(playerData.joinTime);
-                sdf.format(joinDate);
-                String joinTime = joinDate.toString();
+                String joinTime = sdf.format(joinDate);
 
                 sender.sendMessage(ChatColor.DARK_AQUA + "--- Player Info --");
                 sender.sendMessage(ChatColor.DARK_AQUA + "Username: " + ChatColor.AQUA + playerData.username);
