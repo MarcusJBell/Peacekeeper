@@ -99,11 +99,11 @@ public class VanishListeners implements Listener {
     public void onLeave(PlayerQuitEvent event) {
         if (peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.contains(event.getPlayer().getName())) {
             event.setQuitMessage(null);
+            peacekeeper.scoreboardStatsHook.updateScoreboard();
         }
         if (peacekeeper.commandManager.vanishCommand.vanishedPlayers.contains(event.getPlayer().getName())) {
             removeEffects(event.getPlayer());
         }
-        peacekeeper.scoreboardStatsHook.updateScoreboard();
     }
 
     @EventHandler

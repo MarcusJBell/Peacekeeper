@@ -56,7 +56,7 @@ public class Peacekeeper extends JavaPlugin {
     }
 
     public static Player getExactPlayer(String name) {
-        return Bukkit.getServer().getPlayer(name);
+        return Bukkit.getServer().getPlayerExact(name);
     }
 
     @Override

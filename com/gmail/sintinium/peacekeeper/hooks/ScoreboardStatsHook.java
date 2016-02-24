@@ -21,7 +21,11 @@ public class ScoreboardStatsHook {
             @Override
             public void run() {
                 if (scoreboardStats != null && !f_peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.isEmpty()) {
-                    scoreboardStats.getReplaceManager().updateScore("online", Bukkit.getOnlinePlayers().size() - f_peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.size());
+                    int count = 0;
+                    for (String s : f_peacekeeper.commandManager.superVanishCommand.superVanishedPlayers) {
+                        if (Bukkit.getPlayerExact(s) != null) count++;
+                    }
+                    scoreboardStats.getReplaceManager().updateScore("online", Bukkit.getOnlinePlayers().size() - count);
                 }
             }
         }, 0L, 5L * 20L);
