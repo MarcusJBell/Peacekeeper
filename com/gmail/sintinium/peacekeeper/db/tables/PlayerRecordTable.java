@@ -83,7 +83,11 @@ public class PlayerRecordTable extends BaseTable {
         try {
             Integer recordCount = recordCount(playerID);
             if (recordCount == null) return null;
-            ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " AND " + " Time>=" + time + ";");
+            ResultSet set;
+            if (time != null)
+                set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " AND " + " Time>=" + time + ";");
+            else
+                set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + ";");
             while (set.next()) {
                 result.add(getDataFromStarSet(set));
             }

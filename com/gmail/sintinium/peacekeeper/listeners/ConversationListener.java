@@ -5,6 +5,8 @@ import com.gmail.sintinium.peacekeeper.commands.MuteCommand;
 import com.gmail.sintinium.peacekeeper.commands.SuspendCommand;
 import com.gmail.sintinium.peacekeeper.data.ConversationData;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
+import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
+import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import org.apache.commons.lang3.StringUtils;
@@ -97,14 +99,15 @@ public class ConversationListener implements Listener {
         //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
         final Integer severity = Integer.parseInt(event.getMessage());
         final ConversationData data = conversations.get(event.getPlayer());
-        final Long length = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.MUTE);
+        final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.MUTE);
         final String username = peacekeeper.userTable.getUsername(data.playerID);
 
+        final String ordinal = TimeUtils.ordinal(result.offenseCount);
         //Since we're Async we need to run on the same thread
         Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
             @Override
             public void run() {
-                MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, length, data.reason, severity);
+                MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, result.time, data.reason + " (" + ordinal + " offense)", severity);
             }
         });
         removeConversation(event.getPlayer(), false);
@@ -119,13 +122,14 @@ public class ConversationListener implements Listener {
         //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
         final Integer severity = Integer.parseInt(event.getMessage());
         final ConversationData data = conversations.get(event.getPlayer());
-        final Long time = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.SUSPEND);
+        final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.SUSPEND);
 
+        final String ordinal = TimeUtils.ordinal(result.offenseCount);
         //Since we're Async we need to run on the same thread
         Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
             @Override
             public void run() {
-                SuspendCommand.suspendUser(peacekeeper, event.getPlayer(), data.playerID, data.punishedUsername, time, data.reason, severity);
+                SuspendCommand.suspendUser(peacekeeper, event.getPlayer(), data.playerID, data.punishedUsername, result.time, data.reason + " (" + ordinal + " offense)", severity);
             }
         });
         removeConversation(event.getPlayer(), false);
