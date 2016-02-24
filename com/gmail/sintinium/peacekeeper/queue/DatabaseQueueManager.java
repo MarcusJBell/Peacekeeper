@@ -3,6 +3,7 @@ package com.gmail.sintinium.peacekeeper.queue;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import org.bukkit.Bukkit;
 
+import java.sql.SQLException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -14,7 +15,7 @@ public class DatabaseQueueManager {
     private IQueueableTask currentTask;
     private boolean running = true;
 
-    public DatabaseQueueManager(Peacekeeper peacekeeper) {
+    public DatabaseQueueManager(final Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
         queue = new ConcurrentLinkedQueue<>();
         thread = new Runnable() {
@@ -32,7 +33,16 @@ public class DatabaseQueueManager {
                     }
                     currentTask = queue.poll();
                     if (currentTask == null) return;
-                    currentTask.runTask();
+                    peacekeeper.database.open();
+                    try {
+                        peacekeeper.database.getConnection().setAutoCommit(false);
+                        currentTask.runTask();
+                        peacekeeper.database.getConnection().commit();
+                        peacekeeper.database.getConnection().setAutoCommit(true);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    peacekeeper.database.close();
                 }
             }
         };

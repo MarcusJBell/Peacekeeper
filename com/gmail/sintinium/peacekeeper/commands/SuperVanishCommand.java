@@ -61,7 +61,7 @@ public class SuperVanishCommand extends BaseCommand {
         } else {
             superVanishedPlayers.add(player.getName());
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
-            VanishListeners.hidePlayer(player);
+            VanishListeners.superHidePlayer(player);
         }
 
         peacekeeper.scoreboardStatsHook.updateScoreboard();

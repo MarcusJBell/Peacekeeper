@@ -29,7 +29,7 @@ public class UserTable extends BaseTable {
         if (player == null) return;
         String set = SQLUtils.getAsSQLSet(
                 new String[]{"Username", "IP"},
-                new String[]{player.getName(), player.getAddress().getHostName()}
+                new String[]{player.getName(), player.getAddress().getAddress().getHostName()}
         );
         updateValue(set, "PlayerID", playerID);
     }
@@ -55,7 +55,13 @@ public class UserTable extends BaseTable {
     public Integer getPlayerIDFromUsername(String username) {
         try {
             ResultSet set = db.query("SELECT PlayerID FROM " + tableName + " WHERE Username LIKE '" + username + "%' ORDER BY Length(" + "Username" + ") ASC;");
-            return set.getInt("PlayerID");
+            if (!set.next()) {
+                set.close();
+                return null;
+            }
+            int playerID = set.getInt("PlayerID");
+            set.close();
+            return playerID;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -81,6 +87,7 @@ public class UserTable extends BaseTable {
         try {
             ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE Username LIKE '" + username + "%' ORDER BY LENGTH(Username) ASC;");
             if (!set.next()) {
+                set.close();
                 return null;
             }
             return getDataFromStarSet(set);
@@ -108,7 +115,9 @@ public class UserTable extends BaseTable {
     }
 
     public PlayerData getDataFromStarSet(ResultSet set) throws SQLException {
-        return new PlayerData(set.getInt("PlayerID"), set.getLong("Time"), set.getString("Username"), UUID.fromString(set.getString("UUID")), set.getString("IP"));
+        PlayerData playerData = new PlayerData(set.getInt("PlayerID"), set.getLong("Time"), set.getString("Username"), UUID.fromString(set.getString("UUID")), set.getString("IP"));
+        set.close();
+        return playerData;
     }
 
 }

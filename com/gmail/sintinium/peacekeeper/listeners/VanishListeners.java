@@ -31,6 +31,13 @@ public class VanishListeners implements Listener {
         }
     }
 
+    public static void superHidePlayer(Player player) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || p.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) continue;
+            p.hidePlayer(player);
+        }
+    }
+
     public static void unhidePlayer(Player player) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.showPlayer(player);
@@ -66,12 +73,9 @@ public class VanishListeners implements Listener {
 
     @EventHandler
     public void tabComplete(PlayerChatTabCompleteEvent event) {
-        Iterator i = event.getTabCompletions().iterator();
-        while (i.hasNext()) {
-            String s = (String) i.next();
-            if (event.getTabCompletions().contains(s)) {
+        for (String s : peacekeeper.commandManager.superVanishCommand.superVanishedPlayers) {
+            if (event.getTabCompletions().contains(s) && !event.getPlayer().canSee(Peacekeeper.getExactPlayer(s)))
                 event.getTabCompletions().remove(s);
-            }
         }
     }
 

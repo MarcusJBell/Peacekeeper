@@ -42,7 +42,6 @@ public abstract class BaseTable {
     private Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList, boolean replace) {
         String cols = SQLUtils.getAsSQLStringList(columnList);
         String values = SQLUtils.getAsSQLStringList(valueList);
-        long time = System.currentTimeMillis();
         try {
             if (replace) {
                 db.query("INSERT OR REPLACE INTO " + tableName + " " + cols +
@@ -51,7 +50,10 @@ public abstract class BaseTable {
                 db.query("INSERT INTO " + tableName + " " + cols +
                         " VALUES " + values + ";");
             }
-            return db.query("SELECT last_insert_rowid()").getInt(1);
+            ResultSet set = db.query("SELECT last_insert_rowid()");
+            int rowID = set.getInt(1);
+            set.close();
+            return rowID;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -157,9 +159,12 @@ public abstract class BaseTable {
                 set = db.query("SELECT " + select + " FROM " + tableName + " WHERE " + where + "=" + value + ";");
             }
             if (!set.next()) {
+                set.close();
                 return null;
             }
-            return set.getString(1);
+            String s = set.getString(1);
+            set.close();
+            return s;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -286,7 +291,9 @@ public abstract class BaseTable {
                 set = db.query("SELECT EXISTS (" +
                         " SELECT 1 FROM " + tableName + " WHERE " + where + "=" + value + " LIMIT 1);");
             }
-            return set.getInt(1) == 1;
+            boolean b = set.getInt(1) == 1;
+            set.close();
+            return b;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -331,7 +338,10 @@ public abstract class BaseTable {
                 value = "'" + value + "'";
             }
             set = db.query("SELECT " + select + " FROM " + tableName + " WHERE " + where + "=" + value + ";");
-            if (!set.next()) return null;
+            if (!set.next()) {
+                set.close();
+                return null;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -347,7 +357,10 @@ public abstract class BaseTable {
      */
     public ResultSet getStarSet(int rowID) throws SQLException {
         ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
-        if (!set.next()) return null;
+        if (!set.next()) {
+            set.close();
+            return null;
+        }
         return set;
     }
 
@@ -376,6 +389,10 @@ public abstract class BaseTable {
         Integer count = null;
         try {
             set = db.query("SELECT COUNT(*) FROM " + tableName + " WHERE " + where + "=" + value + ";");
+            if (!set.next()) {
+                set.close();
+                return null;
+            }
             count = set.getInt(1);
         } catch (SQLException e) {
             e.printStackTrace();

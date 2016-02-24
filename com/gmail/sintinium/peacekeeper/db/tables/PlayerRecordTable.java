@@ -64,6 +64,7 @@ public class PlayerRecordTable extends BaseTable {
             while (set.next()) {
                 result.add(getDataFromStarSet(set));
             }
+            set.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -86,6 +87,7 @@ public class PlayerRecordTable extends BaseTable {
             while (set.next()) {
                 result.add(getDataFromStarSet(set));
             }
+            set.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -103,7 +105,9 @@ public class PlayerRecordTable extends BaseTable {
         if (recordCount(playerID) == 0) return null;
         try {
             ResultSet set = db.query("SELECT COUNT(*) FROM " + tableName + " WHERE PlayerID=" + playerID + " AND Type=" + recordType + ";");
-            return set.getInt(1);
+            int count = set.getInt(1);
+            set.close();
+            return count;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -147,7 +151,9 @@ public class PlayerRecordTable extends BaseTable {
     }
 
     public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
-        return new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getInt("Severity"));
+        RecordData data = new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getInt("Severity"));
+        set.close();
+        return data;
     }
 
 }
