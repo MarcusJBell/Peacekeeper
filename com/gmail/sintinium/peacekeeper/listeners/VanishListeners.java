@@ -66,7 +66,9 @@ public class VanishListeners implements Listener {
 
     @EventHandler
     public void tabComplete(PlayerChatTabCompleteEvent event) {
-        for (String s : event.getTabCompletions()) {
+        Iterator i = event.getTabCompletions().iterator();
+        while (i.hasNext()) {
+            String s = (String) i.next();
             if (event.getTabCompletions().contains(s)) {
                 event.getTabCompletions().remove(s);
             }
