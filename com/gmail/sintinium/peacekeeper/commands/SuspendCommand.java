@@ -55,7 +55,7 @@ public class SuspendCommand extends BaseCommand {
             public void runTask() {
                 ChatUtils.banPlayerMessage(sender, username, time, reason);
                 Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-                int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.BAN, time, reason, severity);
+                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.BAN, time, reason, severity);
                 BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
                 final String banMessage = BanUtils.generateBanMessage(peacekeeper, banData);

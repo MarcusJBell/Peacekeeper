@@ -101,7 +101,7 @@ public class PlayerInfoCommand extends BaseCommand {
                     sender.sendMessage(ChatColor.DARK_AQUA + "To see current punishment info do: /records id <id>");
 
                 if (peacekeeper.recordTable.doesValueExist("PlayerID", playerData.playerID))
-                    sender.sendMessage(ChatColor.DARK_AQUA + "To see all(" + peacekeeper.recordTable.recordCount(playerData.playerID) + ") user's records do:" + " /records user " + ChatColor.AQUA + playerData.username);
+                    sender.sendMessage(ChatColor.DARK_AQUA + "For all(" + peacekeeper.recordTable.recordCount(playerData.playerID) + ") records do:" + " /records player " + ChatColor.AQUA + playerData.username);
                 else
                     sender.sendMessage(ChatColor.AQUA + playerData.username + ChatColor.DARK_AQUA + " has a clean record!");
 

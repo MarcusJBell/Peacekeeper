@@ -45,7 +45,7 @@ public class IPBanCommand extends BaseCommand {
             adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
         }
         String ip = peacekeeper.userTable.getIP(playerID);
-        int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.IP, null, reason, null);
+        int recordID = peacekeeper.recordTable.addRecord(playerID, ip, adminID, PlayerRecordTable.IP, null, reason, null);
         banData = new BanData(null, System.currentTimeMillis(), playerID, ip, reason, adminID, null, PlayerBanTable.IP, recordID);
         peacekeeper.banTable.banIP(banData);
 
@@ -71,7 +71,7 @@ public class IPBanCommand extends BaseCommand {
                 }
                 final String reason = CommandUtils.argsToReason(args, 1);
                 banData = new BanData(null, null, null, args[0], reason, adminID, null, PlayerBanTable.IP, null);
-                peacekeeper.recordTable.addRecord(null, adminID, PlayerRecordTable.IP, null, reason, null);
+                peacekeeper.recordTable.addRecord(null, args[0], adminID, PlayerRecordTable.IP, null, reason, null);
                 peacekeeper.banTable.banIP(banData);
 
                 // Kick player inside main thread

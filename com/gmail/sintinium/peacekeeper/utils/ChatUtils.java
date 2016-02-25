@@ -5,6 +5,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+import java.util.SortedMap;
+
 public class ChatUtils {
 
     // Clears chat for the given player/sender
@@ -66,5 +69,34 @@ public class ChatUtils {
 
     public static void playerNotFoundMessage(CommandSender sender, String name) {
         sender.sendMessage(ChatColor.DARK_RED + "Player " + ChatColor.RED + name.trim() + ChatColor.DARK_RED + " was not found in the database");
+    }
+
+    /**
+     * Util to make pages for chat since I can't find any good documentation on bukkit's paginator util
+     *
+     * @param sender     Who to send page to
+     * @param map        Sorted map of page item index and the string for that index
+     * @param page       current page number
+     * @param pageLength max lines per page
+     */
+    public static void paginate(CommandSender sender, SortedMap<Integer, String> map, int page, int pageLength, String... endPageMessage) {
+        sender.sendMessage(ChatColor.DARK_AQUA + "---- Page: " + page + " ----");
+        int i = 0, k = 0;
+        page--;
+        for (Map.Entry<Integer, String> e : map.entrySet()) {
+            k++;
+            if ((((page * pageLength) + i + 1) == k) && (k != ((page * pageLength) + pageLength + 1))) {
+                i++;
+                sender.sendMessage(ChatColor.DARK_AQUA + " - " + e.getValue());
+            }
+        }
+
+        if ((page + 1) * pageLength > map.size()) {
+            sender.sendMessage(ChatColor.DARK_AQUA + "---- Last page ----");
+            return;
+        }
+        for (String s : endPageMessage) {
+            sender.sendMessage(ChatColor.DARK_AQUA + s);
+        }
     }
 }

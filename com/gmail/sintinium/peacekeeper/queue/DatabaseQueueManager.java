@@ -2,6 +2,7 @@ package com.gmail.sintinium.peacekeeper.queue;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.SQLException;
 import java.util.Queue;
@@ -10,10 +11,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DatabaseQueueManager {
 
     public final Runnable thread;
+    public final BukkitTask bukkitTask;
     public Peacekeeper peacekeeper;
     public Queue<IQueueableTask> queue;
+    public boolean running = true, closed = false;
     private IQueueableTask currentTask;
-    private boolean running = true;
 
     public DatabaseQueueManager(final Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
@@ -21,9 +23,11 @@ public class DatabaseQueueManager {
         thread = new Runnable() {
             @Override
             public void run() {
-                while (running) {
+                main:
+                while (true) {
                     try {
                         while (queue.isEmpty()) {
+                            if (!running) break main;
                             synchronized (thread) {
                                 wait();
                             }
@@ -44,9 +48,10 @@ public class DatabaseQueueManager {
                     }
                     peacekeeper.database.close();
                 }
+                closed = true;
             }
         };
-        Bukkit.getScheduler().runTaskAsynchronously(peacekeeper, thread);
+        bukkitTask = Bukkit.getScheduler().runTaskAsynchronously(peacekeeper, thread);
     }
 
     public void scheduleTask(IQueueableTask task) {

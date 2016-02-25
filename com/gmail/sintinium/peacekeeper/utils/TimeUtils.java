@@ -1,8 +1,7 @@
 package com.gmail.sintinium.peacekeeper.utils;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -112,6 +111,13 @@ public class TimeUtils {
             default:
                 return i + sufixes[i % 10];
         }
+    }
+
+    public static String formatTime(long mills) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ssa z");
+        sdf.setTimeZone(TimeZone.getTimeZone("EST"));
+        Date time = new Date(mills);
+        return sdf.format(time);
     }
 
 }

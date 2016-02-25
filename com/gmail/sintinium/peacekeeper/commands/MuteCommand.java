@@ -52,7 +52,7 @@ public class MuteCommand extends BaseCommand {
             @Override
             public void runTask() {
                 Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-                int recordID = peacekeeper.recordTable.addRecord(playerID, adminID, PlayerRecordTable.MUTE, length, reason, severity);
+                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, severity);
                 int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
                 MuteData muteData = peacekeeper.muteTable.muteData(muteID);
                 peacekeeper.muteTable.mutedPlayers.put(UUID.fromString(uuid), muteData);

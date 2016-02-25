@@ -59,6 +59,7 @@ public class Peacekeeper extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getServer().getScheduler().cancelTasks(this);
         if (!loadDependencies()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -80,20 +81,31 @@ public class Peacekeeper extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Finishing up tasks...");
-        long closeTime = System.currentTimeMillis();
-        boolean messaged = false;
-        while (!databaseQueueManager.canExit()) {
-            if (System.currentTimeMillis() - closeTime >= 20000) {
-                getLogger().log(Level.SEVERE, "Couldn't finish task queue, force closing database thread.");
+        long time = System.currentTimeMillis();
+        boolean warned = false;
+        databaseQueueManager.running = false;
+        synchronized (databaseQueueManager.thread) {
+            databaseQueueManager.thread.notify();
+        }
+        while (!databaseQueueManager.closed) {
+            if (!warned && System.currentTimeMillis() - time > 5000) {
+                Bukkit.getConsoleSender().sendMessage("Taking longer than expection...");
+                Bukkit.getConsoleSender().sendMessage("Trying for 20 seconds before force shutdown");
+                warned = true;
+            }
+            if (System.currentTimeMillis() - time > 20000) {
                 break;
             }
-            if (System.currentTimeMillis() - closeTime >= 5000 && !messaged) {
-                getLogger().info("Finishing tasks taking longer than expected...");
-                messaged = true;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+        getServer().getScheduler().cancelTasks(this);
         database.close();
     }
+
 
     // Load database from file
     public void loadDatabase() {

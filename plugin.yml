@@ -26,6 +26,10 @@ commands:
     description: Get a player's information
     permission: peacekeeper.command.playerinfo
     usage: Syntax error! Usage §r§c/playerinfo <player>!
+  records:
+      description: Display all of a users records
+      permission: peacekeeper.command.records
+      usage: Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>!
   vanish:
     aliases: [v]
     description: Hides the player from other players
@@ -49,6 +53,7 @@ permissions:
     default: op
     children:
         peacekeeper.command.info: true
+        peacekeeper.command.records: true
         peacekeeper.command.mute: true
         peacekeeper.command.tempban: true
         peacekeeper.command.permban: true
@@ -57,6 +62,9 @@ permissions:
         peacekeeper.command.vanish: true
   peacekeeper.command.info:
     description: Has permission to view a player's info
+    default: op
+  peacekeeper.command.records:
+    description: Has permission to view a player's records
     default: op
   peacekeeper.info.ip:
     description: Has permission to view someone's ip when using /playerinfo
