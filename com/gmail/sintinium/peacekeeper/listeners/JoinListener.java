@@ -1,16 +1,11 @@
 package com.gmail.sintinium.peacekeeper.listeners;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
-import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.db.tables.UserTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
-import com.gmail.sintinium.peacekeeper.utils.BanUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 
 public class JoinListener implements Listener {
 
@@ -18,24 +13,6 @@ public class JoinListener implements Listener {
 
     public JoinListener(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onLogin(final PlayerLoginEvent event) {
-        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
-            @Override
-            public void runTask() {
-                final BanData highestBan = peacekeeper.handleBan(event.getPlayer());
-                if (highestBan == null) return;
-                final String message = BanUtils.generateBanMessage(peacekeeper, highestBan);
-                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
-                    @Override
-                    public void run() {
-                        event.getPlayer().kickPlayer(message);
-                    }
-                });
-            }
-        });
     }
 
     @EventHandler

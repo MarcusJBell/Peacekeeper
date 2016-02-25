@@ -12,6 +12,8 @@ public class BanData {
     public Integer type;
     public Integer recordId;
 
+    public String adminUsername;
+
     public BanData(Integer banID, Long banTime, Integer bannedUser, String ip, String reason, Integer adminId, Long banLength, Integer type, Integer recordId) {
         this.banID = banID;
         this.banTime = banTime;

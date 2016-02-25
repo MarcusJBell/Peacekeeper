@@ -356,12 +356,7 @@ public abstract class BaseTable {
      * @throws SQLException Thrown if database exception occurred
      */
     public ResultSet getStarSet(int rowID) throws SQLException {
-        ResultSet set = db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
-        if (!set.next()) {
-            set.close();
-            return null;
-        }
-        return set;
+        return db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
     }
 
     /**

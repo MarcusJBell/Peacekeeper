@@ -47,7 +47,14 @@ public class PlayerRecordTable extends BaseTable {
 
     public RecordData getRecordData(int recordID) {
         try {
-            return getDataFromStarSet(getStarSet(recordID));
+            ResultSet set = getStarSet(recordID);
+            if (!set.next()) {
+                set.close();
+                return null;
+            }
+            RecordData data = getDataFromStarSet(set);
+            set.close();
+            return data;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -85,9 +92,9 @@ public class PlayerRecordTable extends BaseTable {
             if (recordCount == null) return null;
             ResultSet set;
             if (time != null)
-                set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " AND " + " Time>=" + time + ";");
+                set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " AND " + " Time>=" + time + " ORDER BY rowid DESC;");
             else
-                set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + ";");
+                set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " ORDER BY rowid DESC;");
             while (set.next()) {
                 result.add(getDataFromStarSet(set));
             }
@@ -155,9 +162,7 @@ public class PlayerRecordTable extends BaseTable {
     }
 
     public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
-        RecordData data = new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getInt("Severity"));
-        set.close();
-        return data;
+        return new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getInt("Severity"));
     }
 
 }

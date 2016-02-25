@@ -73,7 +73,7 @@ public class PunishmentHelper {
 
     //TODO: get stock time from file
     private long getStockTime(ConversationListener.ConversationType conversationType, Integer type, Integer subType) {
-        return 0L;
+        return 1000L * 10L;
     }
 
     public class PunishmentResult {

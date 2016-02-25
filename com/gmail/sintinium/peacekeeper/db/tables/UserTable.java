@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UserTable extends BaseTable {
@@ -19,8 +21,8 @@ public class UserTable extends BaseTable {
         super(peacekeeper, "Users");
         db = peacekeeper.database;
         String tableSet = SQLTableUtils.getTableSet(
-                new String[]{"PlayerID", "Time", "Username", "UUID", "IP"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.VARCHAR + "(20)", SQLTableUtils.VARCHAR + "(50)", SQLTableUtils.VARCHAR + "(30)"}
+                new String[]{"PlayerID", "Username", "UUID", "IP"},
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.VARCHAR + "(20)", SQLTableUtils.VARCHAR + "(50) UNIQUE", SQLTableUtils.VARCHAR + "(30)"}
         );
         init(tableSet);
     }
@@ -36,8 +38,8 @@ public class UserTable extends BaseTable {
 
     public void addUser(Player player) {
         if (player == null) return;
-        insert(new String[]{"Time", "Username", "UUID", "IP"},
-                new String[]{String.valueOf(System.currentTimeMillis()), player.getName(), player.getUniqueId().toString(), player.getAddress().getAddress().getHostAddress()});
+        insert(new String[]{"Username", "UUID", "IP"},
+                new String[]{player.getName(), player.getUniqueId().toString(), player.getAddress().getAddress().getHostAddress()});
     }
 
     public void removeUser(int playerID) {
@@ -75,7 +77,10 @@ public class UserTable extends BaseTable {
     @Nullable
     public PlayerData getPlayerData(int playerID) {
         try {
-            return getDataFromStarSet(getStarSet(playerID));
+            ResultSet set = getStarSet(playerID);
+            PlayerData data = getDataFromStarSet(set);
+            set.close();
+            return data;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -90,15 +95,28 @@ public class UserTable extends BaseTable {
                 set.close();
                 return null;
             }
-            return getDataFromStarSet(set);
+            PlayerData data = getDataFromStarSet(set);
+            set.close();
+            return data;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public Long getUserTime(int id) {
-        return getLong("Time", "PlayerID", id);
+    public List<String> getUUIDSFromIP(String ip) {
+        try {
+            List<String> uuids = new ArrayList<>();
+            ResultSet set = db.query("SELECT UUID FROM " + tableName + " WHERE IP='" + ip + "';");
+            while (set.next()) {
+                uuids.add(set.getString("UUID"));
+            }
+            set.close();
+            return uuids;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String getUsername(Integer id) {
@@ -115,7 +133,7 @@ public class UserTable extends BaseTable {
     }
 
     public PlayerData getDataFromStarSet(ResultSet set) throws SQLException {
-        PlayerData playerData = new PlayerData(set.getInt("PlayerID"), set.getLong("Time"), set.getString("Username"), UUID.fromString(set.getString("UUID")), set.getString("IP"));
+        PlayerData playerData = new PlayerData(set.getInt("PlayerID"), set.getString("Username"), UUID.fromString(set.getString("UUID")), set.getString("IP"));
         set.close();
         return playerData;
     }

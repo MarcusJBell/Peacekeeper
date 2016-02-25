@@ -6,10 +6,7 @@ import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.hooks.SuperTrailsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
-import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
-import com.gmail.sintinium.peacekeeper.listeners.JoinListener;
-import com.gmail.sintinium.peacekeeper.listeners.MuteListener;
-import com.gmail.sintinium.peacekeeper.listeners.VanishListeners;
+import com.gmail.sintinium.peacekeeper.listeners.*;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
 import com.gmail.sintinium.peacekeeper.queue.DatabaseQueueManager;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
@@ -37,6 +34,7 @@ public class Peacekeeper extends JavaPlugin {
     public PunishmentHelper punishmentHelper;
 
     public ConversationListener conversationListener;
+    public BanListener banListener;
     public DatabaseQueueManager databaseQueueManager;
 
     public EssentialsHook essentialsHook;
@@ -117,6 +115,7 @@ public class Peacekeeper extends JavaPlugin {
     }
 
     public void registerListeners() {
+        Bukkit.getPluginManager().registerEvents(banListener = new BanListener(this), this);
         Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new VanishListeners(this), this);
         Bukkit.getPluginManager().registerEvents(new MuteListener(this), this);

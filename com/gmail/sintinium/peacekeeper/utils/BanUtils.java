@@ -37,6 +37,31 @@ public class BanUtils {
         return message;
     }
 
+    // Creates the ban message the player will see when they are kicked from the server that doesn't need to be on the sql thread
+    public static String generateSyncedBanMessage(Peacekeeper peacekeeper, BanData banData, String adminName) {
+        String message = "";
+        if (banData.type == null) {
+            return "";
+        }
+        if (banData.type == PlayerBanTable.PLAYER) {
+            if (banData.banLength == null) {
+                message += "§4You have been permanently banned from this server by:\n" + "§4" + adminName + "\n";
+            } else {
+                message += "§4You have been suspended from this server by: " + "§4" + adminName + "\n";
+                message += "§4Reason: §e" + banData.reason + "\n";
+                message += "§4Your suspension will end in: ";
+                message += "§4" + TimeUtils.millsToString((banData.banTime + banData.banLength) - System.currentTimeMillis()) + "\n";
+            }
+        } else if (banData.type == PlayerBanTable.IP) {
+            message += "§4You have been IP Banned from this server by: " + "§4" + adminName + "\n";
+            message += "§4Reason: §e" + banData.reason + "\n";
+        }
+
+        if (Peacekeeper.appealUrl != null)
+            message += "§eAppeal at: " + Peacekeeper.appealUrl;
+        return message;
+    }
+
     // Gets highest ban. Ex. If it's an IP ban they will see that instead of a 1d suspension
     public static BanData getHighestBan(Peacekeeper peacekeeper, int playerID) {
         if (!peacekeeper.userTable.doesPlayerExist(playerID)) return null;
