@@ -2,6 +2,7 @@ package com.gmail.sintinium.peacekeeper.commands;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.RecordData;
+import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
@@ -174,6 +175,17 @@ public class RecordsCommand extends BaseCommand {
             sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.RED + "FOREVER");
 
         sender.sendMessage(ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + "\"" + data.reason + "\"");
+        String stockReason = null;
+        TimeManager.TimeResult timeResult = null;
+        if (data.getTypeName().equalsIgnoreCase("Mute")) {
+            timeResult = peacekeeper.timeManager.configMap.get(TimeManager.MUTE).get(data.stockID - 1);
+            stockReason = timeResult.description;
+        } else if (data.getTypeName().equalsIgnoreCase("Suspension")) {
+            timeResult = peacekeeper.timeManager.configMap.get(TimeManager.SUSPEND).get(data.stockID - 1);
+            stockReason = timeResult.description;
+        }
+        if (stockReason != null)
+            sender.sendMessage(ChatColor.DARK_AQUA + "Stock Reason: " + ChatColor.AQUA + "\"" + stockReason + "\"" + ChatColor.DARK_AQUA + " Default Length: " + ChatColor.AQUA + timeResult.length);
 
         return result;
     }

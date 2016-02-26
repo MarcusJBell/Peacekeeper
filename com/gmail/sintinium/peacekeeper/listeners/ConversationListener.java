@@ -4,6 +4,7 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.commands.MuteCommand;
 import com.gmail.sintinium.peacekeeper.commands.SuspendCommand;
 import com.gmail.sintinium.peacekeeper.data.ConversationData;
+import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
@@ -81,7 +82,7 @@ public class ConversationListener implements Listener {
     }
 
     // Monitors chat and stores messages that a player might miss if they're suspending/muting a player
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void monitorPlayerChat(AsyncPlayerChatEvent event) {
         if (!conversations.isEmpty()) {
             for (Map.Entry pair : conversations.entrySet()) {
@@ -101,9 +102,9 @@ public class ConversationListener implements Listener {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                final Integer severity = Integer.parseInt(event.getMessage());
+                final Integer id = Integer.parseInt(event.getMessage());
                 final ConversationData data = conversations.get(event.getPlayer());
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.MUTE);
+                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(id - 1).length);
                 final String username = peacekeeper.userTable.getUsername(data.playerID);
 
                 final String ordinal = TimeUtils.ordinal(result.offenseCount);
@@ -111,7 +112,7 @@ public class ConversationListener implements Listener {
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, result.time, data.reason + " (" + ordinal + " offense)", severity);
+                        MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, result.time, data.reason + " (" + ordinal + " offense)", id);
                     }
                 });
                 removeConversation(event.getPlayer(), false);
@@ -126,20 +127,20 @@ public class ConversationListener implements Listener {
             return;
         }
         //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
-        final Integer severity = Integer.parseInt(event.getMessage());
+        final Integer stockID = Integer.parseInt(event.getMessage());
         final ConversationData data = conversations.get(event.getPlayer());
 
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, severity, ConversationListener.ConversationType.SUSPEND);
+                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.SUSPEND, data.results.get(stockID).length);
 
                 final String ordinal = TimeUtils.ordinal(result.offenseCount + 1);
                 //Since we're Async we need to run on the same thread
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        SuspendCommand.suspendUser(peacekeeper, event.getPlayer(), data.playerID, data.punishedUsername, result.time, data.reason + " (" + ordinal + " offense)", severity);
+                        SuspendCommand.suspendUser(peacekeeper, event.getPlayer(), data.playerID, data.punishedUsername, result.time, data.reason + " (" + ordinal + " offense)", stockID);
                     }
                 });
                 removeConversation(event.getPlayer(), false);
@@ -150,9 +151,12 @@ public class ConversationListener implements Listener {
     // Messages the player what they need to type to continue on with the conversation
     public void sendConversationInstructions(Player player) {
         ConversationData data = conversations.get(player);
-        for (String s : data.strings) {
-            player.sendMessage(s);
+        int i = 0;
+        for (TimeManager.TimeResult r : data.results) {
+            i++;
+            player.sendMessage(ChatColor.DARK_AQUA + String.valueOf(i) + ". " + r.description + ": " + ChatColor.AQUA + r.length);
         }
+
         player.sendMessage(ChatColor.YELLOW + "To cancel click the cancel button below");
         IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
         PacketPlayOutChat packet = new PacketPlayOutChat(component);

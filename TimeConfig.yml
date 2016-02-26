@@ -1,0 +1,12 @@
+Types:
+  Suspend:
+    Griefing:
+      description: Griefing
+      length: 7d
+    Hacking:
+      description: Hacking
+      length: 14d
+  Mute:
+    CapsSpam:
+      description: Chat Spam
+      length: 15m

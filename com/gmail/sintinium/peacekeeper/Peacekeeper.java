@@ -8,11 +8,13 @@ import com.gmail.sintinium.peacekeeper.hooks.SuperTrailsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
 import com.gmail.sintinium.peacekeeper.listeners.*;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
+import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.DatabaseQueueManager;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -31,6 +33,7 @@ public class Peacekeeper extends JavaPlugin {
     public PlayerMuteTable muteTable;
     public PlayerBanTable banTable;
     public CommandManager commandManager;
+    public TimeManager timeManager;
     public PunishmentHelper punishmentHelper;
 
     public ConversationListener conversationListener;
@@ -60,6 +63,12 @@ public class Peacekeeper extends JavaPlugin {
     @Override
     public void onEnable() {
         getServer().getScheduler().cancelTasks(this);
+        // Kick players, otherwise muted players and kicked players will be able to bypass mutes/bans
+        // This could be removed and read players to the cached lists, but since we don't have access to the database thread
+        // This could cause many issues and could and probably would lock the database
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.kickPlayer(ChatColor.YELLOW + "Server is reloading.");
+        }
         if (!loadDependencies()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -68,6 +77,8 @@ public class Peacekeeper extends JavaPlugin {
         punishmentHelper = new PunishmentHelper(this);
         commandManager = new CommandManager(this);
         commandManager.registerDefaults();
+        timeManager = new TimeManager(this);
+        timeManager.loadTimes();
         databaseQueueManager = new DatabaseQueueManager(this);
 
         configFile = new ConfigFile(this);

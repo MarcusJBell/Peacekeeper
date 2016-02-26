@@ -36,17 +36,21 @@ public class DatabaseQueueManager {
                         e.printStackTrace();
                     }
                     currentTask = queue.poll();
-                    if (currentTask == null) return;
-                    peacekeeper.database.open();
                     try {
-                        peacekeeper.database.getConnection().setAutoCommit(false);
-                        currentTask.runTask();
-                        peacekeeper.database.getConnection().commit();
-                        peacekeeper.database.getConnection().setAutoCommit(true);
-                    } catch (SQLException e) {
+                        if (currentTask == null) return;
+                        peacekeeper.database.open();
+                        try {
+                            peacekeeper.database.getConnection().setAutoCommit(false);
+                            currentTask.runTask();
+                            peacekeeper.database.getConnection().commit();
+                            peacekeeper.database.getConnection().setAutoCommit(true);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        peacekeeper.database.close();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    peacekeeper.database.close();
                 }
                 closed = true;
             }

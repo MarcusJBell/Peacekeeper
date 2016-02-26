@@ -20,17 +20,17 @@ public class PunishmentHelper {
         this.peacekeeper = peacekeeper;
     }
 
-    public PunishmentResult getTime(int playerID, Integer severity, ConversationListener.ConversationType conversationType) {
+    public PunishmentResult getTime(int playerID, ConversationListener.ConversationType conversationType, String length) {
         // Formula is all bans without a 2 month gap + stockTime*1.5^offenseCount
         //TODO: Add subtype compatibility to conversations
         if (conversationType == ConversationListener.ConversationType.SUSPEND || conversationType == ConversationListener.ConversationType.MUTE) {
-            return process(conversationType, playerID, severity, null);
+            return process(conversationType, playerID, length);
         }
         return null;
     }
 
     @Nullable
-    private PunishmentResult process(ConversationListener.ConversationType conversationType, int playerID, Integer type, Integer subType) {
+    private PunishmentResult process(ConversationListener.ConversationType conversationType, int playerID, String length) {
         List<RecordData> datas = null;
         switch (conversationType) {
             case SUSPEND:
@@ -41,10 +41,10 @@ public class PunishmentHelper {
                 break;
         }
         if (datas == null) {
-            return new PunishmentResult(getStockTime(conversationType, type, subType), 0);
+            return new PunishmentResult(getStockTime(length), 0);
         }
         long totalLastLength = getPreviousTotalLength(datas);
-        long stockTime = getStockTime(conversationType, type, subType);
+        long stockTime = getStockTime(length);
         int offenseCount = datas.size();
         long processedTime = totalLastLength + (stockTime * (int) Math.pow(1.5, offenseCount));
         return new PunishmentResult(processedTime, offenseCount);
@@ -71,9 +71,8 @@ public class PunishmentHelper {
         return totalLength;
     }
 
-    //TODO: get stock time from file
-    private long getStockTime(ConversationListener.ConversationType conversationType, Integer type, Integer subType) {
-        return 1000L * 10L;
+    private long getStockTime(String length) {
+        return TimeUtils.stringToMillis(length);
     }
 
     public class PunishmentResult {

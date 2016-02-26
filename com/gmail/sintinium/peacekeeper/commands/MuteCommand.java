@@ -6,6 +6,7 @@ import com.gmail.sintinium.peacekeeper.data.MuteData;
 import com.gmail.sintinium.peacekeeper.data.PlayerData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
+import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
@@ -16,8 +17,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class MuteCommand extends BaseCommand {
@@ -26,33 +25,13 @@ public class MuteCommand extends BaseCommand {
         super(peacekeeper);
     }
 
-    //TODO: Replace this placeholder code for something that reads a modifiable YAML
-    public static List<String> generateSeverities() {
-        List<String> strings = new ArrayList<>();
-        List<String> messages = generateSeveritiesMessages();
-        for (int i = 0; i < messages.size(); i++) {
-            String count = String.valueOf(i + 1);
-            strings.add(ChatColor.AQUA + count + ". " + ChatColor.DARK_AQUA + messages.get(i));
-        }
-        return strings;
-    }
-
-    //TODO: Replace this placeholder code for something that reads a modifiable YAML
-    public static List<String> generateSeveritiesMessages() {
-        List<String> strings = new ArrayList<>();
-        strings.add("Common spam such as: CAPS and ijijiajsd");
-        strings.add("Arguing with/ignoring admin");
-        strings.add("Arguing with/ignoring admin");
-        return strings;
-    }
-
     // Method that is actually called to mute a user
-    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long length, final String reason, final Integer severity) {
+    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long length, final String reason, final Integer typeID) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
                 Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, severity);
+                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, typeID);
                 int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
                 MuteData muteData = peacekeeper.muteTable.muteData(muteID);
                 peacekeeper.muteTable.mutedPlayers.put(UUID.fromString(uuid), muteData);
@@ -100,7 +79,7 @@ public class MuteCommand extends BaseCommand {
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        ConversationData data = new ConversationData(generateSeverities(), ConversationListener.ConversationType.MUTE);
+                        ConversationData data = new ConversationData(peacekeeper.timeManager.configMap.get(TimeManager.MUTE), ConversationListener.ConversationType.MUTE);
                         data.setupMuteConversation(playerData.playerID, reasonInput, playerData.uuid.toString());
                         peacekeeper.conversationListener.conversations.put((Player) sender, data);
                         peacekeeper.conversationListener.sendConversationInstructions((Player) sender);

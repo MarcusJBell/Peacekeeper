@@ -11,9 +11,9 @@ public class RecordData {
     public Long time, length;
     public String reason;
     public Integer adminID;
-    public Integer severity;
+    public Integer stockID;
 
-    public RecordData(int recordID, Integer playerID, String ip, int type, Long time, Long length, String reason, Integer adminID, Integer severity) {
+    public RecordData(int recordID, Integer playerID, String ip, int type, Long time, Long length, String reason, Integer adminID, Integer stockID) {
         this.recordID = recordID;
         this.playerID = playerID;
         this.ip = ip;
@@ -22,7 +22,7 @@ public class RecordData {
         this.length = length;
         this.reason = reason;
         this.adminID = adminID;
-        this.severity = severity;
+        this.stockID = stockID;
     }
 
     public String getTypeName() {

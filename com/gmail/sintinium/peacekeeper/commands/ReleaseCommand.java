@@ -4,8 +4,11 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,12 +41,22 @@ public class ReleaseCommand extends BaseCommand {
                         ChatUtils.playerNotFoundMessage(sender, args[0]);
                         return;
                     }
-                    String uuid = peacekeeper.userTable.getUserUUID(playerID);
+                    final String uuid = peacekeeper.userTable.getUserUUID(playerID);
                     peacekeeper.banTable.unbanPlayer(playerID);
                     peacekeeper.banTable.unbanIP(peacekeeper.userTable.getIP(playerID));
                     peacekeeper.muteTable.unmutePlayer(playerID);
                     ChatUtils.releaseMessage(sender, peacekeeper.userTable.getUsername(playerID));
                     peacekeeper.banListener.cachedBans.remove(UUID.fromString(uuid));
+                    peacekeeper.muteTable.mutedPlayers.remove(UUID.fromString(uuid));
+
+                    Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+                        @Override
+                        public void run() {
+                            Player player = Bukkit.getPlayer(UUID.fromString(uuid));
+                            if (player != null)
+                                player.sendMessage(ChatColor.YELLOW + "Your punishments have been released by: " + ChatColor.BLUE + sender.getName());
+                        }
+                    });
                 }
             }
         });

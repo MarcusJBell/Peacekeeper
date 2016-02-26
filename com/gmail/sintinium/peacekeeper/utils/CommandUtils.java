@@ -13,7 +13,7 @@ public class CommandUtils {
         if (startIndex >= args.length) return null;
         String reason = "";
         for (int i = startIndex; i < args.length; i++) {
-            if (i > 2)
+            if (i > startIndex)
                 reason += " ";
             reason += args[i];
         }

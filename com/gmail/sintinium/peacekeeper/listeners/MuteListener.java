@@ -32,11 +32,12 @@ public class MuteListener implements Listener {
                 if (peacekeeper.muteTable.isPlayerMuted(playerID)) {
                     final Integer muteID = peacekeeper.muteTable.getMuteIDFromPlayerID(playerID);
                     if (muteID != null) {
+                        final MuteData muteData = peacekeeper.muteTable.muteData(muteID);
                         // Run on main thread to prevent concurrentmoddifcationexception
                         Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                             @Override
                             public void run() {
-                                peacekeeper.muteTable.mutedPlayers.put(event.getPlayer().getUniqueId(), peacekeeper.muteTable.muteData(muteID));
+                                peacekeeper.muteTable.mutedPlayers.put(event.getPlayer().getUniqueId(), muteData);
                             }
                         });
                     }
@@ -53,7 +54,11 @@ public class MuteListener implements Listener {
     @EventHandler
     public void playerChatEvent(AsyncPlayerChatEvent event) {
         if (peacekeeper.muteTable.mutedPlayers.isEmpty()) return;
-        MuteData muteData = isMuted(event.getPlayer(), peacekeeper.muteTable.mutedPlayers.get(event.getPlayer().getUniqueId()).mutedUser);
+        MuteData muteDataFromMap = peacekeeper.muteTable.mutedPlayers.get(event.getPlayer().getUniqueId());
+        if (muteDataFromMap == null) return;
+        Integer playerID = muteDataFromMap.mutedUser;
+        if (playerID == null) return;
+        MuteData muteData = isMuted(event.getPlayer(), playerID);
         if (muteData == null) return;
         event.setCancelled(true);
         if (muteData.muteLength == null) {

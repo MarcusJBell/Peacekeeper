@@ -1,13 +1,14 @@
 package com.gmail.sintinium.peacekeeper.data;
 
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
+import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConversationData {
 
-    public List<String> strings;
+    public List<TimeManager.TimeResult> results;
     public List<String> missedMessages;
     public ConversationListener.ConversationType conversationType;
 
@@ -17,8 +18,8 @@ public class ConversationData {
 
     public boolean banConversation = false, muteConversation = false;
 
-    public ConversationData(List<String> strings, ConversationListener.ConversationType conversationType) {
-        this.strings = strings;
+    public ConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType) {
+        this.results = results;
         this.conversationType = conversationType;
         missedMessages = new ArrayList<>();
     }

@@ -7,19 +7,16 @@ import com.gmail.sintinium.peacekeeper.data.PlayerData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerBanTable;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
+import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SuspendCommand extends BaseCommand {
 
@@ -27,35 +24,14 @@ public class SuspendCommand extends BaseCommand {
         super(peacekeeper);
     }
 
-    //TODO: Replace this placeholder code for something that reads a modifiable YAML
-    public static List<String> generateSeverities() {
-        List<String> strings = new ArrayList<>();
-        List<String> messages = generateSeveritiesMessages();
-        for (int i = 0; i < messages.size(); i++) {
-            String count = String.valueOf(i + 1);
-            strings.add(ChatColor.AQUA + count + ". " + ChatColor.DARK_AQUA + messages.get(i));
-        }
-        return strings;
-    }
-
-    //TODO: Replace this placeholder code for something that reads a modifiable YAML
-    public static List<String> generateSeveritiesMessages() {
-        List<String> strings = new ArrayList<>();
-        strings.add("Being a \"Troll\"");
-        strings.add("Stealing");
-        strings.add("Griefing");
-        strings.add("Cheating");
-        return strings;
-    }
-
     // Suspends the given player from the server
-    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long time, final String reason, final Integer severity) {
+    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long time, final String reason, final Integer stockID) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
                 ChatUtils.banPlayerMessage(sender, username, time, reason);
                 Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.BAN, time, reason, severity);
+                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.BAN, time, reason, stockID);
                 BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
                 final String banMessage = BanUtils.generateBanMessage(peacekeeper, banData);
@@ -102,7 +78,7 @@ public class SuspendCommand extends BaseCommand {
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        ConversationData data = new ConversationData(generateSeverities(), ConversationListener.ConversationType.SUSPEND);
+                        ConversationData data = new ConversationData(peacekeeper.timeManager.configMap.get(TimeManager.SUSPEND), ConversationListener.ConversationType.SUSPEND);
                         data.setupSuspendConversation(playerData.playerID, reasonInput, playerData.username);
                         peacekeeper.conversationListener.conversations.put((Player) sender, data);
                         peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
