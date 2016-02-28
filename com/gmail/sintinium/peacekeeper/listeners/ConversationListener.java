@@ -109,6 +109,7 @@ public class ConversationListener implements Listener {
                 return;
             } else if (event.getMessage().startsWith("page")) {
                 String[] args = event.getMessage().split(" ");
+                int page = Integer.parseInt(args[1]);
                 if (args.length != 2) {
                     event.getPlayer().sendMessage(ChatColor.YELLOW + "Syntax: 'Page <number>'");
                     return;
@@ -258,19 +259,21 @@ public class ConversationListener implements Listener {
             PacketPlayOutChat packet = new PacketPlayOutChat(component);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
         }
-        String pageInfo = " " + (data.page + 1) + "/" + ((data.results.size() / pageCount) + 1) + " ";
-        if (data.page == 0) {
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\"},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
-            PacketPlayOutChat packet = new PacketPlayOutChat(component);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-        } else if (data.page >= data.results.size() / pageCount) {
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false}]");
-            PacketPlayOutChat packet = new PacketPlayOutChat(component);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-        } else {
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
-            PacketPlayOutChat packet = new PacketPlayOutChat(component);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+        if (data.results.size() / pageCount != 0) {
+            String pageInfo = " " + (data.page + 1) + "/" + ((data.results.size() / pageCount) + 1) + " ";
+            if (data.page == 0) {
+                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\"},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
+                PacketPlayOutChat packet = new PacketPlayOutChat(component);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            } else if (data.page >= data.results.size() / pageCount) {
+                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false}]");
+                PacketPlayOutChat packet = new PacketPlayOutChat(component);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            } else {
+                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
+                PacketPlayOutChat packet = new PacketPlayOutChat(component);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            }
         }
     }
 
