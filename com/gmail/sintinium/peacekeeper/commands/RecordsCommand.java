@@ -2,7 +2,6 @@ package com.gmail.sintinium.peacekeeper.commands;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.RecordData;
-import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
@@ -31,14 +30,16 @@ public class RecordsCommand extends BaseCommand {
         // records <page>, /records id <recordID>, /records player <username|UUID|IP>
         if (args.length == 1) {
             if (!viewingPlayers.containsKey(sender)) {
-                sender.sendMessage(ChatColor.DARK_RED + "You're currently not viewing any records.");
-                usage(sender);
+                if (StringUtils.isNumeric(args[0]))
+                    sender.sendMessage(ChatColor.DARK_RED + "You're currently not viewing any records.");
+                else
+                    usage(sender);
                 return true;
             } else if (!StringUtils.isNumeric(args[0])) {
-                sender.sendMessage(ChatColor.DARK_RED + "Page must be a number");
                 usage(sender);
                 return true;
             }
+
             peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
                 @Override
                 public void runTask() {
@@ -57,6 +58,7 @@ public class RecordsCommand extends BaseCommand {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
+                List<RecordData> recordDatas = null;
                 if (args[0].equalsIgnoreCase("id")) {
                     if (!StringUtils.isNumeric(args[1])) {
                         usage(sender);
@@ -69,10 +71,7 @@ public class RecordsCommand extends BaseCommand {
                     }
                     advancedDataToChat(sender, data);
                     return;
-                }
-
-                List<RecordData> recordDatas = null;
-                if (args[0].equalsIgnoreCase("player")) {
+                } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("p")) {
                     Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
                     if (playerID != null)
                         recordDatas = peacekeeper.recordTable.getPlayerRecords(playerID);
@@ -92,12 +91,35 @@ public class RecordsCommand extends BaseCommand {
                         }
                         recordDatas = peacekeeper.recordTable.getIPRecords(args[1]);
                     }
+                } else if (args[0].equalsIgnoreCase("del")) {
+                    if (!StringUtils.isNumeric(args[1])) {
+                        sender.sendMessage("Record ID must be number");
+                    }
+                    Integer recordID = Integer.parseInt(args[1]);
+                    RecordData data = peacekeeper.recordTable.getRecordData(recordID);
+                    if (data == null) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Record ID " + ChatColor.RED + recordID + " not found in database");
+                        return;
+                    }
+                    peacekeeper.recordTable.removeRecord(recordID);
+                    ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted a record with the ID of: " + ChatColor.RED + recordID);
+                    return;
+                } else if (args[0].equalsIgnoreCase("delall")) {
+                    Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
+                    if (playerID == null) {
+                        ChatUtils.playerNotFoundMessage(sender, args[1]);
+                        return;
+                    }
+                    String username = peacekeeper.userTable.getUsername(playerID);
+                    peacekeeper.recordTable.clearPlayersRecords(playerID);
+                    ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted all records for user: " + ChatColor.RED + username);
+                    return;
                 } else {
                     usage(sender);
                     return;
                 }
                 if (recordDatas == null) {
-                    sender.sendMessage(ChatColor.RED + args[1] + ChatColor.DARK_RED + " not found in database");
+                    sender.sendMessage(ChatColor.DARK_RED + "No records found for " + args[0] + " with the name/id of " + args[1]);
                     return;
                 }
                 boolean preExisting = viewingPlayers.containsKey(sender);
@@ -123,7 +145,9 @@ public class RecordsCommand extends BaseCommand {
 
     public void usage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_RED + "/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>");
-        sender.sendMessage(ChatColor.DARK_RED + "To view a page of already searched do: /records <page>");
+        if (sender.hasPermission("peacekeeper.command.records.delete")) {
+            sender.sendMessage(ChatColor.DARK_RED + "To delete a record use /records 'del|delall' <ID|Username>");
+        }
     }
 
     public SortedMap<Integer, String> recordDataToPages(List<RecordData> datas) {
@@ -175,17 +199,9 @@ public class RecordsCommand extends BaseCommand {
             sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.RED + "FOREVER");
 
         sender.sendMessage(ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + "\"" + data.reason + "\"");
-        String stockReason = null;
-        TimeManager.TimeResult timeResult = null;
-        if (data.getTypeName().equalsIgnoreCase("Mute")) {
-            timeResult = peacekeeper.timeManager.configMap.get(TimeManager.MUTE).get(data.stockID - 1);
-            stockReason = timeResult.description;
-        } else if (data.getTypeName().equalsIgnoreCase("Suspension")) {
-            timeResult = peacekeeper.timeManager.configMap.get(TimeManager.SUSPEND).get(data.stockID - 1);
-            stockReason = timeResult.description;
-        }
+        String stockReason = data.category;
         if (stockReason != null)
-            sender.sendMessage(ChatColor.DARK_AQUA + "Stock Reason: " + ChatColor.AQUA + "\"" + stockReason + "\"" + ChatColor.DARK_AQUA + " Default Length: " + ChatColor.AQUA + timeResult.length);
+            sender.sendMessage(ChatColor.DARK_AQUA + "Category: " + ChatColor.AQUA + "\"" + stockReason + "\"");
 
         return result;
     }

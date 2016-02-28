@@ -21,16 +21,16 @@ public class PlayerRecordTable extends BaseTable {
         super(peacekeeper, "PlayerRecords");
         db = peacekeeper.database;
         String tableSet = SQLTableUtils.getTableSet(
-                new String[]{"RecordID", "PlayerID", "IP", "Type", "Time", "Length", "Reason", "Admin", "StockID"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
+                new String[]{"RecordID", "PlayerID", "IP", "Type", "Time", "Length", "Reason", "Admin", "Category"},
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.TEXT}
         );
         init(tableSet);
     }
 
-    public int addRecord(@Nullable Integer PlayerID, @Nullable String ip, @Nullable Integer adminID, int type, @Nullable Long length, String reason, @Nullable Integer stockID) {
+    public int addRecord(@Nullable Integer PlayerID, @Nullable String ip, @Nullable Integer adminID, int type, @Nullable Long length, String reason, @Nullable String category) {
         return insert(
-                new String[]{"PlayerID", "IP", "Type", "Time", "Length", "Reason", "Admin", "StockID"},
-                new String[]{String.valueOf(PlayerID), ip, String.valueOf(type), String.valueOf(System.currentTimeMillis()), String.valueOf(length), reason, String.valueOf(adminID), String.valueOf(stockID)}
+                new String[]{"PlayerID", "IP", "Type", "Time", "Length", "Reason", "Admin", "Category"},
+                new String[]{String.valueOf(PlayerID), ip, String.valueOf(type), String.valueOf(System.currentTimeMillis()), String.valueOf(length), reason, String.valueOf(adminID), category}
         );
     }
 
@@ -38,9 +38,13 @@ public class PlayerRecordTable extends BaseTable {
         deleteRow("RecordID", recordID);
     }
 
+    public void clearPlayersRecords(int playerID) {
+        deleteRow("PlayerID", playerID);
+    }
+
     public void updateRecord(RecordData data) {
-        String[] colList = SQLUtils.getAsSQLArray(new String[]{"PlayerID", "IP", "Type", "Length", "Reason", "Admin", "StockID"});
-        String[] valueList = SQLUtils.getAsSQLArray(new Object[]{data.playerID, data.type, data.length, data.reason, data.adminID, data.stockID});
+        String[] colList = SQLUtils.getAsSQLArray(new String[]{"PlayerID", "IP", "Type", "Length", "Reason", "Admin", "Category"});
+        String[] valueList = SQLUtils.getAsSQLArray(new Object[]{data.playerID, data.type, data.length, data.reason, data.adminID, data.category});
         String set = SQLUtils.getAsSQLSet(colList, valueList);
         updateValue(set, "RecordID", String.valueOf(data.recordID));
     }
@@ -201,7 +205,7 @@ public class PlayerRecordTable extends BaseTable {
     }
 
     public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
-        return new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getString("IP"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getInt("StockID"));
+        return new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getString("IP"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getString("Category"));
     }
 
 }

@@ -77,13 +77,9 @@ public class Peacekeeper extends JavaPlugin {
         punishmentHelper = new PunishmentHelper(this);
         commandManager = new CommandManager(this);
         commandManager.registerDefaults();
-        timeManager = new TimeManager(this);
-        timeManager.loadTimes();
         databaseQueueManager = new DatabaseQueueManager(this);
 
-        configFile = new ConfigFile(this);
-        configFile.loadConfiguration();
-
+        loadConfig();
         registerListeners();
         loadDatabase();
         initializeTables();
@@ -100,7 +96,7 @@ public class Peacekeeper extends JavaPlugin {
         }
         while (!databaseQueueManager.closed) {
             if (!warned && System.currentTimeMillis() - time > 5000) {
-                Bukkit.getConsoleSender().sendMessage("Taking longer than expection...");
+                Bukkit.getConsoleSender().sendMessage("Taking longer than expected...");
                 Bukkit.getConsoleSender().sendMessage("Trying for 20 seconds before force shutdown");
                 warned = true;
             }
@@ -115,6 +111,13 @@ public class Peacekeeper extends JavaPlugin {
         }
         getServer().getScheduler().cancelTasks(this);
         database.close();
+    }
+
+    public void loadConfig() {
+        configFile = new ConfigFile(this);
+        configFile.loadConfiguration();
+        timeManager = new TimeManager(this);
+        timeManager.loadTimes();
     }
 
 

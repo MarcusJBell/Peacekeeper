@@ -26,7 +26,7 @@ public class TimeManager {
 
     public void reloadDefaultConfig() {
         try {
-            Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("customConfig.yml"), "UTF8");
+            Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("TimeConfig.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
             config.save(getFile());
         } catch (IOException e) {
@@ -81,6 +81,7 @@ public class TimeManager {
             this.description = description;
             this.length = length;
         }
+
     }
 
 }

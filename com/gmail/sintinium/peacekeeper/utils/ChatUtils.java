@@ -69,6 +69,7 @@ public class ChatUtils {
 
     public static void playerNotFoundMessage(CommandSender sender, String name) {
         sender.sendMessage(ChatColor.DARK_RED + "Player " + ChatColor.RED + name.trim() + ChatColor.DARK_RED + " was not found in the database");
+        sender.sendMessage(ChatColor.YELLOW + "Tip: " + "Use % to approximate results. Ex: b% is Bob! %bby is Bobby!");
     }
 
     /**

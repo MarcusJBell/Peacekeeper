@@ -3,7 +3,9 @@ package com.gmail.sintinium.peacekeeper.listeners;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.commands.MuteCommand;
 import com.gmail.sintinium.peacekeeper.commands.SuspendCommand;
-import com.gmail.sintinium.peacekeeper.data.ConversationData;
+import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
+import com.gmail.sintinium.peacekeeper.data.conversation.MuteConversationData;
+import com.gmail.sintinium.peacekeeper.data.conversation.SuspendConversationData;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
@@ -28,7 +30,8 @@ import java.util.Map;
 
 public class ConversationListener implements Listener {
 
-    public static final String cancel = "{\"text\":\"[CANCEL]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/peacekeepercancel\"}}";
+    public static final String cancel = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}}]";
+    public static final String cancelFinish = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}},{\"text\":\"[SUBMIT]\",\"color\":\"green\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"FINISHEDCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to submit\"}]}}}]";
     public Map<Player, ConversationData> conversations;
     private Peacekeeper peacekeeper;
 
@@ -38,23 +41,41 @@ public class ConversationListener implements Listener {
     }
 
     // Removes the player from the conversation and sends missed messages.
-    public void removeConversation(Player sender, boolean cancelled) {
-        ConversationData data = peacekeeper.conversationListener.conversations.get(sender);
-        List<String> missedChat = data.missedMessages;
-        peacekeeper.conversationListener.conversations.remove(sender);
-        ChatUtils.clearChat(sender);
+    public void removeConversation(final Player sender, final boolean cancelled) {
+        final ConversationData data = peacekeeper.conversationListener.conversations.get(sender);
+        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                ChatUtils.clearChat(sender);
+                if (!cancelled) {
+                    if (data instanceof SuspendConversationData) {
+                        onSuspendChatFinish(sender);
+                    } else if (data instanceof MuteConversationData) {
+                        onMuteChatFinish(sender);
+                    }
+                }
 
-        if (missedChat.isEmpty()) {
-            if (cancelled)
-                sender.sendMessage("Cancelled, you missed no chat messages");
-            else
-                sender.sendMessage("You missed no chat messages");
-        } else {
-            sender.sendMessage(ChatColor.DARK_AQUA + "--- Missed Chat ---");
-            for (String message : missedChat) {
-                sender.sendMessage(message);
+                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+                    @Override
+                    public void run() {
+                        List<String> missedChat = data.missedMessages;
+                        peacekeeper.conversationListener.conversations.remove(sender);
+
+                        if (missedChat.isEmpty()) {
+                            if (cancelled)
+                                sender.sendMessage("Cancelled, you missed no chat messages");
+                            else
+                                sender.sendMessage("You missed no chat messages");
+                        } else {
+                            sender.sendMessage(ChatColor.DARK_AQUA + "--- Missed Chat ---");
+                            for (String message : missedChat) {
+                                sender.sendMessage(message);
+                            }
+                        }
+                    }
+                });
             }
-        }
+        });
     }
 
     // If the player cancels the conversation remove them from the map and send them missed messages
@@ -67,10 +88,17 @@ public class ConversationListener implements Listener {
     public void playerChat(AsyncPlayerChatEvent event) {
         // If the sender is in a conversation cancel it and handle accordingly
         if (conversations.containsKey(event.getPlayer())) {
-            ConversationData data = conversations.get(event.getPlayer());
             event.setCancelled(true);
-            if (data.muteConversation) handleMuteChat(event);
-            else if (data.banConversation) handleSuspendChat(event);
+            if (event.getMessage().equals("CANCELCONVERSATION")) {
+                removeConversation(event.getPlayer(), true);
+                return;
+            } else if (event.getMessage().equals("FINISHEDCONVERSATION")) {
+                removeConversation(event.getPlayer(), false);
+                return;
+            }
+            ConversationData data = conversations.get(event.getPlayer());
+            if (data instanceof MuteConversationData) handleMuteChat(event);
+            else if (data instanceof SuspendConversationData) handleSuspendChat(event);
         }
         // If someone is in a conversation hide the message from them
         else if (!conversations.isEmpty()) {
@@ -98,24 +126,21 @@ public class ConversationListener implements Listener {
             sendConversationInstructions(event.getPlayer());
             return;
         }
-        //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
                 final Integer stockID = Integer.parseInt(event.getMessage());
                 final ConversationData data = conversations.get(event.getPlayer());
                 final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(stockID - 1).length);
-                final String username = peacekeeper.userTable.getUsername(data.playerID);
 
-                final String ordinal = TimeUtils.ordinal(result.offenseCount);
-                //Since we're Async we need to run on the same thread
-                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
-                    @Override
-                    public void run() {
-                        MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, result.time, data.reason + " (" + ordinal + " offense)", stockID);
-                    }
-                });
-                removeConversation(event.getPlayer(), false);
+                if (data.timeResults.contains(data.results.get(stockID - 1))) {
+                    data.finalTime -= result.time;
+                    data.timeResults.remove(data.results.get(stockID - 1));
+                } else {
+                    data.finalTime += result.time;
+                    data.timeResults.add(data.results.get(stockID - 1));
+                }
+                sendConversationInstructions(event.getPlayer());
             }
         });
     }
@@ -126,7 +151,7 @@ public class ConversationListener implements Listener {
             sendConversationInstructions(event.getPlayer());
             return;
         }
-        //TODO: If this is ever changed again change from conversation data to a super class of it. It makes for a mess if any variable needs changed
+
         final Integer stockID = Integer.parseInt(event.getMessage());
         final ConversationData data = conversations.get(event.getPlayer());
 
@@ -134,39 +159,102 @@ public class ConversationListener implements Listener {
             @Override
             public void runTask() {
                 final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.SUSPEND, data.results.get(stockID - 1).length);
-
-                final String ordinal = TimeUtils.ordinal(result.offenseCount + 1);
-                //Since we're Async we need to run on the same thread
-                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
-                    @Override
-                    public void run() {
-                        SuspendCommand.suspendUser(peacekeeper, event.getPlayer(), data.playerID, data.punishedUsername, result.time, data.reason + " (" + ordinal + " offense)", stockID);
-                    }
-                });
-                removeConversation(event.getPlayer(), false);
+                if (data.timeResults.contains(data.results.get(stockID - 1))) {
+                    data.finalTime -= result.time;
+                    data.timeResults.remove(data.results.get(stockID - 1));
+                } else {
+                    data.finalTime += result.time;
+                    data.timeResults.add(data.results.get(stockID - 1));
+                }
+                sendConversationInstructions(event.getPlayer());
             }
         });
     }
 
+    public void onMuteChatFinish(final Player sender) {
+        final ConversationData data = conversations.get(sender);
+        final String ordinal = TimeUtils.ordinal(peacekeeper.punishmentHelper.getOffsenseCount(ConversationType.MUTE, data.playerID) + 1);
+        String finalReason = data.reason + " (" + ordinal + " offense)";
+        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, finalReason, categoriesToString(data));
+        ChatUtils.muteMessage(sender, data.punishedUsername, data.finalTime, finalReason);
+
+        String categoryString = categoriesToString(data);
+        if (data.timeResults.size() == 1)
+            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute category: " + ChatColor.AQUA + categoryString);
+        else
+            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute categories: " + ChatColor.AQUA + categoryString);
+    }
+
+    public void onSuspendChatFinish(Player sender) {
+        ConversationData data = conversations.get(sender);
+        final String ordinal = TimeUtils.ordinal(peacekeeper.punishmentHelper.getOffsenseCount(ConversationType.SUSPEND, data.playerID) + 1);
+
+        String finalReason = data.reason + " (" + ordinal + " offense)";
+        SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, finalReason, categoriesToString(data));
+        ChatUtils.banPlayerMessage(sender, data.punishedUsername, data.finalTime, finalReason);
+
+        String categoryString = categoriesToString(data);
+        if (data.timeResults.size() == 1)
+            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Suspend category: " + ChatColor.AQUA + categoryString);
+        else
+            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Suspend categories: " + ChatColor.AQUA + categoryString);
+    }
+
     // Messages the player what they need to type to continue on with the conversation
     public void sendConversationInstructions(Player player) {
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
         ConversationData data = conversations.get(player);
+        player.sendMessage(data.header);
+        player.sendMessage(ChatColor.YELLOW + "Click/type all that apply.");
         int i = 0;
         for (TimeManager.TimeResult r : data.results) {
             i++;
-            player.sendMessage(ChatColor.DARK_AQUA + String.valueOf(i) + ". " + r.description + ": " + ChatColor.AQUA + r.length);
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + String.valueOf(i) + ". " + r.description + ": " + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + i + "\"}},{\"text\":\"" + r.length + "\",\"color\":\"aqua\"}]");
+            PacketPlayOutChat packet = new PacketPlayOutChat(component);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+//            player.sendMessage(ChatColor.DARK_AQUA + String.valueOf(i) + ". " + r.description + ": " + ChatColor.AQUA + r.length);
         }
 
-        player.sendMessage(ChatColor.YELLOW + "To cancel click the cancel button below");
-        IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
-        PacketPlayOutChat packet = new PacketPlayOutChat(component);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+        if (!data.timeResults.isEmpty()) {
+            player.sendMessage(ChatColor.DARK_AQUA + "---------");
+
+            player.sendMessage(ChatColor.YELLOW + "Selected categories: " + categoriesToString(data));
+
+            IChatBaseComponent component1 = IChatBaseComponent.ChatSerializer.a(cancelFinish);
+            PacketPlayOutChat packet1 = new PacketPlayOutChat(component1);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
+        } else {
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
+            PacketPlayOutChat packet = new PacketPlayOutChat(component);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+
+        }
     }
 
     // If a player quits remove them from the conversation to prevent any memory leaks
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         conversations.remove(event.getPlayer());
+    }
+
+    public String categoriesToString(ConversationData conversationData) {
+        String categoryString = null;
+        for (TimeManager.TimeResult r : conversationData.timeResults) {
+            if (categoryString == null) {
+                categoryString = r.description;
+                continue;
+            }
+            categoryString += ", " + r.description;
+        }
+        return categoryString;
     }
 
     public enum ConversationType {

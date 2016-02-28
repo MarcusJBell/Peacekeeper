@@ -32,7 +32,7 @@ public class PlayerInfoCommand extends BaseCommand {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                PlayerData playerData = peacekeeper.userTable.getPlayerData(args[0]);
+                PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, args[0]);
                 if (playerData == null) {
                     ChatUtils.playerNotFoundMessage(sender, args[0]);
                     return;

@@ -1,14 +1,13 @@
 package com.gmail.sintinium.peacekeeper.commands;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
-import com.gmail.sintinium.peacekeeper.data.ConversationData;
 import com.gmail.sintinium.peacekeeper.data.MuteData;
 import com.gmail.sintinium.peacekeeper.data.PlayerData;
+import com.gmail.sintinium.peacekeeper.data.conversation.MuteConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
-import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.Bukkit;
@@ -26,16 +25,15 @@ public class MuteCommand extends BaseCommand {
     }
 
     // Method that is actually called to mute a user
-    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long length, final String reason, final Integer typeID) {
+    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long length, final String reason, final String description) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
                 Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
-                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, typeID);
+                int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, description);
                 int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
                 MuteData muteData = peacekeeper.muteTable.muteData(muteID);
                 peacekeeper.muteTable.mutedPlayers.put(UUID.fromString(uuid), muteData);
-                ChatUtils.muteMessage(sender, username, length, reason);
 
                 // Get player back on main thread
                 final MuteData MUTE_DATA = muteData;
@@ -69,7 +67,7 @@ public class MuteCommand extends BaseCommand {
                 }
                 String usernameInput = args[0];
                 final String reasonInput = CommandUtils.argsToReason(args, 1);
-                final PlayerData playerData = peacekeeper.userTable.getPlayerData(usernameInput);
+                final PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, usernameInput);
                 if (playerData == null) {
                     playerNotFoundMessage(sender, usernameInput);
                     return;
@@ -79,8 +77,9 @@ public class MuteCommand extends BaseCommand {
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        ConversationData data = new ConversationData(peacekeeper.timeManager.configMap.get(TimeManager.MUTE), ConversationListener.ConversationType.MUTE);
-                        data.setupMuteConversation(playerData.playerID, reasonInput, playerData.uuid.toString());
+                        String header = ChatColor.DARK_AQUA + "Muting: " + ChatColor.AQUA + playerData.username;
+                        MuteConversationData data = new MuteConversationData(peacekeeper.timeManager.configMap.get(TimeManager.MUTE), ConversationListener.ConversationType.MUTE, header);
+                        data.setupMuteConversation(playerData.playerID, reasonInput, playerData.uuid.toString(), playerData.username);
                         peacekeeper.conversationListener.conversations.put((Player) sender, data);
                         peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
                     }
@@ -101,7 +100,7 @@ public class MuteCommand extends BaseCommand {
         String nameInput = args[0];
         String lengthInput = args[1];
         String reasonInput = CommandUtils.argsToReason(args, 2);
-        PlayerData playerData = peacekeeper.userTable.getPlayerData(nameInput);
+        PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, nameInput);
         if (playerData == null) {
             playerNotFoundMessage(sender, nameInput);
             return;

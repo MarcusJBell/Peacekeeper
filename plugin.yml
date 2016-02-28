@@ -4,8 +4,9 @@ version: 0.98
 depend: [SQLibrary]
 softdepend: [ScoreboardStats, Essentials, SuperTrails]
 commands:
-  peacekeepercancel:
-    description: escaped player out of conversation system
+  peacekeeper:
+    aliases: [pk]
+    description: general command for basic plugin functions such as /reload
   suspend:
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
@@ -35,11 +36,6 @@ commands:
     description: Hides the player from other players
     permission: peacekeeper.command.vanish
     usage: /vanish
-  supervanish:
-    aliases: [sv]
-    description: Hides the player from other players in a super fashion!
-    permission: peacekeeper.command.vanish
-    usage: /supervanish
 permissions:
   peacekeeper.*:
     description: Give access to all commands and actions within the Peacekeeper plugin
@@ -52,20 +48,28 @@ permissions:
     description: Has permission to use all manual commands
     default: op
     children:
+        peacekeeper.command.peacekeeper.reload: true
         peacekeeper.command.info: true
         peacekeeper.command.records: true
+        peacekeeper.command.records.delete: true
         peacekeeper.command.mute: true
         peacekeeper.command.tempban: true
         peacekeeper.command.permban: true
         peacekeeper.command.ipban: true
         peacekeeper.command.release: true
         peacekeeper.command.vanish: true
+    peacekeeper.command.peacekeeper.reload:
+        description: Has permission to reload config via /pk reload
+        default: op
   peacekeeper.command.info:
     description: Has permission to view a player's info
     default: op
   peacekeeper.command.records:
     description: Has permission to view a player's records
     default: op
+  peacekeeper.command.records.delete:
+      description: Has permission to delete records from database
+      default: op
   peacekeeper.info.ip:
     description: Has permission to view someone's ip when using /playerinfo
     default: op

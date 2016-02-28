@@ -24,7 +24,6 @@ public class CommandManager {
     }
 
     public void registerDefaults() {
-        registerCommand("peacekeepercancel", new PeacekeeperCancelCommand(peacekeeper));
         registerCommand("release", new ReleaseCommand(peacekeeper));
         registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
         registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
@@ -32,7 +31,9 @@ public class CommandManager {
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));
         registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
-        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
+        registerCommand("peacekeeper", new PeacekeeperCommand(peacekeeper));
+//        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
+        superVanishCommand = new SuperVanishCommand(peacekeeper);
     }
 
     public void registerCommand(String commandName, CommandExecutor executor) {
