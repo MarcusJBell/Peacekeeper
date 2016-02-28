@@ -38,8 +38,11 @@ public class BanUtils {
     }
 
     // Creates the ban message the player will see when they are kicked from the server that doesn't need to be on the sql thread
-    public static String generateSyncedBanMessage(Peacekeeper peacekeeper, BanData banData, String adminName) {
+    public static String generateSyncedBanMessage(BanData banData, String adminName) {
         String message = "";
+        if (adminName == null) {
+            adminName = "Console";
+        }
         if (banData.type == null) {
             return "";
         }

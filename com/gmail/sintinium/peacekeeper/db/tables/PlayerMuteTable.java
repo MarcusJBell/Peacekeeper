@@ -50,6 +50,9 @@ public class PlayerMuteTable extends BaseTable {
         String username = null;
         if (adminID != null)
             username = peacekeeper.userTable.getUsername(adminID);
+        if (username == null) {
+            username = "Console";
+        }
         return new MuteData(username, muteID, getLength(muteID), getPlayerID(muteID), getReason(muteID), adminID, getTimeOfMute(muteID), getRecordID(muteID));
     }
 

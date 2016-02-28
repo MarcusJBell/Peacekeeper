@@ -102,9 +102,9 @@ public class ConversationListener implements Listener {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                final Integer id = Integer.parseInt(event.getMessage());
+                final Integer stockID = Integer.parseInt(event.getMessage());
                 final ConversationData data = conversations.get(event.getPlayer());
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(id - 1).length);
+                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(stockID - 1).length);
                 final String username = peacekeeper.userTable.getUsername(data.playerID);
 
                 final String ordinal = TimeUtils.ordinal(result.offenseCount);
@@ -112,7 +112,7 @@ public class ConversationListener implements Listener {
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, result.time, data.reason + " (" + ordinal + " offense)", id);
+                        MuteCommand.muteUser(event.getPlayer(), peacekeeper, data.punishedUUID, username, data.playerID, result.time, data.reason + " (" + ordinal + " offense)", stockID);
                     }
                 });
                 removeConversation(event.getPlayer(), false);
@@ -133,7 +133,7 @@ public class ConversationListener implements Listener {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.SUSPEND, data.results.get(stockID).length);
+                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.SUSPEND, data.results.get(stockID - 1).length);
 
                 final String ordinal = TimeUtils.ordinal(result.offenseCount + 1);
                 //Since we're Async we need to run on the same thread

@@ -34,7 +34,7 @@ public class BanListener implements Listener {
         if (cachedBans.containsKey(event.getPlayer().getUniqueId())) {
             BanData banData = cachedBans.get(event.getPlayer().getUniqueId());
             if ((banData.banTime + banData.banLength) - System.currentTimeMillis() > 0) {
-                event.disallow(PlayerLoginEvent.Result.KICK_BANNED, BanUtils.generateSyncedBanMessage(peacekeeper, banData, banData.adminUsername));
+                event.disallow(PlayerLoginEvent.Result.KICK_BANNED, BanUtils.generateSyncedBanMessage(banData, banData.adminUsername));
             }
         }
 

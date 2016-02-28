@@ -61,6 +61,7 @@ public class MuteListener implements Listener {
         MuteData muteData = isMuted(event.getPlayer(), playerID);
         if (muteData == null) return;
         event.setCancelled(true);
+
         if (muteData.muteLength == null) {
             event.getPlayer().sendMessage(ChatColor.DARK_RED + "You are permanently muted by: " + ChatColor.YELLOW + muteData.adminName);
             if (Peacekeeper.appealUrl != null)
