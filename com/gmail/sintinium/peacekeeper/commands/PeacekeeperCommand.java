@@ -4,6 +4,7 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class PeacekeeperCommand extends BaseCommand {
 
@@ -14,15 +15,21 @@ public class PeacekeeperCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (args.length < 1) {
-            return false;
+            usage(sender);
+            return true;
         }
         if (args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("peacekeeper.command.peacekeeper.reload")) {
                 sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command.");
                 return true;
             }
-            peacekeeper.reloadConfig();
-            sender.sendMessage(ChatColor.DARK_AQUA + "Configuration reloaded");
+            if (sender instanceof Player) {
+                if (!peacekeeper.conversationListener.conversations.containsKey(sender)) {
+                    sender.sendMessage(ChatColor.DARK_AQUA + "Configuration reloaded");
+                }
+            } else
+                sender.sendMessage(ChatColor.DARK_AQUA + "Configuration reloaded");
+            peacekeeper.loadConfig();
             return true;
         }
 

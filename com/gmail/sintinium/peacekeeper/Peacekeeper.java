@@ -1,6 +1,7 @@
 package com.gmail.sintinium.peacekeeper;
 
 import com.gmail.sintinium.peacekeeper.data.BanData;
+import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
 import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
@@ -20,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,8 +81,8 @@ public class Peacekeeper extends JavaPlugin {
         commandManager.registerDefaults();
         databaseQueueManager = new DatabaseQueueManager(this);
 
-        loadConfig();
         registerListeners();
+        loadConfig();
         loadDatabase();
         initializeTables();
     }
@@ -118,6 +120,12 @@ public class Peacekeeper extends JavaPlugin {
         configFile.loadConfiguration();
         timeManager = new TimeManager(this);
         timeManager.loadTimes();
+        if (conversationListener != null && !conversationListener.conversations.isEmpty()) {
+            for (Map.Entry<Player, ConversationData> set : conversationListener.conversations.entrySet()) {
+                conversationListener.syncCancel(set.getKey());
+                set.getKey().sendMessage(ChatColor.DARK_AQUA + "Configuration reloaded");
+            }
+        }
     }
 
 

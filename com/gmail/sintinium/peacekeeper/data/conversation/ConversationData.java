@@ -16,6 +16,7 @@ public class ConversationData {
 
     public Set<TimeManager.TimeResult> timeResults;
     public long finalTime = 0;
+    public int page = 0;
 
     public String header;
     public String reason;

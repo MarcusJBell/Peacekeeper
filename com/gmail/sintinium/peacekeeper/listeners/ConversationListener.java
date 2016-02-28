@@ -32,6 +32,7 @@ public class ConversationListener implements Listener {
 
     public static final String cancel = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}}]";
     public static final String cancelFinish = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}},{\"text\":\"[SUBMIT]\",\"color\":\"green\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"FINISHEDCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to submit\"}]}}}]";
+    private static final int pageCount = 8;
     public Map<Player, ConversationData> conversations;
     private Peacekeeper peacekeeper;
 
@@ -78,9 +79,20 @@ public class ConversationListener implements Listener {
         });
     }
 
-    // If the player cancels the conversation remove them from the map and send them missed messages
-    public void cancelConversation(Player sender) {
-        removeConversation(sender, true);
+    public void syncCancel(Player player) {
+        final ConversationData data = peacekeeper.conversationListener.conversations.get(player);
+        List<String> missedChat = data.missedMessages;
+        peacekeeper.conversationListener.conversations.remove(player);
+        ChatUtils.clearChat(player);
+
+        if (missedChat.isEmpty()) {
+            player.sendMessage("Cancelled, you missed no chat messages");
+        } else {
+            player.sendMessage(ChatColor.DARK_AQUA + "--- Missed Chat ---");
+            for (String message : missedChat) {
+                player.sendMessage(message);
+            }
+        }
     }
 
     // Handles conversations
@@ -95,6 +107,17 @@ public class ConversationListener implements Listener {
             } else if (event.getMessage().equals("FINISHEDCONVERSATION")) {
                 removeConversation(event.getPlayer(), false);
                 return;
+            } else if (event.getMessage().startsWith("page")) {
+                String[] args = event.getMessage().split(" ");
+                if (args.length != 2) {
+                    event.getPlayer().sendMessage(ChatColor.YELLOW + "Syntax: 'Page <number>'");
+                    return;
+                } else if (!StringUtils.isNumeric(args[1])) {
+                    event.getPlayer().sendMessage(ChatColor.YELLOW + "Page must be a number.");
+                    return;
+                }
+                conversations.get(event.getPlayer()).page = Integer.parseInt(args[1]);
+                sendConversationInstructions(event.getPlayer());
             }
             ConversationData data = conversations.get(event.getPlayer());
             if (data instanceof MuteConversationData) handleMuteChat(event);
@@ -214,17 +237,16 @@ public class ConversationListener implements Listener {
         ConversationData data = conversations.get(player);
         player.sendMessage(data.header);
         player.sendMessage(ChatColor.YELLOW + "Click/type all that apply.");
-        int i = 0;
-        for (TimeManager.TimeResult r : data.results) {
-            i++;
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + String.valueOf(i) + ". " + r.description + ": " + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + i + "\"}},{\"text\":\"" + r.length + "\",\"color\":\"aqua\"}]");
+        for (int i = data.page * pageCount; i < (data.page * pageCount) + pageCount && i < data.results.size(); i++) {
+            TimeManager.TimeResult r = data.results.get(i);
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + ": " + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + (i + 1) + "\"}},{\"text\":\"" + r.length + "\",\"color\":\"aqua\"}]");
             PacketPlayOutChat packet = new PacketPlayOutChat(component);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
 //            player.sendMessage(ChatColor.DARK_AQUA + String.valueOf(i) + ". " + r.description + ": " + ChatColor.AQUA + r.length);
         }
 
+//        player.sendMessage(ChatColor.DARK_AQUA + "-------------------");
         if (!data.timeResults.isEmpty()) {
-            player.sendMessage(ChatColor.DARK_AQUA + "---------");
 
             player.sendMessage(ChatColor.YELLOW + "Selected categories: " + categoriesToString(data));
 
@@ -235,7 +257,20 @@ public class ConversationListener implements Listener {
             IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
             PacketPlayOutChat packet = new PacketPlayOutChat(component);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-
+        }
+        String pageInfo = " " + (data.page + 1) + "/" + ((data.results.size() / pageCount) + 1) + " ";
+        if (data.page == 0) {
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\"},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
+            PacketPlayOutChat packet = new PacketPlayOutChat(component);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+        } else if (data.page >= data.results.size() / pageCount) {
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false}]");
+            PacketPlayOutChat packet = new PacketPlayOutChat(component);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+        } else {
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
+            PacketPlayOutChat packet = new PacketPlayOutChat(component);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
         }
     }
 
