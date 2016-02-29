@@ -14,6 +14,7 @@ public class CommandManager {
     public Set<PluginCommand> commands;
     public MuteCommand muteCommand;
     public SuspendCommand suspendCommand;
+    public ReportCommand reportCommand;
     public VanishCommand vanishCommand;
     public SuperVanishCommand superVanishCommand;
     private Peacekeeper peacekeeper;
@@ -25,8 +26,9 @@ public class CommandManager {
 
     public void registerDefaults() {
         registerCommand("release", new ReleaseCommand(peacekeeper));
-        registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
         registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
+        registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
+        registerCommand("report", reportCommand = new ReportCommand(peacekeeper));
         registerCommand("ipban", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));

@@ -5,6 +5,7 @@ import com.gmail.sintinium.peacekeeper.commands.MuteCommand;
 import com.gmail.sintinium.peacekeeper.commands.SuspendCommand;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.data.conversation.MuteConversationData;
+import com.gmail.sintinium.peacekeeper.data.conversation.ReportConversationData;
 import com.gmail.sintinium.peacekeeper.data.conversation.SuspendConversationData;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
@@ -53,6 +54,8 @@ public class ConversationListener implements Listener {
                         onSuspendChatFinish(sender);
                     } else if (data instanceof MuteConversationData) {
                         onMuteChatFinish(sender);
+                    } else if (data instanceof ReportConversationData) {
+                        onReportFinish(sender);
                     }
                 }
 
@@ -119,10 +122,12 @@ public class ConversationListener implements Listener {
                 }
                 conversations.get(event.getPlayer()).page = Integer.parseInt(args[1]);
                 sendConversationInstructions(event.getPlayer());
+                return;
             }
             ConversationData data = conversations.get(event.getPlayer());
             if (data instanceof MuteConversationData) handleMuteChat(event);
             else if (data instanceof SuspendConversationData) handleSuspendChat(event);
+            else if (data instanceof ReportConversationData) handleReportChat(event);
         }
         // If someone is in a conversation hide the message from them
         else if (!conversations.isEmpty()) {
@@ -144,25 +149,51 @@ public class ConversationListener implements Listener {
         }
     }
 
+    public void handleReportChat(final AsyncPlayerChatEvent event) {
+        final ReportConversationData data = (ReportConversationData) conversations.get(event.getPlayer());
+        if (event.getMessage().startsWith("SELECTCATEGORY")) {
+            Integer select = splitSelect(event.getMessage());
+            if (data.timeResults.contains(data.results.get(select - 1))) {
+                data.timeResults.remove(data.results.get(select - 1));
+            } else {
+                data.timeResults.add(data.results.get(select - 1));
+            }
+            sendConversationInstructions(event.getPlayer());
+            return;
+        }
+
+        String finalMessage = data.getFinalMessage();
+        if (finalMessage.length() + event.getMessage().length() <= 500)
+            data.addMessage(event.getMessage());
+        sendConversationInstructions(event.getPlayer());
+        if (data.getFinalMessage().length() + event.getMessage().length() >= 500) {
+            event.getPlayer().sendMessage(ChatColor.RED + "MAX LENGTH ALLOWED!");
+        }
+    }
+
     // If the person is in a mute conversation handle it here
     public void handleMuteChat(final AsyncPlayerChatEvent event) {
-        if (!StringUtils.isNumeric(event.getMessage())) {
+        if (!event.getMessage().startsWith("SELECTCATEGORY")) {
+            sendConversationInstructions(event.getPlayer());
+            return;
+        }
+        final Integer select = splitSelect(event.getMessage());
+        if (select == null) {
             sendConversationInstructions(event.getPlayer());
             return;
         }
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                final Integer stockID = Integer.parseInt(event.getMessage());
                 final ConversationData data = conversations.get(event.getPlayer());
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(stockID - 1).length);
+                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(select - 1).length);
 
-                if (data.timeResults.contains(data.results.get(stockID - 1))) {
+                if (data.timeResults.contains(data.results.get(select - 1))) {
                     data.finalTime -= result.time;
-                    data.timeResults.remove(data.results.get(stockID - 1));
+                    data.timeResults.remove(data.results.get(select - 1));
                 } else {
                     data.finalTime += result.time;
-                    data.timeResults.add(data.results.get(stockID - 1));
+                    data.timeResults.add(data.results.get(select - 1));
                 }
                 sendConversationInstructions(event.getPlayer());
             }
@@ -171,12 +202,17 @@ public class ConversationListener implements Listener {
 
     // If the person is in a suspend conversation handle it here
     public void handleSuspendChat(final AsyncPlayerChatEvent event) {
-        if (!StringUtils.isNumeric(event.getMessage())) {
+        if (!event.getMessage().startsWith("SELECTCATEGORY")) {
+            sendConversationInstructions(event.getPlayer());
+            return;
+        }
+        Integer select = splitSelect(event.getMessage());
+        if (select == null) {
             sendConversationInstructions(event.getPlayer());
             return;
         }
 
-        final Integer stockID = Integer.parseInt(event.getMessage());
+        final Integer stockID = select;
         final ConversationData data = conversations.get(event.getPlayer());
 
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
@@ -193,6 +229,12 @@ public class ConversationListener implements Listener {
                 sendConversationInstructions(event.getPlayer());
             }
         });
+    }
+
+    public void onReportFinish(final Player player) {
+        final ReportConversationData data = (ReportConversationData) conversations.get(player);
+        peacekeeper.commandManager.reportCommand.submitReport(player, data.getFinalMessage());
+        player.sendMessage(ChatColor.GREEN + "Thank you for your report.");
     }
 
     public void onMuteChatFinish(final Player sender) {
@@ -237,35 +279,66 @@ public class ConversationListener implements Listener {
         player.sendMessage("");
         ConversationData data = conversations.get(player);
         player.sendMessage(data.header);
-        player.sendMessage(ChatColor.YELLOW + "Click/type all that apply.");
-        for (int i = data.page * pageCount; i < (data.page * pageCount) + pageCount && i < data.results.size(); i++) {
+        player.sendMessage(ChatColor.YELLOW + "Click all that apply.");
+
+        int adjustedPageCount = pageCount;
+        if (data instanceof ReportConversationData) {
+            adjustedPageCount = 5;
+        }
+
+        for (int i = data.page * adjustedPageCount; i < (data.page * adjustedPageCount) + adjustedPageCount && i < data.results.size(); i++) {
             TimeManager.TimeResult r = data.results.get(i);
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + ": " + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + (i + 1) + "\"}},{\"text\":\"" + r.length + "\",\"color\":\"aqua\"}]");
+            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + (r.length == null ? "" : ": ") + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + ("SELECTCATEGORY " + (i + 1)) + "\"}},{\"text\":\"" + (r.length == null ? "" : r.length) + "\",\"color\":\"aqua\"}]");
             PacketPlayOutChat packet = new PacketPlayOutChat(component);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
 //            player.sendMessage(ChatColor.DARK_AQUA + String.valueOf(i) + ". " + r.description + ": " + ChatColor.AQUA + r.length);
         }
 
-//        player.sendMessage(ChatColor.DARK_AQUA + "-------------------");
-        if (!data.timeResults.isEmpty()) {
-
-            player.sendMessage(ChatColor.YELLOW + "Selected categories: " + categoriesToString(data));
-
-            IChatBaseComponent component1 = IChatBaseComponent.ChatSerializer.a(cancelFinish);
-            PacketPlayOutChat packet1 = new PacketPlayOutChat(component1);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
+        // Add buttons and alert the player what is needed.
+        if (data instanceof ReportConversationData) {
+            if (data.timeResults.isEmpty()) {
+                player.sendMessage(ChatColor.RED + "**Please select at least one category.");
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "Selected categories: " + categoriesToString(data));
+            }
+            if (((ReportConversationData) data).messages.size() <= 0) {
+                player.sendMessage(ChatColor.RED + "**Please include a brief description of the issue.");
+            } else {
+                player.sendMessage("Current message-");
+                String message = ((ReportConversationData) data).getFinalMessage();
+                player.sendMessage(message);
+                player.sendMessage(message.length() + "/" + "500 characters left");
+            }
+            if (!data.timeResults.isEmpty() && ((ReportConversationData) data).messages.size() > 0) {
+                IChatBaseComponent component1 = IChatBaseComponent.ChatSerializer.a(cancelFinish);
+                PacketPlayOutChat packet1 = new PacketPlayOutChat(component1);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
+            } else {
+                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
+                PacketPlayOutChat packet = new PacketPlayOutChat(component);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            }
         } else {
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
-            PacketPlayOutChat packet = new PacketPlayOutChat(component);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            if (!data.timeResults.isEmpty()) {
+                player.sendMessage(ChatColor.YELLOW + "Selected categories: " + categoriesToString(data));
+
+                IChatBaseComponent component1 = IChatBaseComponent.ChatSerializer.a(cancelFinish);
+                PacketPlayOutChat packet1 = new PacketPlayOutChat(component1);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
+            } else {
+                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
+                PacketPlayOutChat packet = new PacketPlayOutChat(component);
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            }
         }
-        if ((data.results.size() - 1) / pageCount != 0) {
-            String pageInfo = " " + (data.page + 1) + "/" + (((data.results.size() - 1) / pageCount) + 1) + " ";
+
+        if ((data.results.size() - 1) / adjustedPageCount != 0) {
+            String pageInfo = " " + (data.page + 1) + "/" + (((data.results.size() - 1) / adjustedPageCount) + 1) + " ";
             if (data.page == 0) {
                 IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\"},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
                 PacketPlayOutChat packet = new PacketPlayOutChat(component);
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-            } else if (data.page >= (data.results.size() - 1) / pageCount) {
+            } else if (data.page >= (data.results.size() - 1) / adjustedPageCount) {
                 IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false}]");
                 PacketPlayOutChat packet = new PacketPlayOutChat(component);
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
@@ -293,6 +366,17 @@ public class ConversationListener implements Listener {
             categoryString += ", " + r.description;
         }
         return categoryString;
+    }
+
+    public Integer splitSelect(String message) {
+        String[] split = message.split(" ");
+        if (split.length == 0) {
+            return null;
+        }
+        if (!StringUtils.isNumeric(split[1])) {
+            return null;
+        }
+        return Integer.parseInt(split[1]);
     }
 
     public enum ConversationType {

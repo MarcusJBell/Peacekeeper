@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class TimeManager {
 
-    public static final String SUSPEND = "suspend", MUTE = "mute";
+    public static final String SUSPEND = "suspend", MUTE = "mute", REPORT = "report";
     public Map<String, ArrayList<TimeResult>> configMap;
     private Peacekeeper peacekeeper;
     private String key = "Types.";
@@ -52,21 +52,24 @@ public class TimeManager {
     public void loadTimes() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        if (!config.contains(key + ".Suspend") || !config.contains(key + ".Mute")) {
+        if (!config.contains(key + ".Suspend") || !config.contains(key + ".Mute") || !config.contains(key + ".Report")) {
             reloadDefaultConfig();
             config = YamlConfiguration.loadConfiguration(getFile());
         }
 
-        loadType(config, key + ".Suspend", SUSPEND);
-        loadType(config, key + ".Mute", MUTE);
+        loadType(config, key + ".Suspend", SUSPEND, true);
+        loadType(config, key + ".Mute", MUTE, true);
+        loadType(config, key + ".Report", REPORT, false);
     }
 
-    public void loadType(FileConfiguration config, String parentKey, String type) {
+    public void loadType(FileConfiguration config, String parentKey, String type, boolean time) {
         ArrayList<TimeResult> results = new ArrayList<>();
         for (String key : config.getConfigurationSection(parentKey).getKeys(false)) {
             String actualKey = parentKey + "." + key;
             String description = config.getString(actualKey + ".description");
-            String length = config.getString(actualKey + ".length");
+            String length = null;
+            if (time)
+                length = config.getString(actualKey + ".length");
             TimeResult result = new TimeResult(description, length);
             results.add(result);
         }

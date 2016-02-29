@@ -43,3 +43,28 @@ Types:
     Advertising:
       description: Advertising
       length: 1h
+  Report:
+    Inappropriate:
+      description: Inappropriate or offensive content
+    Cursing:
+      description: Cursing, verbal abuse, or spamming
+    Disrespect:
+      description: Disrespecting staff or other users
+    Drama:
+      description: Causing drama or heated arguments
+    Rules:
+      description: Breaking division rules (such as griefing)
+    Advertising:
+      description: Advertising
+    Hacking:
+      description: Hacking or using exploits
+    StaffAbuse:
+      description: (Staff) Power abuse
+    StaffInjustice:
+      description: (Staff) Injustice
+    StaffRules:
+      description: (Staff) Breaking rules
+    StaffRude:
+      description: (Staff) Acting rude or unprofessional
+    Other:
+      description: (All) Other (please include details in description)

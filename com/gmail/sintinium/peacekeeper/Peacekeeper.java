@@ -106,7 +106,7 @@ public class Peacekeeper extends JavaPlugin {
                 break;
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -145,6 +145,7 @@ public class Peacekeeper extends JavaPlugin {
         userTable = new UserTable(this);
         banTable = new PlayerBanTable(this);
         recordTable = new PlayerRecordTable(this);
+        reportTable = new PlayerReportTable(this);
         muteTable = new PlayerMuteTable(this);
     }
 

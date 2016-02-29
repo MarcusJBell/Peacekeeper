@@ -12,20 +12,20 @@ import java.util.List;
 
 public class PlayerReportTable extends BaseTable {
 
-    public PlayerReportTable(@Nonnull Peacekeeper peacekeeper, @Nonnull String tableName) {
-        super(peacekeeper, tableName);
+    public PlayerReportTable(@Nonnull Peacekeeper peacekeeper) {
+        super(peacekeeper, "Reports");
 
         String tableSet = SQLTableUtils.getTableSet(
-                new String[]{"ReportID", "PlayerID", "Offender", "Message"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.TEXT}
+                new String[]{"ReportID", "PlayerID", "Message", "Time"},
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER}
         );
         init(tableSet);
     }
 
-    public int addReport(int playerID, Integer offender, String message) {
+    public Integer addReport(int playerID, String message) {
         return insert(
-                new Object[]{"PlayerID", "Offender", "Message"},
-                new Object[]{playerID, offender, message}
+                new String[]{"PlayerID", "Message", "Time"},
+                new String[]{String.valueOf(playerID), message, String.valueOf(System.currentTimeMillis())}
         );
     }
 
@@ -61,9 +61,7 @@ public class PlayerReportTable extends BaseTable {
     }
 
     public ReportData reportDataFromStarSet(ResultSet set) throws SQLException {
-        Integer offenderID = set.getInt("Offender");
-        if (set.wasNull()) offenderID = null;
-        return new ReportData(set.getInt("ReportID"), set.getInt("PlayerID"), offenderID, set.getString("Message"));
+        return new ReportData(set.getInt("ReportID"), set.getInt("PlayerID"), set.getString("Message"), set.getLong("Time"));
     }
 
 }
