@@ -6,7 +6,10 @@ softdepend: [ScoreboardStats, Essentials, SuperTrails]
 commands:
   peacekeeper:
     aliases: [pk]
-    description: general command for basic plugin functions such as /reload
+    description: General command for basic plugin functions such as /reload
+  report:
+    description: Used to report an issue
+    permission: peacekeeper.command.report
   suspend:
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
@@ -28,9 +31,9 @@ commands:
     permission: peacekeeper.command.playerinfo
     usage: Syntax error! Usage §r§c/playerinfo <player>!
   records:
-      description: Display all of a users records
-      permission: peacekeeper.command.records
-      usage: Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>!
+    description: Display all of a users records
+    permission: peacekeeper.command.records
+    usage: Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>!
   vanish:
     aliases: [v]
     description: Hides the player from other players
@@ -49,6 +52,7 @@ permissions:
     default: op
     children:
         peacekeeper.command.peacekeeper.reload: true
+        peacekeeper.command.report: true
         peacekeeper.command.info: true
         peacekeeper.command.records: true
         peacekeeper.command.records.delete: true
@@ -58,9 +62,12 @@ permissions:
         peacekeeper.command.ipban: true
         peacekeeper.command.release: true
         peacekeeper.command.vanish: true
-    peacekeeper.command.peacekeeper.reload:
-        description: Has permission to reload config via /pk reload
-        default: op
+  peacekeeper.command.peacekeeper.reload:
+    description: Has permission to reload config via /pk reload
+    default: op
+  peacekeeper.command.report:
+    description: Has permission to report issues with the server
+    default: op
   peacekeeper.command.info:
     description: Has permission to view a player's info
     default: op
@@ -68,8 +75,8 @@ permissions:
     description: Has permission to view a player's records
     default: op
   peacekeeper.command.records.delete:
-      description: Has permission to delete records from database
-      default: op
+    description: Has permission to delete records from database
+    default: op
   peacekeeper.info.ip:
     description: Has permission to view someone's ip when using /playerinfo
     default: op

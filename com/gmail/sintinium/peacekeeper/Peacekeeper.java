@@ -68,9 +68,9 @@ public class Peacekeeper extends JavaPlugin {
         // Kick players, otherwise muted players and kicked players will be able to bypass mutes/bans
         // This could be removed and read players to the cached lists, but since we don't have access to the database thread
         // This could cause many issues and could and probably would lock the database
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.kickPlayer(ChatColor.YELLOW + "Server is reloading.");
-        }
+//        for (Player p : Bukkit.getOnlinePlayers()) {
+//            p.kickPlayer(ChatColor.YELLOW + "Server is reloading.");
+//        }
         if (!loadDependencies()) {
             getServer().getPluginManager().disablePlugin(this);
             return;

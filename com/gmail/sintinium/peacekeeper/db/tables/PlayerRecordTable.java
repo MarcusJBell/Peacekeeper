@@ -172,40 +172,14 @@ public class PlayerRecordTable extends BaseTable {
         return valueCount("PlayerID", playerID);
     }
 
-    @Nullable
-    public Integer getUser(int recordID) {
-        return getInt("PlayerID", "RecordID", recordID);
-    }
-
-    public int getType(int recordID) {
-        return getInt("Type", "RecordID", recordID);
-    }
-
-    public Long getTime(int recordID) {
-        return getLong("Time", "RecordID", recordID);
-    }
-
-    @Nullable
-    public Long getLength(int recordID) {
-        return getLong("Length", "RecordID", recordID);
-    }
-
-    public String getReason(int recordID) {
-        return getString("Reason", "RecordID", recordID);
-    }
-
-    @Nullable
-    public Integer getAdmin(int recordID) {
-        return getInt("Admin", "RecordID", recordID);
-    }
-
-    @Nullable
-    public Integer getSeverity(int recordID) {
-        return getInt("Severity", "RecordID", recordID);
-    }
-
     public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
-        return new RecordData(set.getInt("RecordID"), set.getInt("PlayerID"), set.getString("IP"), set.getInt("Type"), set.getLong("Time"), set.getLong("Length"), set.getString("Reason"), set.getInt("Admin"), set.getString("Category"));
+        Integer playerID = set.getInt("PlayerID");
+        if (set.wasNull()) playerID = null;
+        Long length = set.getLong("Time");
+        if (set.wasNull()) length = null;
+        Integer adminID = set.getInt("Admin");
+        if (set.wasNull()) adminID = null;
+        return new RecordData(set.getInt("RecordID"), playerID, set.getString("IP"), set.getInt("Type"), set.getLong("Time"), length, set.getString("Reason"), adminID, set.getString("Category"));
     }
 
 }

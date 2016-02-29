@@ -64,6 +64,10 @@ public class MuteCommand extends BaseCommand {
                 if (args.length < 2) {
                     sender.sendMessage(command.getUsage());
                     return;
+                } else if (peacekeeper.conversationListener.conversations.containsKey(sender)) {
+                    sender.sendMessage(ChatColor.YELLOW + "You cannot mute while doing another action.");
+                    sender.sendMessage(ChatColor.YELLOW + "Cancel your previous action and try again.");
+                    return;
                 }
                 String usernameInput = args[0];
                 final String reasonInput = CommandUtils.argsToReason(args, 1);
