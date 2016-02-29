@@ -18,10 +18,6 @@ commands:
     description: Mutes a player from chat
     permission: peacekeeper.command.mute
     usage: §4Syntax error! Usage §r§c/mute <player> <reason>
-  ipban:
-    description: Bans an IP
-    permission: peacekeeper.command.ipban
-    usage: §4Syntax error! Usage §r§c/ipban <player|IP> <reason>
   release:
     description: Releases a user, including jail, mute, and bans
     permission: peacekeeper.release
@@ -33,12 +29,7 @@ commands:
   records:
     description: Display all of a users records
     permission: peacekeeper.command.records
-    usage: Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>!
-  vanish:
-    aliases: [v]
-    description: Hides the player from other players
-    permission: peacekeeper.command.vanish
-    usage: /vanish
+    usage: Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>
 permissions:
   peacekeeper.*:
     description: Give access to all commands and actions within the Peacekeeper plugin

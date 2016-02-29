@@ -16,11 +16,11 @@ public class ReportCommand extends BaseCommand {
         super(peacekeeper);
     }
 
-    public void submitReport(final Player player, final String message) {
+    public void submitReport(final Player player, final String message, final String category) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                peacekeeper.reportTable.addReport(peacekeeper.userTable.getPlayerIDFromUUID(player.getUniqueId().toString()), message);
+                peacekeeper.reportTable.addReport(peacekeeper.userTable.getPlayerIDFromUUID(player.getUniqueId().toString()), message, category);
             }
         });
     }

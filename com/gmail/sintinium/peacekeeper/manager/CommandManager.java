@@ -29,10 +29,11 @@ public class CommandManager {
         registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
         registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
         registerCommand("report", reportCommand = new ReportCommand(peacekeeper));
-        registerCommand("ipban", new IPBanCommand(peacekeeper));
+//        registerCommand("ipban", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));
-        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
+//        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
+        vanishCommand = new VanishCommand(peacekeeper);
         registerCommand("peacekeeper", new PeacekeeperCommand(peacekeeper));
 //        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
         superVanishCommand = new SuperVanishCommand(peacekeeper);

@@ -11,6 +11,7 @@ import com.gmail.sintinium.peacekeeper.listeners.*;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.DatabaseQueueManager;
+import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import lib.PatPeter.SQLibrary.SQLite;
@@ -84,7 +85,13 @@ public class Peacekeeper extends JavaPlugin {
         registerListeners();
         loadConfig();
         loadDatabase();
-        initializeTables();
+
+        databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                initializeTables();
+            }
+        });
     }
 
     @Override

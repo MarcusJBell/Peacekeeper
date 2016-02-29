@@ -16,16 +16,16 @@ public class PlayerReportTable extends BaseTable {
         super(peacekeeper, "Reports");
 
         String tableSet = SQLTableUtils.getTableSet(
-                new String[]{"ReportID", "PlayerID", "Message", "Time"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER}
+                new String[]{"ReportID", "PlayerID", "Message", "Time", "Category"},
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.TEXT}
         );
         init(tableSet);
     }
 
-    public Integer addReport(int playerID, String message) {
+    public Integer addReport(int playerID, String message, String category) {
         return insert(
-                new String[]{"PlayerID", "Message", "Time"},
-                new String[]{String.valueOf(playerID), message, String.valueOf(System.currentTimeMillis())}
+                new String[]{"PlayerID", "Message", "Time", "Category"},
+                new String[]{String.valueOf(playerID), message, String.valueOf(System.currentTimeMillis()), category}
         );
     }
 
