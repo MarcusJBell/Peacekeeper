@@ -1,12 +1,45 @@
 Types:
   Suspend:
+    Harassment:
+      description: Harassment
+      length: 1h
     Griefing:
       description: Griefing
-      length: 7d
+      length: 1w
     Hacking:
       description: Hacking
-      length: 14d
+      length: 1w
+    Exploit:
+      description: Exploiting Things
+      length: 1w
+    Stealing:
+      description: Stealing
+      length: 5d
+    BanEvasion:
+      description: Ban-Evasion/Alts
+      length: 4w
+    DDoS:
+      description: Threats/Use of DDoS
+      length: 26w
+    Trolling:
+      description: Malicious Trolling
+      length: 1w
   Mute:
     CapsSpam:
+      description: Excessive Caps
+      length: 10m
+    Spamming:
       description: Chat Spam
       length: 15m
+    Cursing:
+      description: Inappropriate Language
+      length: 30m
+    Offensive:
+      description: Offensive Language
+      length: 30m
+    Arguments:
+      description: Argument
+      length: 30m
+    Advertising:
+      description: Advertising
+      length: 1h
