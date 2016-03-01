@@ -2,6 +2,7 @@ name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
 version: 0.98
 depend: [SQLibrary]
+loadbefore: [Essentials]
 softdepend: [ScoreboardStats, Essentials]
 commands:
   peacekeeper:
@@ -14,22 +15,35 @@ commands:
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
     usage: §4Syntax error! Usage §r§c/suspend <player> <reason>
-  pkmute:
+  mute:
     description: Mutes a player from chat
     permission: peacekeeper.command.mute
     usage: §4Syntax error! Usage §r§c/mute <player> <reason>
+  ban:
+    description: Permanently bans a player
+    permission: peacekeeper.command.ban
+    usage: §4Syntax error! Usage §r§c/banip <player> <reason>
+  banip:
+    description: Bans an IP
+    permission: peacekeeper.command.banip
+    usage: §4Syntax error! Usage §r§c/banip <player|IP> <reason>
   release:
     description: Releases a user, including jail, mute, and bans
-    permission: peacekeeper.command.release
+    permission: peacekeeper.release
     usage: §4Syntax error! Usage §r§c/release <player|IP>
   playerinfo:
     description: Get a player's information
     permission: peacekeeper.command.playerinfo
-    usage: Syntax error! Usage §r§c/playerinfo <player>!
+    usage: §4Syntax error! Usage §r§c/playerinfo <player>!
   records:
     description: Display all of a users records
     permission: peacekeeper.command.records
-    usage: Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>
+    usage: §4Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>!
+  vanish:
+    aliases: [v]
+    description: Hides the player from other players
+    permission: peacekeeper.command.vanish
+    usage: /vanish
 permissions:
   peacekeeper.*:
     description: Give access to all commands and actions within the Peacekeeper plugin
@@ -47,10 +61,11 @@ permissions:
         peacekeeper.command.info: true
         peacekeeper.command.records: true
         peacekeeper.command.records.delete: true
+        peacekeeper.command.records.deleteall: true
         peacekeeper.command.mute: true
-        peacekeeper.command.tempban: true
-        peacekeeper.command.permban: true
-        peacekeeper.command.ipban: true
+        peacekeeper.command.suspend: true
+        peacekeeper.command.ban: true
+        peacekeeper.command.banip: true
         peacekeeper.command.release: true
         peacekeeper.command.vanish: true
   peacekeeper.command.peacekeeper.reload:
@@ -68,6 +83,9 @@ permissions:
   peacekeeper.command.records.delete:
     description: Has permission to delete records from database
     default: op
+  peacekeeper.command.records.deleteall:
+      description: Has permission to delete all records for given user
+      default: op
   peacekeeper.info.ip:
     description: Has permission to view someone's ip when using /playerinfo
     default: op
@@ -77,10 +95,10 @@ permissions:
   peacekeeper.command.suspend:
     description: Has permission to suspend a user
     default: op
-  peacekeeper.command.permban:
-    description: Has permission to perm ban a user
+  peacekeeper.command.ban:
+    description: Has permission to permanently ban a user
     default: op
-  peacekeeper.command.ipban:
+  peacekeeper.command.banip:
     description: Has permission to ip ban a user
     default: op
   peacekeeper.command.release:

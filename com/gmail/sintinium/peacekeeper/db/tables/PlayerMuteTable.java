@@ -3,12 +3,15 @@ package com.gmail.sintinium.peacekeeper.db.tables;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.MuteData;
 import com.gmail.sintinium.peacekeeper.db.utils.SQLTableUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerMuteTable extends BaseTable {
@@ -17,7 +20,7 @@ public class PlayerMuteTable extends BaseTable {
 
     public HashMap<UUID, MuteData> mutedPlayers;
 
-    public PlayerMuteTable(@Nonnull Peacekeeper peacekeeper) {
+    public PlayerMuteTable(@Nonnull final Peacekeeper peacekeeper) {
         super(peacekeeper, "Mutes");
         mutedPlayers = new HashMap<>();
         String tableSet = SQLTableUtils.getTableSet(
@@ -25,6 +28,19 @@ public class PlayerMuteTable extends BaseTable {
                 new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER + " UNIQUE", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
         );
         init(tableSet);
+
+        //Check every 15 seconds if a player's mute has expired. If so unmute them
+        Bukkit.getScheduler().runTaskTimerAsynchronously(peacekeeper, new Runnable() {
+            @Override
+            public void run() {
+                if (mutedPlayers.isEmpty()) return;
+                for (Map.Entry<UUID, MuteData> entry : mutedPlayers.entrySet()) {
+                    Player player = Bukkit.getPlayer(entry.getKey());
+                    if (player == null) continue;
+                    peacekeeper.muteListener.isMuted(player, entry.getValue().muteID);
+                }
+            }
+        }, 10L, 15L * 20L);
     }
 
     public int muteUser(int playerID, Long length, String reason, Integer adminID, int recordID) {
@@ -77,7 +93,7 @@ public class PlayerMuteTable extends BaseTable {
         if (set.wasNull()) length = null;
         Integer adminID = set.getInt("AdminID");
         if (set.wasNull()) adminID = null;
-        return new MuteData(username, set.getInt("MuteID"), set.getLong("Time"), set.getInt("PlayerID"), set.getString("Reason"), adminID, length, set.getInt("RecordID"));
+        return new MuteData(username, set.getInt("MuteID"), set.getLong("MuteTime"), set.getInt("PlayerID"), set.getString("Reason"), adminID, length, set.getInt("RecordID"));
     }
 
 

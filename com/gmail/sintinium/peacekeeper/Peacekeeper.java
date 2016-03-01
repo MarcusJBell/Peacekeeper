@@ -3,9 +3,7 @@ package com.gmail.sintinium.peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
-import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
-import com.gmail.sintinium.peacekeeper.hooks.SuperTrailsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
 import com.gmail.sintinium.peacekeeper.listeners.*;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
@@ -41,11 +39,10 @@ public class Peacekeeper extends JavaPlugin {
     public PunishmentHelper punishmentHelper;
 
     public ConversationListener conversationListener;
+    public MuteListener muteListener;
     public BanListener banListener;
     public DatabaseQueueManager databaseQueueManager;
 
-    public EssentialsHook essentialsHook;
-    public SuperTrailsHook superTrailsHook;
     public ScoreboardStatsHook scoreboardStatsHook;
 
     public ConfigFile configFile;
@@ -179,7 +176,7 @@ public class Peacekeeper extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(banListener = new BanListener(this), this);
         Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new VanishListeners(this), this);
-        Bukkit.getPluginManager().registerEvents(new MuteListener(this), this);
+        Bukkit.getPluginManager().registerEvents(muteListener = new MuteListener(this), this);
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
     }
 
@@ -195,7 +192,6 @@ public class Peacekeeper extends JavaPlugin {
 
     // Handles a ban/Updates ban info and returns the BanData
     public BanData handleBan(int playerID) {
-        //TODO: Get appeal url from yml
         BanData highestBan = BanUtils.getHighestBan(this, playerID);
         if (highestBan == null) return null;
 

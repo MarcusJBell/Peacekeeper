@@ -51,7 +51,7 @@ public class IPBanCommand extends BaseCommand {
             adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
         }
         final String ip = peacekeeper.userTable.getIP(playerID);
-        int recordID = peacekeeper.recordTable.addRecord(playerID, ip, adminID, PlayerRecordTable.IP, null, reason, null);
+        int recordID = peacekeeper.recordTable.addRecord(null, ip, adminID, PlayerRecordTable.IP, null, reason, null);
         banData = new BanData(null, System.currentTimeMillis(), playerID, ip, reason, adminID, null, PlayerBanTable.IP, recordID);
         peacekeeper.banTable.banIP(banData);
         final String adminName = peacekeeper.userTable.getUsername(adminID);
@@ -63,7 +63,7 @@ public class IPBanCommand extends BaseCommand {
                 for (Player p : Bukkit.getServer().getOnlinePlayers()) {
                     if (p.getAddress().getHostName().equals(ip)) {
                         p.kickPlayer(BanUtils.generateSyncedBanMessage(banData, adminName));
-                        ChatUtils.banIPMessage(sender, banData.ip, null, banData.reason);
+                        ChatUtils.banIPMessage(sender, p.getName(), null, banData.reason);
                     }
                 }
             }
@@ -90,7 +90,7 @@ public class IPBanCommand extends BaseCommand {
                 for (Player p : Bukkit.getServer().getOnlinePlayers()) {
                     if (p.getAddress().getHostName().equals(args[0])) {
                         p.kickPlayer(BanUtils.generateBanMessage(peacekeeper, banData));
-                        ChatUtils.banIPMessage(sender, banData.ip, null, banData.reason);
+                        ChatUtils.banIPMessage(sender, p.getName(), null, banData.reason);
                     }
                 }
                 ChatUtils.banIPMessage(sender, args[0], null, reason);

@@ -86,7 +86,7 @@ public class ChatUtils {
      * @param pageLength max lines per page
      */
     public static void paginate(CommandSender sender, SortedMap<Integer, String> map, int page, int pageLength, String... endPageMessage) {
-        sender.sendMessage(ChatColor.DARK_AQUA + "---- Page: " + page + " ----");
+        sender.sendMessage(ChatColor.DARK_AQUA + "---- Page: " + page + "/" + (((map.size() - 1) / pageLength) + 1) + " ----");
         int i = 0, k = 0;
         page--;
         for (Map.Entry<Integer, String> e : map.entrySet()) {
@@ -97,7 +97,7 @@ public class ChatUtils {
             }
         }
 
-        if ((page + 1) * pageLength > map.size()) {
+        if ((page + 1) * pageLength > map.size() - 1) {
             sender.sendMessage(ChatColor.DARK_AQUA + "---- Last page ----");
             return;
         }

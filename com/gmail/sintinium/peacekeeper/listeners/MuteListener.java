@@ -76,17 +76,18 @@ public class MuteListener implements Listener {
         }
     }
 
-    public MuteData isMuted(Player player, final int playerID) {
+    public MuteData isMuted(final Player player, final int playerID) {
         final PlayerMuteTable muteTable = peacekeeper.muteTable;
 
         MuteData muteData = muteTable.mutedPlayers.get(player.getUniqueId());
-        if ((muteData.muteTime + muteData.muteLength) - System.currentTimeMillis() <= 0) {
+        if (muteData.muteLength != null && (muteData.muteTime + muteData.muteLength) - System.currentTimeMillis() <= 0) {
             peacekeeper.muteTable.mutedPlayers.remove(player.getUniqueId());
 
             peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
                 @Override
                 public void runTask() {
                     muteTable.unmutePlayer(playerID);
+                    player.sendMessage(ChatColor.YELLOW + "You have been unmuted.");
                 }
             });
             return null;

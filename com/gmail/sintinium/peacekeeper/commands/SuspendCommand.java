@@ -30,7 +30,9 @@ public class SuspendCommand extends BaseCommand {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                Integer adminID = null;
+                if (sender instanceof Player)
+                    adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
                 int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.BAN, time, reason, description);
                 BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
@@ -47,7 +49,6 @@ public class SuspendCommand extends BaseCommand {
                 });
             }
         });
-
     }
 
     @Override
@@ -97,21 +98,28 @@ public class SuspendCommand extends BaseCommand {
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
     // console without it being annoying
-    public void handleConsole(CommandSender sender, String args[]) {
+    public void handleConsole(final CommandSender sender, final String args[]) {
         if (args.length < 3) {
             sender.sendMessage("Args: suspend <player> <length> <reason>");
             return;
         }
-        String nameInput = args[0];
-        String lengthInput = args[1];
-        String reasonInput = CommandUtils.argsToReason(args, 2);
-        PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, nameInput);
-        if (playerData == null) {
-            ChatUtils.playerNotFoundMessage(sender, nameInput);
-            return;
-        }
+        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                String nameInput = args[0];
+                String lengthInput = args[1];
+                String reasonInput = CommandUtils.argsToReason(args, 2);
+                PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, nameInput);
+                if (playerData == null) {
+                    ChatUtils.playerNotFoundMessage(sender, nameInput);
+                    return;
+                }
 
-        suspendUser(peacekeeper, sender, playerData.playerID, playerData.username, TimeUtils.stringToMillis(lengthInput), reasonInput, null);
+                long time = TimeUtils.stringToMillis(lengthInput);
+                suspendUser(peacekeeper, sender, playerData.playerID, playerData.username, time, reasonInput, null);
+                ChatUtils.banPlayerMessage(sender, playerData.username, time, reasonInput);
+            }
+        });
     }
 
 }

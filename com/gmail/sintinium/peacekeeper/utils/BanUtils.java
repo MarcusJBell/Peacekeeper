@@ -20,15 +20,16 @@ public class BanUtils {
         }
         if (banData.type == PlayerBanTable.PLAYER) {
             if (banData.banLength == null) {
-                message += "§4You have been permanently banned from this server by:\n" + "§4" + adminName + "\n";
+                message += "§4You have been permanently banned from this server by: " + "§4" + adminName + "\n";
+                message += "§4Reason: §e" + banData.reason + "\n";
             } else {
-                message += "§4You have been suspended from this server by: " + "§4" + adminName + "\n";
+                message += "§4You've been suspended from this server by: " + "§4" + adminName + "\n";
                 message += "§4Reason: §e" + banData.reason + "\n";
                 message += "§4Your suspension will end in: ";
                 message += "§4" + TimeUtils.millsToString((banData.banTime + banData.banLength) - System.currentTimeMillis()) + "\n";
             }
         } else if (banData.type == PlayerBanTable.IP) {
-            message += "§4You have been IP Banned from this server by: " + "§4" + adminName + "\n";
+            message += "§4You're IP Banned from this server by: " + "§4" + adminName + "\n";
             message += "§4Reason: §e" + banData.reason + "\n";
         }
 
@@ -48,7 +49,8 @@ public class BanUtils {
         }
         if (banData.type == PlayerBanTable.PLAYER) {
             if (banData.banLength == null) {
-                message += "§4You have been permanently banned from this server by:\n" + "§4" + adminName + "\n";
+                message += "§4You have been permanently banned from this server by: " + "§4" + adminName + "\n";
+                message += "§4Reason: §e" + banData.reason + "\n";
             } else {
                 message += "§4You have been suspended from this server by: " + "§4" + adminName + "\n";
                 message += "§4Reason: §e" + banData.reason + "\n";

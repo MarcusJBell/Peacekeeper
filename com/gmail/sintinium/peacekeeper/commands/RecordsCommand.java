@@ -2,6 +2,7 @@ package com.gmail.sintinium.peacekeeper.commands;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.RecordData;
+import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
@@ -28,7 +29,11 @@ public class RecordsCommand extends BaseCommand {
     @Override
     public boolean onCommand(final CommandSender sender, Command command, String s, final String[] args) {
         // records <page>, /records id <recordID>, /records player <username|UUID|IP>
-        if (args.length == 1) {
+        if (args.length == 1 && !args[0].equalsIgnoreCase("all")) {
+            if (args[0].equalsIgnoreCase("?") || args[0].equalsIgnoreCase("help")) {
+                fullUsage(sender);
+                return true;
+            }
             if (!viewingPlayers.containsKey(sender)) {
                 if (StringUtils.isNumeric(args[0]))
                     sender.sendMessage(ChatColor.DARK_RED + "You're currently not viewing any records.");
@@ -50,7 +55,8 @@ public class RecordsCommand extends BaseCommand {
             });
             return true;
         }
-        if (args.length < 2) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("all")) {
+        } else if (args.length < 2) {
             usage(sender);
             return true;
         }
@@ -59,64 +65,89 @@ public class RecordsCommand extends BaseCommand {
             @Override
             public void runTask() {
                 List<RecordData> recordDatas = null;
-                if (args[0].equalsIgnoreCase("id")) {
-                    if (!StringUtils.isNumeric(args[1])) {
-                        usage(sender);
+                if (args.length > 0 && args[0].equalsIgnoreCase("all")) {
+                    List<RecordData> tempData = peacekeeper.recordTable.getAllRecords();
+                    if (tempData.isEmpty()) {
+                        sender.sendMessage(ChatColor.YELLOW + "There are currently no records in the database.");
                         return;
                     }
-                    RecordData data = peacekeeper.recordTable.getRecordData(Integer.parseInt(args[1]));
-                    if (data == null) {
-                        sender.sendMessage(ChatColor.DARK_RED + "Record ID: " + ChatColor.RED + args[1] + ChatColor.DARK_RED + " was not found in database");
-                        return;
-                    }
-                    advancedDataToChat(sender, data);
-                    return;
-                } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("p")) {
-                    Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
-                    if (playerID != null)
-                        recordDatas = peacekeeper.recordTable.getPlayerRecords(playerID);
-                } else if (args[0].equalsIgnoreCase("uuid")) {
-                    if (!CommandUtils.isUUID(args[1])) {
-                        sender.sendMessage(ChatColor.DARK_RED + "Not a valid UUID");
-                        return;
-                    }
-                    Integer playerID = peacekeeper.userTable.getPlayerIDFromUUID(args[1]);
-                    if (playerID != null)
-                        recordDatas = peacekeeper.recordTable.getPlayerRecords(playerID);
-                } else if (args[0].equalsIgnoreCase("ip")) {
-                    if (!CommandUtils.isIP(args[1])) {
+                    recordDatas = tempData;
+                } else {
+                    if (args[0].equalsIgnoreCase("id")) {
+                        if (!StringUtils.isNumeric(args[1])) {
+                            usage(sender);
+                            return;
+                        }
+                        RecordData data = peacekeeper.recordTable.getRecordData(Integer.parseInt(args[1]));
+                        if (data == null) {
+                            sender.sendMessage(ChatColor.DARK_RED + "Record ID: " + ChatColor.RED + args[1] + ChatColor.DARK_RED + " was not found in database");
+                            return;
+                        }
+                        advancedDataToChat(sender, data);
+                    } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("p")) {
+                        Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
+                        if (playerID != null)
+                            recordDatas = peacekeeper.recordTable.getPlayerRecords(playerID);
+                    } else if (args[0].equalsIgnoreCase("uuid")) {
                         if (!CommandUtils.isUUID(args[1])) {
+                            sender.sendMessage(ChatColor.DARK_RED + "Not a valid UUID");
+                            return;
+                        }
+                        Integer playerID = peacekeeper.userTable.getPlayerIDFromUUID(args[1]);
+                        if (playerID != null)
+                            recordDatas = peacekeeper.recordTable.getPlayerRecords(playerID);
+                    } else if (args[0].equalsIgnoreCase("ip")) {
+                        if (!CommandUtils.isIP(args[1])) {
                             sender.sendMessage(ChatColor.DARK_RED + "Not a valid IP");
                             return;
                         }
                         recordDatas = peacekeeper.recordTable.getIPRecords(args[1]);
-                    }
-                } else if (args[0].equalsIgnoreCase("del")) {
-                    if (!StringUtils.isNumeric(args[1])) {
-                        sender.sendMessage("Record ID must be number");
-                    }
-                    Integer recordID = Integer.parseInt(args[1]);
-                    RecordData data = peacekeeper.recordTable.getRecordData(recordID);
-                    if (data == null) {
-                        sender.sendMessage(ChatColor.DARK_RED + "Record ID " + ChatColor.RED + recordID + " not found in database");
+                    } else if (args[0].equalsIgnoreCase("del")) {
+                        if (!sender.hasPermission("peacekeeper.command.records.delete")) {
+                            sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command.");
+                            return;
+                        }
+                        clearCached();
+                        if (!StringUtils.isNumeric(args[1])) {
+                            sender.sendMessage("Record ID must be number");
+                        }
+                        Integer recordID = Integer.parseInt(args[1]);
+                        RecordData data = peacekeeper.recordTable.getRecordData(recordID);
+                        if (data == null) {
+                            sender.sendMessage(ChatColor.DARK_RED + "Record ID " + ChatColor.RED + recordID + " not found in database");
+                            return;
+                        }
+                        peacekeeper.recordTable.removeRecord(recordID);
+                        ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted a record with the ID of: " + ChatColor.RED + recordID);
+                        return;
+                    } else if (args[0].equalsIgnoreCase("delall")) {
+                        if (!sender.hasPermission("peacekeeper.command.records.deleteall")) {
+                            sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command.");
+                            return;
+                        }
+                        clearCached();
+                        if (CommandUtils.isIP(args[1])) {
+                            if (!peacekeeper.recordTable.doesValueExist("IP", args[1])) {
+                                sender.sendMessage(ChatColor.DARK_RED + "IP " + ChatColor.RED + args[1] + " has no records");
+                                return;
+                            }
+                            peacekeeper.recordTable.clearIPRecords(args[1]);
+                            ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted all records for IP: " + ChatColor.RED + args[1]);
+                            return;
+                        }
+                        Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
+                        if (playerID == null) {
+                            ChatUtils.playerNotFoundMessage(sender, args[1]);
+                            return;
+                        }
+                        String username = peacekeeper.userTable.getUsername(playerID);
+                        peacekeeper.recordTable.clearPlayersRecords(playerID);
+                        ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted all records for user: " + ChatColor.RED + username);
+                        return;
+                    } else {
+                        usage(sender);
                         return;
                     }
-                    peacekeeper.recordTable.removeRecord(recordID);
-                    ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted a record with the ID of: " + ChatColor.RED + recordID);
-                    return;
-                } else if (args[0].equalsIgnoreCase("delall")) {
-                    Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
-                    if (playerID == null) {
-                        ChatUtils.playerNotFoundMessage(sender, args[1]);
-                        return;
-                    }
-                    String username = peacekeeper.userTable.getUsername(playerID);
-                    peacekeeper.recordTable.clearPlayersRecords(playerID);
-                    ChatUtils.broadcast(ChatColor.DARK_RED + sender.getName() + " has deleted all records for user: " + ChatColor.RED + username);
-                    return;
-                } else {
-                    usage(sender);
-                    return;
                 }
                 if (recordDatas == null) {
                     sender.sendMessage(ChatColor.DARK_RED + "No records found for " + args[0] + " with the name/id of " + args[1]);
@@ -144,10 +175,30 @@ public class RecordsCommand extends BaseCommand {
     }
 
     public void usage(CommandSender sender) {
-        sender.sendMessage(ChatColor.DARK_RED + "/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>");
-        if (sender.hasPermission("peacekeeper.command.records.delete")) {
-            sender.sendMessage(ChatColor.DARK_RED + "To delete a record use /records 'del|delall' <ID|Username>");
+        sender.sendMessage(ChatColor.DARK_AQUA + "Use '" + ChatColor.AQUA + "/records ?" + ChatColor.DARK_AQUA + "' for help and usages");
+    }
+
+    public void fullUsage(CommandSender sender) {
+        sender.sendMessage(ChatColor.DARK_AQUA + "---- Record Help ----");
+        sendUsageElement(sender, "/records all", "Shows all records");
+        sendUsageElement(sender, "/records id <ID>", "Shows advanced info for the given record ID");
+        sendUsageElement(sender, "/records p <Player>", "Shows all records for player");
+        sendUsageElement(sender, "/records uuid <UUID>", "Shows all records for given UUID");
+        sendUsageElement(sender, "/records ip <IP>", "Shows all records for given IP");
+
+        if (sender.hasPermission("peacekeeper.command.records.delete"))
+            sendUsageElement(sender, "/records del <ID>", "Deletes record with given ID");
+
+        if (sender.hasPermission("peacekeeper.command.records.deleteall"))
+            sendUsageElement(sender, "/records delall <Player|IP>", "Deletes all records for a Player");
+
+        if (sender.hasPermission("peacekeeper.command.records.delete") || sender.hasPermission("peacekeeper.command.records.deleteall")) {
+            sender.sendMessage(ChatColor.DARK_RED + "WARNING: Deleting records will affect all future bans/mutes for affected user");
         }
+    }
+
+    public void sendUsageElement(CommandSender sender, String command, String description) {
+        sender.sendMessage(ChatColor.DARK_AQUA + command + ": " + ChatColor.AQUA + description);
     }
 
     public SortedMap<Integer, String> recordDataToPages(List<RecordData> datas) {
@@ -167,9 +218,9 @@ public class RecordsCommand extends BaseCommand {
     public String recordDataToStringFromDB(RecordData data) {
         String result = "";
         result += "RecordID:" + ChatColor.AQUA + data.recordID + ChatColor.DARK_AQUA + ", ";
-        if (data.playerID != null)
+        if (data.type == PlayerRecordTable.BAN)
             result += "Player:" + ChatColor.AQUA + "'" + peacekeeper.userTable.getUsername(data.playerID) + "'" + ChatColor.DARK_AQUA + ", ";
-        else
+        else if (data.type == PlayerRecordTable.IP)
             result += "IP:" + ChatColor.AQUA + "'" + data.ip + "'" + ChatColor.DARK_AQUA + ", ";
         result += "Type:" + ChatColor.AQUA + data.getTypeName();
         return result;
@@ -204,6 +255,10 @@ public class RecordsCommand extends BaseCommand {
             sender.sendMessage(ChatColor.DARK_AQUA + "Category: " + ChatColor.AQUA + "\"" + stockReason + "\"");
 
         return result;
+    }
+
+    public void clearCached() {
+        viewingPlayers.clear();
     }
 
 }

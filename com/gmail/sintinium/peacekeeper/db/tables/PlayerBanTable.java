@@ -65,18 +65,17 @@ public class PlayerBanTable extends BaseTable {
     public int[] getPlayersBans(int playerID, String ip) {
         List<Integer> bans = new ArrayList<>();
         try {
-            if (valueCount("PlayerID", playerID) == 0 && valueCount("IP", "'" + ip + "'") == 0)
-                return new int[0];
             ResultSet set = db.query("SELECT BanID FROM " + tableName + " WHERE playerID=" + playerID + " OR " + "IP='" + ip + "';");
             while (set.next()) {
                 int banID = set.getInt("BanID");
+                if (set.wasNull()) continue;
                 bans.add(banID);
             }
             set.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (bans.size() == 0) return new int[0];
+        if (bans.isEmpty()) return new int[0];
         return ArrayHelper.convertIntegers(bans);
     }
 
@@ -142,9 +141,11 @@ public class PlayerBanTable extends BaseTable {
         if (set.wasNull()) playerID = null;
         Integer adminID = set.getInt("AdminID");
         if (set.wasNull()) adminID = null;
-        Long length = set.getLong("Length");
+        String length = set.getString("Length");
         if (set.wasNull()) length = null;
-        return new BanData(set.getInt("BanID"), time, playerID, set.getString("IP"), set.getString("Reason"), adminID, length, set.getInt("Type"), set.getInt("RecordID"));
+        Long finalLength = null;
+        if (length != null && !length.equals("null")) finalLength = Long.parseLong(length);
+        return new BanData(set.getInt("BanID"), time, playerID, set.getString("IP"), set.getString("Reason"), adminID, finalLength, set.getInt("Type"), set.getInt("RecordID"));
     }
 
 }

@@ -33,7 +33,7 @@ public class BanListener implements Listener {
         // Handle cached bans so player can't join after first time
         if (cachedBans.containsKey(event.getPlayer().getUniqueId())) {
             BanData banData = cachedBans.get(event.getPlayer().getUniqueId());
-            if ((banData.banTime + banData.banLength) - System.currentTimeMillis() > 0) {
+            if (banData.banLength == null || (banData.banTime + banData.banLength) - System.currentTimeMillis() > 0) {
                 event.disallow(PlayerLoginEvent.Result.KICK_BANNED, BanUtils.generateSyncedBanMessage(banData, banData.adminUsername));
             }
         }
@@ -61,12 +61,12 @@ public class BanListener implements Listener {
                 final String message = BanUtils.generateBanMessage(peacekeeper, highestBan);
                 highestBan.adminUsername = peacekeeper.userTable.getUsername(highestBan.adminId);
                 // Kick player after 1 second if banned
-                Bukkit.getScheduler().runTaskLater(peacekeeper, new Runnable() {
+                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
                         event.getPlayer().kickPlayer(message);
                     }
-                }, 20L);
+                });
             }
         });
     }

@@ -42,6 +42,10 @@ public class PlayerRecordTable extends BaseTable {
         deleteRow("PlayerID", playerID);
     }
 
+    public void clearIPRecords(String ip) {
+        deleteRow("IP", ip);
+    }
+
     public void updateRecord(RecordData data) {
         String[] colList = SQLUtils.getAsSQLArray(new String[]{"PlayerID", "IP", "Type", "Length", "Reason", "Admin", "Category"});
         String[] valueList = SQLUtils.getAsSQLArray(new Object[]{data.playerID, data.type, data.length, data.reason, data.adminID, data.category});
@@ -63,6 +67,21 @@ public class PlayerRecordTable extends BaseTable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public List<RecordData> getAllRecords() {
+        List<RecordData> result = new ArrayList<>();
+        try {
+            ResultSet set = db.query("SELECT * FROM " + tableName + ";");
+            while (set.next()) {
+                result.add(getDataFromStarSet(set));
+            }
+            set.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return result;
     }
 
     @Nullable

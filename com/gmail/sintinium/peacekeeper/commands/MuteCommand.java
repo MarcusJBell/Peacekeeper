@@ -8,6 +8,7 @@ import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
+import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.Bukkit;
@@ -29,7 +30,9 @@ public class MuteCommand extends BaseCommand {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                Integer adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                Integer adminID = null;
+                if (sender instanceof Player)
+                    adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
                 int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, description);
                 int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
                 MuteData muteData = peacekeeper.muteTable.muteData(muteID);
@@ -96,21 +99,28 @@ public class MuteCommand extends BaseCommand {
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
     // console without it being annoying
-    public void handleConsole(CommandSender sender, String args[]) {
+    public void handleConsole(final CommandSender sender, final String args[]) {
         if (args.length < 3) {
             sender.sendMessage("Args: mute <player> <length> <reason>");
             return;
         }
-        String nameInput = args[0];
-        String lengthInput = args[1];
-        String reasonInput = CommandUtils.argsToReason(args, 2);
-        PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, nameInput);
-        if (playerData == null) {
-            playerNotFoundMessage(sender, nameInput);
-            return;
-        }
+        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+            @Override
+            public void runTask() {
+                String nameInput = args[0];
+                String lengthInput = args[1];
+                String reasonInput = CommandUtils.argsToReason(args, 2);
+                PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, nameInput);
+                if (playerData == null) {
+                    playerNotFoundMessage(sender, nameInput);
+                    return;
+                }
 
-        muteUser(sender, peacekeeper, playerData.uuid.toString(), playerData.username, playerData.playerID, TimeUtils.stringToMillis(lengthInput), reasonInput, null);
+                long time = TimeUtils.stringToMillis(lengthInput);
+                muteUser(sender, peacekeeper, playerData.uuid.toString(), playerData.username, playerData.playerID, time, reasonInput, null);
+                ChatUtils.muteMessage(sender, playerData.username, time, reasonInput);
+            }
+        });
     }
 
     public void playerNotFoundMessage(CommandSender sender, String name) {

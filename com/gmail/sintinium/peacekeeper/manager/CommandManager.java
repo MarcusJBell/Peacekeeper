@@ -26,14 +26,15 @@ public class CommandManager {
 
     public void registerDefaults() {
         registerCommand("release", new ReleaseCommand(peacekeeper));
-        registerCommand("pkmute", muteCommand = new MuteCommand(peacekeeper));
+        registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
         registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
         registerCommand("report", reportCommand = new ReportCommand(peacekeeper));
-//        registerCommand("ipban", new IPBanCommand(peacekeeper));
+        registerCommand("ban", new PermBanCommand(peacekeeper));
+        registerCommand("banip", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));
-//        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
-        vanishCommand = new VanishCommand(peacekeeper);
+        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
+//        vanishCommand = new VanishCommand(peacekeeper);
         registerCommand("peacekeeper", new PeacekeeperCommand(peacekeeper));
 //        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
         superVanishCommand = new SuperVanishCommand(peacekeeper);
@@ -41,6 +42,10 @@ public class CommandManager {
 
     public void registerCommand(String commandName, CommandExecutor executor) {
         PluginCommand command = peacekeeper.getCommand(commandName);
+        if (command == null) {
+            peacekeeper.getLogger().info("Could not register command.." + commandName);
+            return;
+        }
         command.setExecutor(executor);
         command.setPermissionMessage(ChatColor.DARK_RED + "You do not have permission to use this command.");
         commands.add(command);

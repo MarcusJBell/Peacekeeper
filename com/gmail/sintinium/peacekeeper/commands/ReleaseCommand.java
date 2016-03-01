@@ -29,7 +29,7 @@ public class ReleaseCommand extends BaseCommand {
             @Override
             public void runTask() {
                 if (CommandUtils.isIP(args[0])) { // If input is IP
-                    peacekeeper.banTable.unbanIP("'" + args[0] + "'");
+                    peacekeeper.banTable.unbanIP(args[0]);
                     ChatUtils.releaseIPMessage(sender, args[0]);
                     List<String> uuids = peacekeeper.userTable.getUUIDSFromIP(args[0]);
                     for (String s : uuids) {
