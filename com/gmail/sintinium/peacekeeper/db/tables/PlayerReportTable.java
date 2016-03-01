@@ -45,7 +45,7 @@ public class PlayerReportTable extends BaseTable {
         return null;
     }
 
-    public List<ReportData> getAllRecords() {
+    public List<ReportData> getAllReports() {
         try {
             List<ReportData> datas = new ArrayList<>();
             ResultSet set = db.query("SELECT * FROM " + tableName + ";");
@@ -61,7 +61,7 @@ public class PlayerReportTable extends BaseTable {
     }
 
     public ReportData reportDataFromStarSet(ResultSet set) throws SQLException {
-        return new ReportData(set.getInt("ReportID"), set.getInt("PlayerID"), set.getString("Message"), set.getLong("Time"));
+        return new ReportData(set.getInt("ReportID"), set.getInt("PlayerID"), set.getString("Message"), set.getLong("Time"), set.getString("Category"));
     }
 
 }

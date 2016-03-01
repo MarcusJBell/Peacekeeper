@@ -29,6 +29,7 @@ public class CommandManager {
         registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
         registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
         registerCommand("report", reportCommand = new ReportCommand(peacekeeper));
+        registerCommand("viewreports", new ViewReportsCommand(peacekeeper));
         registerCommand("ban", new PermBanCommand(peacekeeper));
         registerCommand("banip", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));

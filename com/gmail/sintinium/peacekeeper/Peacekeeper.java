@@ -84,6 +84,9 @@ public class Peacekeeper extends JavaPlugin {
             return;
         }
 
+        //TODO: Get this from config file
+        appealUrl = "http://amitycrafters.enjin.com/banappeals";
+
         databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {

@@ -1,6 +1,6 @@
 name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
-version: 0.98
+version: 1
 depend: [SQLibrary]
 loadbefore: [Essentials]
 softdepend: [ScoreboardStats, Essentials]
@@ -11,6 +11,10 @@ commands:
   report:
     description: Used to report an issue
     permission: peacekeeper.command.report
+  viewreports:
+    description: Used to view/modify reports
+    permission: peacekeeper.command.viewreports
+    usage: §3Use §b'/viewreports ?' §3for help and usages
   suspend:
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
@@ -58,6 +62,11 @@ permissions:
     children:
         peacekeeper.command.peacekeeper.reload: true
         peacekeeper.command.report: true
+        peacekeeper.command.viewreports: true
+        peacekeeper.command.viewreports.delete: true
+        peacekeeper.command.viewreports.deleteall: true
+        peacekeeper.command.view: true
+        peacekeeper.command.delete: true
         peacekeeper.command.info: true
         peacekeeper.command.records: true
         peacekeeper.command.records.delete: true
@@ -74,6 +83,15 @@ permissions:
   peacekeeper.command.report:
     description: Has permission to report issues with the server
     default: op
+  peacekeeper.command.viewreports:
+    description: Has permission to view reports
+    default: op
+  peacekeeper.command.viewreports.delete:
+    description: Has permission to delete reports
+    default: op
+  peacekeeper.command.viewreports.deleteall:
+      description: Has permission to delete all reports
+      default: op
   peacekeeper.command.info:
     description: Has permission to view a player's info
     default: op

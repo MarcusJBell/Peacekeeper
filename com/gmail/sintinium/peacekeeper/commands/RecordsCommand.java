@@ -50,7 +50,7 @@ public class RecordsCommand extends BaseCommand {
                 public void runTask() {
                     SortedMap<Integer, String> strings = recordDataToPages(viewingPlayers.get(sender));
                     ChatUtils.paginate(sender, strings, Integer.parseInt(args[0]), pageLength, "Next page: /records " + (Integer.parseInt(args[0]) + 1));
-                    sender.sendMessage(ChatColor.DARK_AQUA + "For detailed record info do /records id <recordID>");
+                    sender.sendMessage(ChatColor.DARK_AQUA + "For detailed record info do /records id <RecordID>");
                 }
             });
             return true;
