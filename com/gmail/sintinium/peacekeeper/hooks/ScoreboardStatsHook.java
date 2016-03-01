@@ -37,8 +37,11 @@ public class ScoreboardStatsHook {
     }
 
     public void updateScoreboard() {
-        if (scoreboardStats != null) {
-            scoreboardStats.getReplaceManager().updateScore("online", Bukkit.getOnlinePlayers().size() - peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.size());
+        try {
+            if (scoreboardStats != null) {
+                scoreboardStats.getReplaceManager().updateScore("online", Bukkit.getOnlinePlayers().size() - peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.size());
+            }
+        } catch (Exception e) {
         }
     }
 

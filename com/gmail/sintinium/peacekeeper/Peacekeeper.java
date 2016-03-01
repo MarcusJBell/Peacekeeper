@@ -14,6 +14,7 @@ import com.gmail.sintinium.peacekeeper.queue.DatabaseQueueManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
+import com.gmail.sintinium.peacekeeper.utils.jsonchat.JsonChat;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -48,6 +49,7 @@ public class Peacekeeper extends JavaPlugin {
     public ScoreboardStatsHook scoreboardStatsHook;
 
     public ConfigFile configFile;
+    public JsonChat jsonChat;
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
     public static Player getPlayer(String name) {
@@ -66,12 +68,6 @@ public class Peacekeeper extends JavaPlugin {
     @Override
     public void onEnable() {
         getServer().getScheduler().cancelTasks(this);
-        // Kick players, otherwise muted players and kicked players will be able to bypass mutes/bans
-        // This could be removed and read players to the cached lists, but since we don't have access to the database thread
-        // This could cause many issues and could and probably would lock the database
-//        for (Player p : Bukkit.getOnlinePlayers()) {
-//            p.kickPlayer(ChatColor.YELLOW + "Server is reloading.");
-//        }
         if (!loadDependencies()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -85,6 +81,11 @@ public class Peacekeeper extends JavaPlugin {
         registerListeners();
         loadConfig();
         loadDatabase();
+        if (!loadCompatibilities()) {
+            databaseQueueManager.queue.clear();
+            databaseQueueManager.bukkitTask.cancel();
+            return;
+        }
 
         databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
@@ -120,6 +121,24 @@ public class Peacekeeper extends JavaPlugin {
         }
         getServer().getScheduler().cancelTasks(this);
         database.close();
+    }
+
+    public boolean loadCompatibilities() {
+        String packageName = getServer().getClass().getPackage().getName();
+        String version = packageName.substring(packageName.lastIndexOf('.') + 1);
+        try {
+            final Class<?> clazz = Class.forName("com.gmail.sintinium.peacekeeper.utils.jsonchat." + version + ".JsonChat");
+            if (JsonChat.class.isAssignableFrom(clazz)) {
+                this.jsonChat = (JsonChat) clazz.getConstructor().newInstance();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            getLogger().severe("Could not find support for this CraftBukkit version");
+            setEnabled(false);
+            return false;
+        }
+        getLogger().info("Loading support for " + version);
+        return true;
     }
 
     public void loadConfig() {

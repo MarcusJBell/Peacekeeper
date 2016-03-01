@@ -12,12 +12,9 @@ import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
-import net.minecraft.server.v1_8_R3.IChatBaseComponent;
-import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -288,10 +285,7 @@ public class ConversationListener implements Listener {
 
         for (int i = data.page * adjustedPageCount; i < (data.page * adjustedPageCount) + adjustedPageCount && i < data.results.size(); i++) {
             TimeManager.TimeResult r = data.results.get(i);
-            IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + (r.length == null ? "" : ": ") + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + ("SELECTCATEGORY " + (i + 1)) + "\"}},{\"text\":\"" + (r.length == null ? "" : r.length) + "\",\"color\":\"aqua\"}]");
-            PacketPlayOutChat packet = new PacketPlayOutChat(component);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-//            player.sendMessage(ChatColor.DARK_AQUA + String.valueOf(i) + ". " + r.description + ": " + ChatColor.AQUA + r.length);
+            ChatUtils.sendTellRaw(peacekeeper, player, "[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + (r.length == null ? "" : ": ") + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + ("SELECTCATEGORY " + (i + 1)) + "\"}},{\"text\":\"" + (r.length == null ? "" : r.length) + "\",\"color\":\"aqua\"}]");
         }
 
         // Add buttons and alert the player what is needed.
@@ -310,42 +304,31 @@ public class ConversationListener implements Listener {
                 player.sendMessage(message.length() + "/" + "500 characters left");
             }
             if (!data.timeResults.isEmpty() && ((ReportConversationData) data).messages.size() > 0) {
-                IChatBaseComponent component1 = IChatBaseComponent.ChatSerializer.a(cancelFinish);
-                PacketPlayOutChat packet1 = new PacketPlayOutChat(component1);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
+                ChatUtils.sendTellRaw(peacekeeper, player, cancelFinish);
             } else {
-                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
-                PacketPlayOutChat packet = new PacketPlayOutChat(component);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+                ChatUtils.sendTellRaw(peacekeeper, player, cancel);
             }
         } else {
             if (!data.timeResults.isEmpty()) {
                 player.sendMessage(ChatColor.YELLOW + "Selected categories: " + categoriesToString(data));
 
-                IChatBaseComponent component1 = IChatBaseComponent.ChatSerializer.a(cancelFinish);
-                PacketPlayOutChat packet1 = new PacketPlayOutChat(component1);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
+                ChatUtils.sendTellRaw(peacekeeper, player, cancelFinish);
             } else {
-                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(cancel);
-                PacketPlayOutChat packet = new PacketPlayOutChat(component);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+                ChatUtils.sendTellRaw(peacekeeper, player, cancel);
             }
         }
 
         if ((data.results.size() - 1) / adjustedPageCount != 0) {
             String pageInfo = " " + (data.page + 1) + "/" + (((data.results.size() - 1) / adjustedPageCount) + 1) + " ";
             if (data.page == 0) {
-                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\"},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
-                PacketPlayOutChat packet = new PacketPlayOutChat(component);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+                String message = "[\"\",{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\"},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]";
+                ChatUtils.sendTellRaw(peacekeeper, player, message);
             } else if (data.page >= (data.results.size() - 1) / adjustedPageCount) {
-                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false}]");
-                PacketPlayOutChat packet = new PacketPlayOutChat(component);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+                String message = "[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false}]";
+                ChatUtils.sendTellRaw(peacekeeper, player, message);
             } else {
-                IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a("[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]");
-                PacketPlayOutChat packet = new PacketPlayOutChat(component);
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+                String message = "[\"\",{\"text\":\"[<]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page - 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Previous Page\"}]}}},{\"text\":\"" + pageInfo + "\",\"color\":\"aqua\",\"bold\":false},{\"text\":\"[>]\",\"color\":\"yellow\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "page " + (data.page + 1) + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Next Page\"}]}}}]";
+                ChatUtils.sendTellRaw(peacekeeper, player, message);
             }
         }
     }

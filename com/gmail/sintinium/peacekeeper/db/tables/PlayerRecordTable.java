@@ -175,7 +175,7 @@ public class PlayerRecordTable extends BaseTable {
     public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
         Integer playerID = set.getInt("PlayerID");
         if (set.wasNull()) playerID = null;
-        Long length = set.getLong("Time");
+        Long length = set.getLong("Length");
         if (set.wasNull()) length = null;
         Integer adminID = set.getInt("Admin");
         if (set.wasNull()) adminID = null;

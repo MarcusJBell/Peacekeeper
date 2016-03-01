@@ -26,7 +26,7 @@ public class CommandManager {
 
     public void registerDefaults() {
         registerCommand("release", new ReleaseCommand(peacekeeper));
-        registerCommand("mute", muteCommand = new MuteCommand(peacekeeper));
+        registerCommand("pkmute", muteCommand = new MuteCommand(peacekeeper));
         registerCommand("suspend", suspendCommand = new SuspendCommand(peacekeeper));
         registerCommand("report", reportCommand = new ReportCommand(peacekeeper));
 //        registerCommand("ipban", new IPBanCommand(peacekeeper));

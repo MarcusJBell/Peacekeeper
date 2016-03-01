@@ -2,7 +2,7 @@ name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
 version: 0.98
 depend: [SQLibrary]
-softdepend: [ScoreboardStats, Essentials, SuperTrails]
+softdepend: [ScoreboardStats, Essentials]
 commands:
   peacekeeper:
     aliases: [pk]
@@ -14,13 +14,13 @@ commands:
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
     usage: §4Syntax error! Usage §r§c/suspend <player> <reason>
-  mute:
+  pkmute:
     description: Mutes a player from chat
     permission: peacekeeper.command.mute
     usage: §4Syntax error! Usage §r§c/mute <player> <reason>
   release:
     description: Releases a user, including jail, mute, and bans
-    permission: peacekeeper.release
+    permission: peacekeeper.command.release
     usage: §4Syntax error! Usage §r§c/release <player|IP>
   playerinfo:
     description: Get a player's information

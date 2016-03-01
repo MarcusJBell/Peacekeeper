@@ -1,5 +1,6 @@
 package com.gmail.sintinium.peacekeeper.utils;
 
+import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -9,6 +10,10 @@ import java.util.Map;
 import java.util.SortedMap;
 
 public class ChatUtils {
+
+    public static void sendTellRaw(Peacekeeper peacekeeper, Player player, String message) {
+        peacekeeper.jsonChat.tellRawMessage(player, message);
+    }
 
     // Clears chat for the given player/sender
     public static void clearChat(CommandSender sender) {
