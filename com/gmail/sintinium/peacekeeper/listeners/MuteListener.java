@@ -9,11 +9,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 
 public class MuteListener implements Listener {
 
@@ -77,7 +75,7 @@ public class MuteListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void commandPreProcess(PlayerCommandPreprocessEvent event) {
         if (!peacekeeper.muteTable.mutedPlayers.containsKey(event.getPlayer().getUniqueId())) return;
         String split[] = event.getMessage().split("\\s+");
@@ -88,6 +86,11 @@ public class MuteListener implements Listener {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.DARK_RED + "You cannot use that command while muted.");
         }
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        peacekeeper.commandManager.powerToolCommand.onInteract(event);
     }
 
     public MuteData isMuted(final Player player, final int playerID) {

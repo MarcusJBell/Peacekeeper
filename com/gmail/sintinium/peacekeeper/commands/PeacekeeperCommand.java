@@ -14,6 +14,7 @@ public class PeacekeeperCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+
         if (args.length < 1) {
             usage(sender);
             return true;
@@ -33,16 +34,21 @@ public class PeacekeeperCommand extends BaseCommand {
             return true;
         }
 
+        String[] _args = new String[args.length - 1];
+        System.arraycopy(args, 1, _args, 0, args.length - 1);
+
         if (args[0].equalsIgnoreCase("sv")) {
-            String[] _args = new String[args.length - 1];
-            System.arraycopy(args, 1, _args, 0, args.length - 1);
-            if (!peacekeeper.commandManager.superVanishCommand.onCommand(sender, command, s, _args)) {
-                usage(sender);
-                return true;
-            } else {
+            if (peacekeeper.commandManager.superVanishCommand.onCommand(sender, command, s, _args)) {
                 return true;
             }
         }
+
+        if (args[0].equalsIgnoreCase("pt")) {
+            if (peacekeeper.commandManager.powerToolCommand.onCommand(sender, command, s, args)) {
+                return true;
+            }
+        }
+
         usage(sender);
         return true;
     }

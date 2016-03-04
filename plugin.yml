@@ -42,12 +42,7 @@ commands:
   records:
     description: Display all of a users records
     permission: peacekeeper.command.records
-    usage: §4Syntax error! Usage §r§c/records 'ID|Player|UUID|IP' <ID|Player|UUID|IP>!
-  vanish:
-    aliases: [v]
-    description: Hides the player from other players
-    permission: peacekeeper.command.vanish
-    usage: /vanish
+    usage: §3Use §b'/records ?' §3for help and usages
 permissions:
   peacekeeper.*:
     description: Give access to all commands and actions within the Peacekeeper plugin
@@ -90,8 +85,8 @@ permissions:
     description: Has permission to delete reports
     default: op
   peacekeeper.command.viewreports.deleteall:
-      description: Has permission to delete all reports
-      default: op
+    description: Has permission to delete all reports
+    default: op
   peacekeeper.command.info:
     description: Has permission to view a player's info
     default: op
@@ -102,8 +97,8 @@ permissions:
     description: Has permission to delete records from database
     default: op
   peacekeeper.command.records.deleteall:
-      description: Has permission to delete all records for given user
-      default: op
+    description: Has permission to delete all records for given user
+    default: op
   peacekeeper.info.ip:
     description: Has permission to view someone's ip when using /playerinfo
     default: op
@@ -122,12 +117,12 @@ permissions:
   peacekeeper.command.release:
     description: Has permission to remove all punishments from a user
     default: op
-  peacekeeper.release.notify:
-    description: Has permission to see when someone is released
-    default: op
   peacekeeper.command.vanish:
     description: Has permission to use the vanish command
     default: op
   peacekeeper.command.vanish.cansee:
     description: Has permission to see vanished players
+    default: op
+  peacekeeper.broadcast:
+    description: Has permission to see when someone is punished, released, or someone deletes a record or report
     default: op

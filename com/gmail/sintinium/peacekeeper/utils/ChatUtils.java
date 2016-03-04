@@ -66,7 +66,7 @@ public class ChatUtils {
     public static void broadcast(String message) {
         Bukkit.getConsoleSender().sendMessage(message);
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.hasPermission("peacekeeper.release.notify")) {
+            if (p.hasPermission("peacekeeper.broadcast")) {
                 p.sendMessage(message);
             }
         }

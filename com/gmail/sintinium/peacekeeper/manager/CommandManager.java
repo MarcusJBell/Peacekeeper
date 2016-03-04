@@ -12,11 +12,13 @@ import java.util.Set;
 public class CommandManager {
 
     public Set<PluginCommand> commands;
+    public PeacekeeperCommand peacekeeperCommand;
     public MuteCommand muteCommand;
     public SuspendCommand suspendCommand;
     public ReportCommand reportCommand;
     public VanishCommand vanishCommand;
     public SuperVanishCommand superVanishCommand;
+    public PowerToolCommand powerToolCommand;
     private Peacekeeper peacekeeper;
 
     public CommandManager(Peacekeeper peacekeeper) {
@@ -34,11 +36,12 @@ public class CommandManager {
         registerCommand("banip", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));
-        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
-//        vanishCommand = new VanishCommand(peacekeeper);
-        registerCommand("peacekeeper", new PeacekeeperCommand(peacekeeper));
+//        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
+        vanishCommand = new VanishCommand(peacekeeper);
+        registerCommand("peacekeeper", peacekeeperCommand = new PeacekeeperCommand(peacekeeper));
 //        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
         superVanishCommand = new SuperVanishCommand(peacekeeper);
+        powerToolCommand = new PowerToolCommand(peacekeeper);
     }
 
     public void registerCommand(String commandName, CommandExecutor executor) {
