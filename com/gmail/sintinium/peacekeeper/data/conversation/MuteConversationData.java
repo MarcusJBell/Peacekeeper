@@ -6,6 +6,10 @@ import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import java.util.List;
 
 public class MuteConversationData extends ConversationData {
+
+    public boolean updateMute = false;
+    public Integer oldRecord = null;
+
     public MuteConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType, String header) {
         super(results, conversationType, header);
     }
@@ -16,4 +20,11 @@ public class MuteConversationData extends ConversationData {
         this.punishedUUID = uuid;
         this.punishedUsername = username;
     }
+
+
+    public void updateMute(int oldRecord) {
+        updateMute = true;
+        this.oldRecord = oldRecord;
+    }
+
 }

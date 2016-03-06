@@ -9,15 +9,15 @@ import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
-import com.gmail.sintinium.peacekeeper.utils.BanUtils;
-import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
-import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
-import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
+import com.gmail.sintinium.peacekeeper.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 public class SuspendCommand extends BaseCommand {
 
@@ -26,13 +26,30 @@ public class SuspendCommand extends BaseCommand {
     }
 
     // Suspends the given player from the server
-    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long time, final String reason, final String description) {
+    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long inLength, final String reason, final String description, final SuspendConversationData conversationData) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
                 Integer adminID = null;
                 if (sender instanceof Player)
                     adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                if (conversationData != null && conversationData.updateSuspension) {
+                    peacekeeper.recordTable.removeRecord(conversationData.oldRecord);
+                    peacekeeper.banListener.cachedBans.remove(UUID.fromString(peacekeeper.userTable.getUserUUID(playerID)));
+                }
+                try {
+                    peacekeeper.muteTable.db.getConnection().commit();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                final Long time;
+                if (inLength != null) {
+                    final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(playerID, ConversationListener.ConversationType.MUTE, inLength);
+                    time = result.time;
+                } else
+                    time = null;
+
                 int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.BAN, time, reason, description);
                 BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
@@ -79,6 +96,27 @@ public class SuspendCommand extends BaseCommand {
                     return;
                 }
 
+                if (peacekeeper.banTable.isPlayerBanned(playerData.playerID)) {
+                    BanData banData = peacekeeper.handleBan(playerData.playerID);
+                    if (banData != null) {
+                        Integer playerID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                        String name = peacekeeper.userTable.getUsername(playerID);
+                        if (playerID == null || banData.adminId != playerID.intValue()) {
+                            if (sender.hasPermission("peacekeeper.command.overridepunishment")) {
+                                updateSuspend(sender, playerData, banData, reasonInput, name, false);
+                            } else {
+                                sender.sendMessage(ChatColor.RED + playerData.username + ChatColor.DARK_RED + " is currently banned by: " + ChatColor.RED + name);
+                                sender.sendMessage(ChatColor.DARK_RED + "And you do not have permission to override punishments");
+                                return;
+                            }
+                            return;
+                        } else if (banData.adminId == playerID.intValue()) {
+                            updateSuspend(sender, playerData, banData, reasonInput, name, true);
+                            return;
+                        }
+                    }
+                }
+
                 // Add player to conversations in main thread
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
@@ -94,6 +132,28 @@ public class SuspendCommand extends BaseCommand {
         });
 
         return true;
+    }
+
+    public void updateSuspend(final CommandSender sender, final PlayerData playerData, final BanData banData, final String reason, String previousBanner, final boolean selves) {
+        final String oldBanner = previousBanner + "'s";
+        Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+            @Override
+            public void run() {
+                String header;
+                if (!selves) {
+                    header = ChatColor.DARK_AQUA + "Overriding " + ChatColor.AQUA + oldBanner + ChatColor.DARK_AQUA + " suspension for: " + ChatColor.AQUA + playerData.username + "\n" +
+                            ChatColor.DARK_RED + "NOTE: YOU SHOULD ONLY EDIT OTHER'S SUSPENSIONS ONLY WITH PERMISSION";
+                } else {
+                    header = ChatColor.DARK_AQUA + "Updating suspension for: " + ChatColor.AQUA + playerData.username;
+                }
+
+                SuspendConversationData data = new SuspendConversationData(peacekeeper.timeManager.configMap.get(TimeManager.SUSPEND), ConversationListener.ConversationType.SUSPEND, header);
+                data.updateSuspension(banData.recordId);
+                data.setupSuspendConversation(playerData.playerID, reason, playerData.username);
+                peacekeeper.conversationListener.conversations.put((Player) sender, data);
+                peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
+            }
+        });
     }
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
@@ -116,7 +176,7 @@ public class SuspendCommand extends BaseCommand {
                 }
 
                 long time = TimeUtils.stringToMillis(lengthInput);
-                suspendUser(peacekeeper, sender, playerData.playerID, playerData.username, time, reasonInput, null);
+                suspendUser(peacekeeper, sender, playerData.playerID, playerData.username, time, reasonInput, null, null);
                 ChatUtils.banPlayerMessage(sender, playerData.username, time, reasonInput);
             }
         });

@@ -10,7 +10,6 @@ import com.gmail.sintinium.peacekeeper.data.conversation.SuspendConversationData
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
-import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -183,13 +182,12 @@ public class ConversationListener implements Listener {
             @Override
             public void runTask() {
                 final ConversationData data = conversations.get(event.getPlayer());
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.MUTE, data.results.get(select - 1).length);
 
                 if (data.timeResults.contains(data.results.get(select - 1))) {
-                    data.finalTime -= result.time;
+                    data.finalTime -= TimeUtils.stringToMillis(data.results.get(select - 1).length);
                     data.timeResults.remove(data.results.get(select - 1));
                 } else {
-                    data.finalTime += result.time;
+                    data.finalTime += TimeUtils.stringToMillis(data.results.get(select - 1).length);
                     data.timeResults.add(data.results.get(select - 1));
                 }
                 sendConversationInstructions(event.getPlayer());
@@ -215,12 +213,11 @@ public class ConversationListener implements Listener {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(data.playerID, ConversationListener.ConversationType.SUSPEND, data.results.get(stockID - 1).length);
                 if (data.timeResults.contains(data.results.get(stockID - 1))) {
-                    data.finalTime -= result.time;
+                    data.finalTime -= TimeUtils.stringToMillis(data.results.get(stockID - 1).length);
                     data.timeResults.remove(data.results.get(stockID - 1));
                 } else {
-                    data.finalTime += result.time;
+                    data.finalTime += TimeUtils.stringToMillis(data.results.get(stockID - 1).length);
                     data.timeResults.add(data.results.get(stockID - 1));
                 }
                 sendConversationInstructions(event.getPlayer());
@@ -238,7 +235,7 @@ public class ConversationListener implements Listener {
         final ConversationData data = conversations.get(sender);
         final String ordinal = TimeUtils.ordinal(peacekeeper.punishmentHelper.getOffsenseCount(ConversationType.MUTE, data.playerID) + 1);
         String finalReason = data.reason + " (" + ordinal + " offense)";
-        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, finalReason, categoriesToString(data));
+        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, finalReason, categoriesToString(data), (MuteConversationData) data);
         ChatUtils.muteMessage(sender, data.punishedUsername, data.finalTime, finalReason);
 
         String categoryString = categoriesToString(data);
@@ -253,7 +250,7 @@ public class ConversationListener implements Listener {
         final String ordinal = TimeUtils.ordinal(peacekeeper.punishmentHelper.getOffsenseCount(ConversationType.SUSPEND, data.playerID) + 1);
 
         String finalReason = data.reason + " (" + ordinal + " offense)";
-        SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, finalReason, categoriesToString(data));
+        SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, finalReason, categoriesToString(data), (SuspendConversationData) data);
         ChatUtils.banPlayerMessage(sender, data.punishedUsername, data.finalTime, finalReason);
 
         String categoryString = categoriesToString(data);
@@ -285,7 +282,7 @@ public class ConversationListener implements Listener {
 
         for (int i = data.page * adjustedPageCount; i < (data.page * adjustedPageCount) + adjustedPageCount && i < data.results.size(); i++) {
             TimeManager.TimeResult r = data.results.get(i);
-            ChatUtils.sendTellRaw(peacekeeper, player, "[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + (r.length == null ? "" : ": ") + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + ("SELECTCATEGORY " + (i + 1)) + "\"}},{\"text\":\"" + (r.length == null ? "" : r.length) + "\",\"color\":\"aqua\"}]");
+            ChatUtils.sendTellRaw(peacekeeper, player, "[\"\",{\"text\":\"" + String.valueOf(i + 1) + ". " + r.description + "\",\"color\":\"dark_aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + ("SELECTCATEGORY " + (i + 1)) + "\"}}]");
         }
 
         // Add buttons and alert the player what is needed.

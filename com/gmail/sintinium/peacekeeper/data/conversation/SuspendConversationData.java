@@ -7,6 +7,9 @@ import java.util.List;
 
 public class SuspendConversationData extends ConversationData {
 
+    public boolean updateSuspension = false;
+    public Integer oldRecord = null;
+
     public SuspendConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType, String header) {
         super(results, conversationType, header);
     }
@@ -16,4 +19,10 @@ public class SuspendConversationData extends ConversationData {
         this.reason = reason;
         this.punishedUsername = punishedUsername;
     }
+
+    public void updateSuspension(int oldRecord) {
+        updateSuspension = true;
+        this.oldRecord = oldRecord;
+    }
+
 }

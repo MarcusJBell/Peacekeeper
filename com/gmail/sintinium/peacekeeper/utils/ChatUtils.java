@@ -77,6 +77,10 @@ public class ChatUtils {
         sender.sendMessage(ChatColor.YELLOW + "Tip: " + "Use % to approximate results. Ex: b% is Bob! %bby is Bobby!");
     }
 
+    public static void noPermission(CommandSender sender) {
+        sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command");
+    }
+
     /**
      * Util to make pages for chat since I can't find any good documentation on bukkit's paginator util
      *

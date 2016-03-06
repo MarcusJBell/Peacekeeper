@@ -1,8 +1,10 @@
 package com.gmail.sintinium.peacekeeper;
 
 import com.gmail.sintinium.peacekeeper.data.BanData;
+import com.gmail.sintinium.peacekeeper.data.MuteData;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
+import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
 import com.gmail.sintinium.peacekeeper.listeners.*;
@@ -44,6 +46,7 @@ public class Peacekeeper extends JavaPlugin {
     public DatabaseQueueManager databaseQueueManager;
 
     public ScoreboardStatsHook scoreboardStatsHook;
+    public EssentialsHook essentialsHook;
 
     public ConfigFile configFile;
     public JsonChat jsonChat;
@@ -190,7 +193,22 @@ public class Peacekeeper extends JavaPlugin {
         }
         scoreboardStatsHook = new ScoreboardStatsHook(this);
         scoreboardStatsHook.loadPlugin();
+        essentialsHook = new EssentialsHook(this);
         return true;
+    }
+
+    public MuteData handleMute(int playerID) {
+        Integer muteID = muteTable.getMuteIDFromPlayerID(playerID);
+        if (muteID != null) {
+            MuteData muteData = muteTable.muteData(muteID);
+            if (muteData != null) {
+                if (muteData.muteLength != null && (muteData.muteTime + muteData.muteLength) - System.currentTimeMillis() <= 0) {
+                    muteTable.unmutePlayer(muteData.mutedUser);
+                }
+            }
+            return muteData;
+        }
+        return null;
     }
 
     // Handles a ban/Updates ban info and returns the BanData

@@ -55,6 +55,7 @@ permissions:
     description: Has permission to use all manual commands
     default: op
     children:
+        peacekeeper.command.overridepunishment: true
         peacekeeper.command.peacekeeper.reload: true
         peacekeeper.command.report: true
         peacekeeper.command.viewreports: true
@@ -72,6 +73,9 @@ permissions:
         peacekeeper.command.banip: true
         peacekeeper.command.release: true
         peacekeeper.command.vanish: true
+  peacekeeper.command.overridepunishment:
+    description: Has permission to override another admin's punishments
+    default: op
   peacekeeper.command.peacekeeper.reload:
     description: Has permission to reload config via /pk reload
     default: op

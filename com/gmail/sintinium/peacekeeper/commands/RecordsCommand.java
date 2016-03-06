@@ -84,6 +84,7 @@ public class RecordsCommand extends BaseCommand {
                             return;
                         }
                         advancedDataToChat(sender, data);
+                        return;
                     } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("p")) {
                         Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);
                         if (playerID != null)
@@ -151,6 +152,7 @@ public class RecordsCommand extends BaseCommand {
                 }
                 if (recordDatas == null) {
                     sender.sendMessage(ChatColor.DARK_RED + "No records found for " + args[0] + " with the name/id of " + args[1]);
+                    sender.sendMessage(ChatColor.YELLOW + "Tip: " + "Use % to approximate results. Ex: b% is Bob! %o% is Bobby!");
                     return;
                 }
                 boolean preExisting = viewingPlayers.containsKey(sender);

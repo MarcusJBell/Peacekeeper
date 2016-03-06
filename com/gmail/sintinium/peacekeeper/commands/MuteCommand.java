@@ -10,6 +10,7 @@ import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
+import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,6 +18,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class MuteCommand extends BaseCommand {
@@ -26,13 +28,29 @@ public class MuteCommand extends BaseCommand {
     }
 
     // Method that is actually called to mute a user
-    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long length, final String reason, final String description) {
+    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long inLength, final String reason, final String description, final MuteConversationData conversationData) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
                 Integer adminID = null;
                 if (sender instanceof Player)
                     adminID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                if (conversationData != null && conversationData.updateMute) {
+                    peacekeeper.recordTable.removeRecord(conversationData.oldRecord);
+                }
+                try {
+                    peacekeeper.muteTable.db.getConnection().commit();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                final Long length;
+                if (inLength != null) {
+                    final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(playerID, ConversationListener.ConversationType.MUTE, inLength);
+                    length = result.time;
+                } else
+                    length = null;
+
                 int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, description);
                 int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
                 MuteData muteData = peacekeeper.muteTable.muteData(muteID);
@@ -80,6 +98,27 @@ public class MuteCommand extends BaseCommand {
                     return;
                 }
 
+                if (peacekeeper.muteTable.isPlayerMuted(playerData.playerID)) {
+                    MuteData muteData = peacekeeper.handleMute(playerData.playerID);
+                    if (muteData != null) {
+                        Integer playerID = peacekeeper.userTable.getPlayerIDFromUUID(((Player) sender).getUniqueId().toString());
+                        String name = peacekeeper.userTable.getUsername(playerID);
+                        if (playerID == null || muteData.adminId != playerID.intValue()) {
+                            if (sender.hasPermission("peacekeeper.command.overridepunishment")) {
+                                updateMute(sender, playerData, muteData, reasonInput, name, false);
+                            } else {
+                                sender.sendMessage(ChatColor.RED + playerData.username + ChatColor.DARK_RED + " is currently muted by: " + ChatColor.RED + name);
+                                sender.sendMessage(ChatColor.DARK_RED + "And you do not have permission to override punishments");
+                                return;
+                            }
+                            return;
+                        } else if (muteData.adminId == playerID.intValue()) {
+                            updateMute(sender, playerData, muteData, reasonInput, name, true);
+                            return;
+                        }
+                    }
+                }
+
                 // Add sender to conversation in main bukkit thread
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
@@ -95,6 +134,28 @@ public class MuteCommand extends BaseCommand {
         });
 
         return true;
+    }
+
+    public void updateMute(final CommandSender sender, final PlayerData playerData, final MuteData muteData, final String reason, String previousMuter, final boolean selves) {
+        final String oldBanner = previousMuter + "'s";
+        Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+            @Override
+            public void run() {
+                String header;
+                if (!selves) {
+                    header = ChatColor.DARK_AQUA + "Overriding " + ChatColor.AQUA + oldBanner + ChatColor.DARK_AQUA + " mute for: " + ChatColor.AQUA + playerData.username + "\n" +
+                            ChatColor.DARK_RED + "NOTE: YOU SHOULD ONLY EDIT OTHER'S SUSPENSIONS ONLY WITH PERMISSION";
+                } else {
+                    header = ChatColor.DARK_AQUA + "Updating mute for: " + ChatColor.AQUA + playerData.username;
+                }
+
+                MuteConversationData data = new MuteConversationData(peacekeeper.timeManager.configMap.get(TimeManager.MUTE), ConversationListener.ConversationType.MUTE, header);
+                data.updateMute(muteData.recordId);
+                data.setupMuteConversation(playerData.playerID, reason, playerData.uuid.toString(), playerData.username);
+                peacekeeper.conversationListener.conversations.put((Player) sender, data);
+                peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
+            }
+        });
     }
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
@@ -117,7 +178,7 @@ public class MuteCommand extends BaseCommand {
                 }
 
                 long time = TimeUtils.stringToMillis(lengthInput);
-                muteUser(sender, peacekeeper, playerData.uuid.toString(), playerData.username, playerData.playerID, time, reasonInput, null);
+                muteUser(sender, peacekeeper, playerData.uuid.toString(), playerData.username, playerData.playerID, time, reasonInput, null, null);
                 ChatUtils.muteMessage(sender, playerData.username, time, reasonInput);
             }
         });

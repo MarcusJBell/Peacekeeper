@@ -20,7 +20,7 @@ public class PunishmentHelper {
         this.peacekeeper = peacekeeper;
     }
 
-    public PunishmentResult getTime(int playerID, ConversationListener.ConversationType conversationType, String length) {
+    public PunishmentResult getTime(int playerID, ConversationListener.ConversationType conversationType, long length) {
         // Formula is all bans without a 2 month gap + stockTime*1.5^offenseCount
         //TODO: Add subtype compatibility to conversations
         if (conversationType == ConversationListener.ConversationType.SUSPEND || conversationType == ConversationListener.ConversationType.MUTE) {
@@ -30,7 +30,7 @@ public class PunishmentHelper {
     }
 
     @Nullable
-    private PunishmentResult process(ConversationListener.ConversationType conversationType, int playerID, String length) {
+    private PunishmentResult process(ConversationListener.ConversationType conversationType, int playerID, long length) {
         List<RecordData> datas = null;
         switch (conversationType) {
             case SUSPEND:
@@ -41,12 +41,11 @@ public class PunishmentHelper {
                 break;
         }
         if (datas == null) {
-            return new PunishmentResult(getStockTime(length), 0);
+            return new PunishmentResult(length, 0);
         }
         long totalLastLength = getPreviousTotalLength(datas);
-        long stockTime = getStockTime(length);
         int offenseCount = datas.size();
-        long processedTime = totalLastLength + (stockTime * (int) Math.pow(1.5, offenseCount));
+        long processedTime = totalLastLength + (length * (int) Math.pow(1.5, offenseCount));
         return new PunishmentResult(processedTime, offenseCount);
     }
 
@@ -83,10 +82,6 @@ public class PunishmentHelper {
             totalLength += d.length;
         }
         return totalLength;
-    }
-
-    private long getStockTime(String length) {
-        return TimeUtils.stringToMillis(length);
     }
 
     public class PunishmentResult {
