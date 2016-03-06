@@ -22,7 +22,6 @@ public class PunishmentHelper {
 
     public PunishmentResult getTime(int playerID, ConversationListener.ConversationType conversationType, long length) {
         // Formula is all bans without a 2 month gap + stockTime*1.5^offenseCount
-        //TODO: Add subtype compatibility to conversations
         if (conversationType == ConversationListener.ConversationType.SUSPEND || conversationType == ConversationListener.ConversationType.MUTE) {
             return process(conversationType, playerID, length);
         }

@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -152,13 +153,13 @@ public class RecordsCommand extends BaseCommand {
                 }
                 if (recordDatas == null) {
                     sender.sendMessage(ChatColor.DARK_RED + "No records found for " + args[0] + " with the name/id of " + args[1]);
-                    sender.sendMessage(ChatColor.YELLOW + "Tip: " + "Use % to approximate results. Ex: b% is Bob! %o% is Bobby!");
+                    sender.sendMessage(ChatColor.YELLOW + "Tip: " + "Use % to approximate results. Ex: b% is Bob! %obb% is Bobby!");
                     return;
                 }
                 boolean preExisting = viewingPlayers.containsKey(sender);
                 viewingPlayers.put(sender, recordDatas);
                 ChatUtils.paginate(sender, recordDataToPages(recordDatas), 1, pageLength, "Next page: /records 2");
-                sender.sendMessage(ChatColor.DARK_AQUA + "For detailed record info do /records id <recordID>");
+                sender.sendMessage(ChatColor.DARK_AQUA + "For detailed record info do /records id <RecordID>");
 
                 // Remove user from map after 10 minutes to clear memory
                 if (!preExisting) {
@@ -244,7 +245,11 @@ public class RecordsCommand extends BaseCommand {
             sender.sendMessage(ChatColor.DARK_AQUA + "Admin: " + ChatColor.AQUA + "CONSOLE");
 
         sender.sendMessage(ChatColor.DARK_AQUA + "Type: " + ChatColor.AQUA + data.getTypeName());
-        sender.sendMessage(ChatColor.DARK_AQUA + "Record Created: " + ChatColor.AQUA + TimeUtils.formatTime(data.time));
+        if (sender instanceof Player) {
+            String createJSON = "[\"\",{\"text\":\"Record created: \",\"color\":\"dark_aqua\"},{\"text\":\"" + TimeUtils.formatTime(data.time) + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - data.time) + " ago" + "\",\"color\":\"gold\"}]}}}]";
+            peacekeeper.jsonChat.tellRawMessage((Player) sender, createJSON);
+        } else
+            sender.sendMessage(ChatColor.DARK_AQUA + "Record Created: " + ChatColor.AQUA + TimeUtils.formatTime(data.time));
 
         if (data.length != null)
             sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.AQUA + TimeUtils.millsToString(data.length));

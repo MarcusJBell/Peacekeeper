@@ -77,7 +77,7 @@ public class MuteListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void commandPreProcess(PlayerCommandPreprocessEvent event) {
-        if (!peacekeeper.muteTable.mutedPlayers.containsKey(event.getPlayer().getUniqueId())) return;
+        if (peacekeeper.muteTable == null || !peacekeeper.muteTable.mutedPlayers.containsKey(event.getPlayer().getUniqueId())) return;
         String split[] = event.getMessage().split("\\s+");
         if (split.length <= 0) return;
         String m = split[0].toLowerCase();

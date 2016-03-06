@@ -13,6 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,9 +54,19 @@ public class PlayerInfoCommand extends BaseCommand {
 
                 sender.sendMessage(ChatColor.DARK_AQUA + "---- Player Info ----");
                 sender.sendMessage(ChatColor.DARK_AQUA + "Username: " + ChatColor.AQUA + playerData.username);
-                sender.sendMessage(ChatColor.DARK_AQUA + "UUID: " + ChatColor.AQUA + playerData.uuid);
-                sender.sendMessage(ChatColor.DARK_AQUA + "Join date: " + ChatColor.AQUA + joinTime);
-                sender.sendMessage(ChatColor.DARK_AQUA + "Last seen: " + ChatColor.AQUA + lastSeen);
+                String joinJSON = "[\"\",{\"text\":\"Join date: \",\"color\":\"dark_aqua\"},{\"text\":\"" + joinTime + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - player.getFirstPlayed()) + " ago" + "\",\"color\":\"gold\"}]}}}]";
+                if (sender instanceof Player) {
+                    peacekeeper.jsonChat.tellRawMessage((Player) sender, joinJSON);
+                } else {
+                    sender.sendMessage(ChatColor.DARK_AQUA + "Join date: " + ChatColor.AQUA + joinTime);
+                }
+
+                if (lastSeen.equals("Currently online") || !(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.DARK_AQUA + "Last seen: " + ChatColor.AQUA + lastSeen);
+                } else {
+                    String lastSeenJSON = "[\"\",{\"text\":\"Last seen: \",\"color\":\"dark_aqua\"},{\"text\":\"" + lastSeen + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - player.getLastPlayed()) + " ago" + "\",\"color\":\"gold\"}]}}}]";
+                    peacekeeper.jsonChat.tellRawMessage((Player) sender, lastSeenJSON);
+                }
 
                 if (sender.hasPermission("peacekeeper.playerinfo.ip")) {
                     sender.sendMessage(ChatColor.DARK_AQUA + "IP: " + ChatColor.AQUA + playerData.ip);
