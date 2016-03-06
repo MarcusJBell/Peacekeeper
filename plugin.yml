@@ -11,6 +11,7 @@ commands:
   report:
     description: Used to report an issue
     permission: peacekeeper.command.report
+    usage: §4Syntax error! Usage §r§c/report <player(s)...>
   viewreports:
     description: Used to view/modify reports
     permission: peacekeeper.command.viewreports

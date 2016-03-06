@@ -7,6 +7,7 @@ import com.gmail.sintinium.peacekeeper.db.tables.*;
 import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
+import com.gmail.sintinium.peacekeeper.io.LogFile;
 import com.gmail.sintinium.peacekeeper.listeners.*;
 import com.gmail.sintinium.peacekeeper.manager.CommandManager;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
 public class Peacekeeper extends JavaPlugin {
 
     public static String appealUrl;
+    public static LogFile logFile;
     public SQLite database;
     public UserTable userTable;
     public PlayerReportTable reportTable;
@@ -39,15 +41,12 @@ public class Peacekeeper extends JavaPlugin {
     public CommandManager commandManager;
     public TimeManager timeManager;
     public PunishmentHelper punishmentHelper;
-
     public ConversationListener conversationListener;
     public MuteListener muteListener;
     public BanListener banListener;
     public DatabaseQueueManager databaseQueueManager;
-
     public ScoreboardStatsHook scoreboardStatsHook;
     public EssentialsHook essentialsHook;
-
     public ConfigFile configFile;
     public JsonChat jsonChat;
 
@@ -149,6 +148,7 @@ public class Peacekeeper extends JavaPlugin {
         configFile.loadConfiguration();
         timeManager = new TimeManager(this);
         timeManager.loadTimes();
+        logFile = new LogFile(this);
         if (conversationListener != null && !conversationListener.conversations.isEmpty()) {
             for (Map.Entry<Player, ConversationData> set : conversationListener.conversations.entrySet()) {
                 conversationListener.syncCancel(set.getKey());

@@ -114,7 +114,7 @@ public class TimeUtils {
     }
 
     public static String formatTime(long mills) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ssa z");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ssa z");
         sdf.setTimeZone(TimeZone.getTimeZone("EST"));
         Date time = new Date(mills);
         return sdf.format(time);

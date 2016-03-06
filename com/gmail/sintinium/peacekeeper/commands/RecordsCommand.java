@@ -220,9 +220,9 @@ public class RecordsCommand extends BaseCommand {
     public String recordDataToStringFromDB(RecordData data) {
         String result = "";
         result += "RecordID:" + ChatColor.AQUA + data.recordID + ChatColor.DARK_AQUA + ", ";
-        if (data.type == PlayerRecordTable.BAN)
+        if (data.type != PlayerRecordTable.IP)
             result += "Player:" + ChatColor.AQUA + "'" + peacekeeper.userTable.getUsername(data.playerID) + "'" + ChatColor.DARK_AQUA + ", ";
-        else if (data.type == PlayerRecordTable.IP)
+        else
             result += "IP:" + ChatColor.AQUA + "'" + data.ip + "'" + ChatColor.DARK_AQUA + ", ";
         result += "Type:" + ChatColor.AQUA + data.getTypeName();
         return result;

@@ -64,6 +64,7 @@ public class ChatUtils {
 
     // Broadcasts messages on mute/ban to other admins with permission to see the mute/ban
     public static void broadcast(String message) {
+        Peacekeeper.logFile.logToFile(ChatColor.stripColor(message));
         Bukkit.getConsoleSender().sendMessage(message);
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.hasPermission("peacekeeper.broadcast")) {
