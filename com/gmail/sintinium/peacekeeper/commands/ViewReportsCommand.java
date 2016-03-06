@@ -30,6 +30,10 @@ public class ViewReportsCommand extends BaseCommand {
             @Override
             public void runTask() {
                 if (args.length == 0) {
+                    usage(sender);
+                    return;
+                }
+                if (args[0].equalsIgnoreCase("all")) {
                     List<ReportData> reportData = peacekeeper.reportTable.getAllReports();
                     if (reportData.isEmpty()) {
                         sender.sendMessage(ChatColor.GREEN + "There are currently no reports");
@@ -103,9 +107,13 @@ public class ViewReportsCommand extends BaseCommand {
         return true;
     }
 
+    public void usage(CommandSender sender) {
+        sender.sendMessage(ChatColor.DARK_AQUA + "Use '" + ChatColor.AQUA + "/viewreports ?" + ChatColor.DARK_AQUA + "' for help and usages");
+    }
+
     public void allUsage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_AQUA + "---- Reports Help ----");
-        sendUsageElement(sender, "/viewreports", "View all reports");
+        sendUsageElement(sender, "/viewreports all", "View all reports");
         sendUsageElement(sender, "/viewreports id <ReportID>", "View a report");
         sendUsageElement(sender, "/viewreports del <ReportID>", "Delete a report from database");
         sendUsageElement(sender, "/viewreports delall <Username>", "Delete all reports from given user");

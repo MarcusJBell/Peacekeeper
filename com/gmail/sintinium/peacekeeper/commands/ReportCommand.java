@@ -17,11 +17,11 @@ public class ReportCommand extends BaseCommand {
         super(peacekeeper);
     }
 
-    public void submitReport(final Player player, final String message, final String category) {
+    public void submitReport(final Player player, final String message, final String category, final String players) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
-                peacekeeper.reportTable.addReport(peacekeeper.userTable.getPlayerIDFromUUID(player.getUniqueId().toString()), message, category);
+                peacekeeper.reportTable.addReport(peacekeeper.userTable.getPlayerIDFromUUID(player.getUniqueId().toString()), "[Reporting: " + players + "] " + message, category);
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
@@ -33,7 +33,7 @@ public class ReportCommand extends BaseCommand {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String string, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("This command can only be ran by players.");
             return true;
@@ -42,7 +42,13 @@ public class ReportCommand extends BaseCommand {
             return false;
         }
 
-        ReportConversationData data = new ReportConversationData(peacekeeper.timeManager.configMap.get(TimeManager.REPORT), ConversationListener.ConversationType.REPORT, ChatColor.DARK_AQUA + "Reporting...");
+        StringBuilder builder = new StringBuilder();
+        for (String s : args) {
+            builder.append(s);
+        }
+        String players = builder.toString();
+
+        ReportConversationData data = new ReportConversationData(peacekeeper.timeManager.configMap.get(TimeManager.REPORT), ConversationListener.ConversationType.REPORT, ChatColor.DARK_AQUA + "Reporting...", players);
         peacekeeper.conversationListener.conversations.put((Player) sender, data);
         peacekeeper.conversationListener.sendConversationInstructions((Player) sender);
         return true;

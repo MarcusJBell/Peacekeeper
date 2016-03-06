@@ -227,7 +227,7 @@ public class ConversationListener implements Listener {
 
     public void onReportFinish(final Player player) {
         final ReportConversationData data = (ReportConversationData) conversations.get(player);
-        peacekeeper.commandManager.reportCommand.submitReport(player, data.getFinalMessage(), categoriesToString(data));
+        peacekeeper.commandManager.reportCommand.submitReport(player, data.getFinalMessage(), categoriesToString(data), data.reportingUsers);
         player.sendMessage(ChatColor.GREEN + "Thank you for your report.");
     }
 

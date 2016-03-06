@@ -10,9 +10,12 @@ public class ReportConversationData extends ConversationData {
 
     public List<String> messages;
 
-    public ReportConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType, String header) {
+    public String reportingUsers;
+
+    public ReportConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType, String header, String reportingUsers) {
         super(results, conversationType, header);
         messages = new ArrayList<>();
+        this.reportingUsers = reportingUsers;
     }
 
     public void addMessage(String message) {
