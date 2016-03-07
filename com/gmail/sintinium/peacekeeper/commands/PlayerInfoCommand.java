@@ -15,10 +15,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 public class PlayerInfoCommand extends BaseCommand {
 
     public PlayerInfoCommand(Peacekeeper peacekeeper) {
@@ -39,17 +35,13 @@ public class PlayerInfoCommand extends BaseCommand {
                     return;
                 }
 
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ssa z");
-                sdf.setTimeZone(TimeZone.getTimeZone("EST"));
                 OfflinePlayer player = Bukkit.getOfflinePlayer(playerData.uuid);
 
-                Date joinDate = new Date(player.getFirstPlayed());
-                String joinTime = sdf.format(joinDate);
+                String joinTime = TimeUtils.formatTime(player.getFirstPlayed());
 
                 String lastSeen = "Currently online";
                 if (!player.isOnline()) {
-                    Date lastDate = new Date(player.getLastPlayed());
-                    lastSeen = sdf.format(lastDate);
+                    lastSeen = TimeUtils.formatTime(player.getLastPlayed());
                 }
 
                 sender.sendMessage(ChatColor.DARK_AQUA + "---- Player Info ----");
