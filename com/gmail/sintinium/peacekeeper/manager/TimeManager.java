@@ -28,7 +28,8 @@ public class TimeManager {
         try {
             Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("TimeConfig.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
-            config.save(getFile());
+            File file = new File(peacekeeper.getDataFolder(), "TimeConfig.yml");
+            config.save(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,27 +40,23 @@ public class TimeManager {
         if (!file.exists())
             file.mkdir();
         File config = new File(peacekeeper.getDataFolder(), "TimeConfig.yml");
-        try {
-            if (!config.exists()) {
-                config.createNewFile();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!config.exists()) {
+            reloadDefaultConfig();
         }
         return config;
     }
 
     public void loadTimes() {
-        File file = getFile();
-        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        if (!config.contains(key + ".Suspend") || !config.contains(key + ".Mute") || !config.contains(key + ".Report")) {
-            reloadDefaultConfig();
-            config = YamlConfiguration.loadConfiguration(getFile());
-        }
+        try {
+            File file = getFile();
+            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        loadType(config, key + ".Suspend", SUSPEND, true);
-        loadType(config, key + ".Mute", MUTE, true);
-        loadType(config, key + ".Report", REPORT, false);
+            loadType(config, key + ".Suspend", SUSPEND, true);
+            loadType(config, key + ".Mute", MUTE, true);
+            loadType(config, key + ".Report", REPORT, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadType(FileConfiguration config, String parentKey, String type, boolean time) {

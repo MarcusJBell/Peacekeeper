@@ -85,29 +85,6 @@ public class PlayerRecordTable extends BaseTable {
     }
 
     @Nullable
-    public List<RecordData> getRecordsForUser(int playerID, Long time) {
-        List<RecordData> result = new ArrayList<>();
-        try {
-            Integer recordCount = recordCount(playerID);
-            if (recordCount == null) return null;
-            ResultSet set = getStarSet(playerID);
-            while (set.next()) {
-                result.add(getDataFromStarSet(set));
-            }
-            set.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return result;
-    }
-
-    @Nullable
-    public List<RecordData> getRecordsForUser(int playerID) {
-        return getRecordsForUser(playerID, null);
-    }
-
-    @Nullable
     public List<RecordData> getRecordsByTypeWithinTime(int playerID, int recordType, Long time) {
         List<RecordData> result = new ArrayList<>();
         try {

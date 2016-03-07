@@ -2,8 +2,6 @@ package com.gmail.sintinium.peacekeeper.data;
 
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 
-import javax.annotation.Nullable;
-
 public class RecordData {
 
     public int recordID;
@@ -13,7 +11,6 @@ public class RecordData {
     public Long time, length;
     public String reason;
     public Integer adminID;
-    @Nullable
     public String category;
 
     public RecordData(int recordID, Integer playerID, String ip, int type, Long time, Long length, String reason, Integer adminID, String category) {

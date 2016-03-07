@@ -86,9 +86,6 @@ public class Peacekeeper extends JavaPlugin {
             return;
         }
 
-        //TODO: Get this from config file
-        appealUrl = "http://amitycrafters.enjin.com/banappeals";
-
         databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
@@ -155,6 +152,9 @@ public class Peacekeeper extends JavaPlugin {
                 set.getKey().sendMessage(ChatColor.DARK_AQUA + "Configuration reloaded");
             }
         }
+
+        //TODO: Get this from config file
+        appealUrl = "http://amitycrafters.enjin.com/banappeals";
     }
 
 

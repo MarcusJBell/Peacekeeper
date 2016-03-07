@@ -42,6 +42,7 @@ public class ScoreboardStatsHook {
                 scoreboardStats.getReplaceManager().updateScore("online", Bukkit.getOnlinePlayers().size() - peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.size());
             }
         } catch (Exception e) {
+            scoreboardStats = null;
         }
     }
 

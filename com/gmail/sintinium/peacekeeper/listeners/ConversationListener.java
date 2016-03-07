@@ -108,7 +108,6 @@ public class ConversationListener implements Listener {
                 return;
             } else if (event.getMessage().startsWith("page")) {
                 String[] args = event.getMessage().split(" ");
-                int page = Integer.parseInt(args[1]);
                 if (args.length != 2) {
                     event.getPlayer().sendMessage(ChatColor.YELLOW + "Syntax: 'Page <number>'");
                     return;
