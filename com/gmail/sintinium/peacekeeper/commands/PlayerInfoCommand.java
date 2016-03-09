@@ -27,7 +27,6 @@ public class PlayerInfoCommand extends BaseCommand {
             return false;
         }
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
-            @Override
             public void runTask() {
                 PlayerData playerData = peacekeeper.userTable.getPlayerData(sender, args[0]);
                 if (playerData == null) {
