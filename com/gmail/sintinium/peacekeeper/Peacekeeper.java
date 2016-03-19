@@ -115,7 +115,7 @@ public class Peacekeeper extends JavaPlugin {
                 break;
             }
             try {
-                Thread.sleep(500);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

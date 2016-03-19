@@ -3,6 +3,7 @@ package com.gmail.sintinium.peacekeeper.listeners;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.db.tables.UserTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,14 +32,26 @@ public class JoinListener implements Listener {
                 } else {
                     db.updateUser(event.getPlayer(), db.getPlayerIDFromUUID(event.getPlayer().getUniqueId().toString()));
                 }
-                if (event.getPlayer().hasPermission("peacekeeper.commands.viewreports")) {
-                    int recordCount = peacekeeper.reportTable.recordCount();
-                    if (recordCount > 0) {
-                        event.getPlayer().sendMessage(ChatColor.YELLOW + "There are currently " + recordCount + " reports");
-                    }
-                }
             }
         });
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
+            @Override
+            public void run() {
+                peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+                    @Override
+                    public void runTask() {
+                        if (event.getPlayer().hasPermission("peacekeeper.command.viewreports")) {
+                            int recordCount = peacekeeper.reportTable.recordCount();
+                            if (recordCount > 0) {
+                                event.getPlayer().sendMessage(ChatColor.YELLOW + "There are currently " + recordCount + " reports");
+                                event.getPlayer().sendMessage(ChatColor.YELLOW + "Use '/viewreports all' to view them.");
+                            }
+                        }
+                    }
+                });
+            }
+        }, 60L);
     }
 
 }
