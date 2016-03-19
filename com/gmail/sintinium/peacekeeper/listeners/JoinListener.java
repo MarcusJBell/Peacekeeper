@@ -3,6 +3,7 @@ package com.gmail.sintinium.peacekeeper.listeners;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.db.tables.UserTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,6 +30,12 @@ public class JoinListener implements Listener {
                     peacekeeper.getLogger().info("Added user " + event.getPlayer().getName() + " to database. (" + (System.currentTimeMillis() - time) + "ms)");
                 } else {
                     db.updateUser(event.getPlayer(), db.getPlayerIDFromUUID(event.getPlayer().getUniqueId().toString()));
+                }
+                if (event.getPlayer().hasPermission("peacekeeper.commands.viewreports")) {
+                    int recordCount = peacekeeper.reportTable.recordCount();
+                    if (recordCount > 0) {
+                        event.getPlayer().sendMessage(ChatColor.YELLOW + "There are currently " + recordCount + " reports");
+                    }
                 }
             }
         });

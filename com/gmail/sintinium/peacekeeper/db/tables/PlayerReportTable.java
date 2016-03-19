@@ -60,6 +60,10 @@ public class PlayerReportTable extends BaseTable {
         return null;
     }
 
+    public int recordCount() {
+        return tableRowCount();
+    }
+
     public ReportData reportDataFromStarSet(ResultSet set) throws SQLException {
         return new ReportData(set.getInt("ReportID"), set.getInt("PlayerID"), set.getString("Message"), set.getLong("Time"), set.getString("Category"));
     }

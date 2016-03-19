@@ -396,6 +396,22 @@ public abstract class BaseTable {
         return count;
     }
 
+    public int tableRowCount() {
+        try {
+            ResultSet set = db.query("SELECT COUNT(*) FROM " + tableName + ";");
+            if (!set.next()) {
+                set.close();
+                return 0;
+            }
+            int count = set.getInt(1);
+            set.close();
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     /**
      * Gets value count from table
      *
