@@ -19,6 +19,7 @@ public class CommandManager {
     public VanishCommand vanishCommand;
     public SuperVanishCommand superVanishCommand;
     public PowerToolCommand powerToolCommand;
+    public WarnCommand warnCommand;
     private Peacekeeper peacekeeper;
 
     public CommandManager(Peacekeeper peacekeeper) {
@@ -36,6 +37,7 @@ public class CommandManager {
         registerCommand("banip", new IPBanCommand(peacekeeper));
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));
+        registerCommand("warn", warnCommand = new WarnCommand(peacekeeper));
 //        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
         vanishCommand = new VanishCommand(peacekeeper);
         registerCommand("peacekeeper", peacekeeperCommand = new PeacekeeperCommand(peacekeeper));
@@ -47,7 +49,7 @@ public class CommandManager {
     public void registerCommand(String commandName, CommandExecutor executor) {
         PluginCommand command = peacekeeper.getCommand(commandName);
         if (command == null) {
-            peacekeeper.getLogger().info("Could not register command.." + commandName);
+            peacekeeper.getLogger().warning("Could not register command.. " + commandName);
             return;
         }
         command.setExecutor(executor);

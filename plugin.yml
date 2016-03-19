@@ -16,6 +16,10 @@ commands:
     description: Used to view/modify reports
     permission: peacekeeper.command.viewreports
     usage: §3Use §b'/viewreports ?' §3for help and usages
+  warn:
+    description: Warns a player
+    permission: peacekeeper.command.warn
+    usage: §4Syntax error! Usage §r§c/warn <player> <reason>
   suspend:
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
@@ -68,6 +72,7 @@ permissions:
         peacekeeper.command.records: true
         peacekeeper.command.records.delete: true
         peacekeeper.command.records.deleteall: true
+        peacekeeper.command.warn: true
         peacekeeper.command.mute: true
         peacekeeper.command.suspend: true
         peacekeeper.command.ban: true
@@ -106,6 +111,9 @@ permissions:
     default: op
   peacekeeper.info.ip:
     description: Has permission to view someone's ip when using /playerinfo
+    default: op
+  peacekeeper.command.warn:
+    description: Has permission to mute a user.
     default: op
   peacekeeper.command.mute:
     description: Has permission to mute a user.

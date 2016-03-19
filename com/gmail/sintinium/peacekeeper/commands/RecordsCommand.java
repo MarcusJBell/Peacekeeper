@@ -251,14 +251,16 @@ public class RecordsCommand extends BaseCommand {
         } else
             sender.sendMessage(ChatColor.DARK_AQUA + "Record Created: " + ChatColor.AQUA + TimeUtils.formatTime(data.time));
 
-        if (data.length != null)
-            sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.AQUA + TimeUtils.millsToString(data.length));
-        else
-            sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.RED + "FOREVER");
+        if (data.type != PlayerRecordTable.WARNING) {
+            if (data.length != null)
+                sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.AQUA + TimeUtils.millsToString(data.length));
+            else
+                sender.sendMessage(ChatColor.DARK_AQUA + "Length: " + ChatColor.RED + "FOREVER");
+        }
 
         sender.sendMessage(ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + "\"" + data.reason + "\"");
         String stockReason = data.category;
-        if (stockReason != null)
+        if (stockReason != null && !stockReason.equalsIgnoreCase("null"))
             sender.sendMessage(ChatColor.DARK_AQUA + "Category: " + ChatColor.AQUA + "\"" + stockReason + "\"");
 
         return result;

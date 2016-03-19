@@ -62,6 +62,10 @@ public class ChatUtils {
         broadcast(ChatColor.DARK_RED + sender.getName() + ChatColor.YELLOW + " has released player: " + ChatColor.RED + playerName);
     }
 
+    public static void warnMessage(CommandSender sender, String playerName) {
+        broadcast(ChatColor.GOLD + sender.getName() + ChatColor.YELLOW + " has warned player: " + ChatColor.RED + playerName);
+    }
+
     // Broadcasts messages on mute/ban to other admins with permission to see the mute/ban
     public static void broadcast(String message) {
         Peacekeeper.logFile.logToFile(ChatColor.stripColor(message));

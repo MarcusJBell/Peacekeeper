@@ -42,14 +42,19 @@ public class DatabaseQueueManager {
                         try {
                             peacekeeper.database.getConnection().setAutoCommit(false);
                             currentTask.runTask();
-                            peacekeeper.database.getConnection().commit();
-                            peacekeeper.database.getConnection().setAutoCommit(true);
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
-                        peacekeeper.database.close();
                     } catch (Exception e) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            peacekeeper.database.getConnection().commit();
+                            peacekeeper.database.getConnection().setAutoCommit(true);
+                            peacekeeper.database.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 closed = true;

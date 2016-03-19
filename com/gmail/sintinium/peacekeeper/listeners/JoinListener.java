@@ -4,6 +4,7 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.db.tables.UserTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
@@ -15,7 +16,7 @@ public class JoinListener implements Listener {
         this.peacekeeper = peacekeeper;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(final PlayerJoinEvent event) {
         final long time = System.currentTimeMillis();
         final UserTable db = peacekeeper.userTable;

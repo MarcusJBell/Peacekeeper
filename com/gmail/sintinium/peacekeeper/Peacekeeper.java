@@ -38,6 +38,8 @@ public class Peacekeeper extends JavaPlugin {
     public PlayerRecordTable recordTable;
     public PlayerMuteTable muteTable;
     public PlayerBanTable banTable;
+    public PlayerWarnTable warnTable;
+
     public CommandManager commandManager;
     public TimeManager timeManager;
     public PunishmentHelper punishmentHelper;
@@ -176,12 +178,14 @@ public class Peacekeeper extends JavaPlugin {
         recordTable = new PlayerRecordTable(this);
         reportTable = new PlayerReportTable(this);
         muteTable = new PlayerMuteTable(this);
+        warnTable = new PlayerWarnTable(this);
     }
 
     public void registerListeners() {
         Bukkit.getPluginManager().registerEvents(banListener = new BanListener(this), this);
         Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new VanishListeners(this), this);
+        Bukkit.getPluginManager().registerEvents(new WarnListener(this), this);
         Bukkit.getPluginManager().registerEvents(muteListener = new MuteListener(this), this);
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
     }
