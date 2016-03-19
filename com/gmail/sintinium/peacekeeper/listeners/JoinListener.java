@@ -44,7 +44,7 @@ public class JoinListener implements Listener {
                         if (event.getPlayer().hasPermission("peacekeeper.command.viewreports")) {
                             int recordCount = peacekeeper.reportTable.recordCount();
                             if (recordCount > 0) {
-                                event.getPlayer().sendMessage(ChatColor.YELLOW + "There are currently " + recordCount + " reports");
+                                event.getPlayer().sendMessage(ChatColor.YELLOW + "There are currently " + recordCount + " report(s)");
                                 event.getPlayer().sendMessage(ChatColor.YELLOW + "Use '/viewreports all' to view them.");
                             }
                         }

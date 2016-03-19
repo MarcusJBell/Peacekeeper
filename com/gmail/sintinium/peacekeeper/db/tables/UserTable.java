@@ -155,7 +155,8 @@ public class UserTable extends BaseTable {
 
     public String getUsername(Integer id) {
         if (id == null) return "Console";
-        return getString("Username", "PlayerID", id);
+        String username = getString("Username", "PlayerID", id);
+        return username == null || username.equals("null") ? "Console" : username;
     }
 
     public String getUserUUID(int id) {
