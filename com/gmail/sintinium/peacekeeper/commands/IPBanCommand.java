@@ -61,7 +61,7 @@ public class IPBanCommand extends BaseCommand {
             @Override
             public void run() {
                 for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-                    if (p.getAddress().getHostName().equals(ip)) {
+                    if (p.getAddress().getAddress().getHostName().equals(ip)) {
                         p.kickPlayer(BanUtils.generateSyncedBanMessage(banData, adminName));
                         ChatUtils.banIPMessage(sender, p.getName(), null, banData.reason);
                     }
@@ -88,7 +88,7 @@ public class IPBanCommand extends BaseCommand {
             public void run() {
                 // Kick all online players who have the same IP as banned IP
                 for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-                    if (p.getAddress().getHostName().equals(args[0])) {
+                    if (p.getAddress().getAddress().getHostName().equals(args[0])) {
                         p.kickPlayer(BanUtils.generateBanMessage(peacekeeper, banData));
                         ChatUtils.banIPMessage(sender, p.getName(), null, banData.reason);
                     }

@@ -222,6 +222,8 @@ public class Peacekeeper extends JavaPlugin {
 
         if (highestBan.banLength != null && (highestBan.banTime + highestBan.banLength) - System.currentTimeMillis() <= 0) {
             this.banTable.deleteBan(highestBan.banID);
+            logFile.logToFile("AUTO-Removing expired ban for PlayerID:" + highestBan.bannedUser + " issued on " + highestBan.banTime + " lasted for " + highestBan.banLength + " current " +
+                    "time: " + System.currentTimeMillis());
             return handleBan(playerID);
         }
         return highestBan;

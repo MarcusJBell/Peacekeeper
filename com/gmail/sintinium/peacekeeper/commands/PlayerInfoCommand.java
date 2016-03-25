@@ -63,6 +63,10 @@ public class PlayerInfoCommand extends BaseCommand {
                     sender.sendMessage(ChatColor.DARK_AQUA + "IP: " + ChatColor.AQUA + playerData.ip);
                 }
 
+                if (player.isOnline()) {
+                    sender.sendMessage(ChatColor.DARK_AQUA + "Hostname: " + ChatColor.AQUA + player.getPlayer().getAddress().getHostName());
+                }
+
                 boolean isPunished = false;
 
                 BanData banData = peacekeeper.handleBan(playerData.playerID);
