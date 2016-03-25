@@ -1,7 +1,9 @@
 package com.gmail.sintinium.peacekeeper;
 
+import com.gmail.sintinium.peacekeeper.commands.VoteMuteCommand;
 import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.data.MuteData;
+import com.gmail.sintinium.peacekeeper.data.VoteMuteData;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
 import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
@@ -237,6 +239,47 @@ public class Peacekeeper extends JavaPlugin {
             return null;
         }
         return this.handleBan(playerID);
+    }
+
+    public boolean isPlayerBeingVoteMuted(String player) {
+        for (Map.Entry<String, VoteMuteData> set : commandManager.voteMuteCommand.voteMutes.entrySet()) {
+            if (set.getKey().equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasPlayerVotedForPlayer(String caller, String accused) {
+        for (Map.Entry<String, VoteMuteData> set : commandManager.voteMuteCommand.voteMutes.entrySet()) {
+            if (set.getKey().equals(accused) && set.getValue().votedPlayers.contains(caller)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public VoteMuteData getVoteMuteData(String player) {
+        return commandManager.voteMuteCommand.voteMutes.get(player);
+    }
+
+    public boolean callVoteMute(Player callerPlayer, Player accusedPlayer) {
+        String caller = callerPlayer.getUniqueId().toString();
+        String accused = accusedPlayer.getUniqueId().toString();
+        if (hasPlayerVotedForPlayer(caller, accused)) return false;
+        if (isPlayerBeingVoteMuted(accused)) {
+            VoteMuteData data = getVoteMuteData(accused);
+            data.count++;
+            data.votedPlayers.add(caller);
+        } else {
+            VoteMuteData data = new VoteMuteData();
+            data.votedPlayers.add(caller);
+            commandManager.voteMuteCommand.voteMutes.put(accused, data);
+        }
+        VoteMuteCommand.broadcastVote(ChatColor.AQUA + callerPlayer.getName() + ChatColor.DARK_AQUA + " has called a voted for " + ChatColor.GOLD + accusedPlayer.getName() + ChatColor
+                .DARK_AQUA + " to be muted.");
+        VoteMuteCommand.broadcastVote(ChatColor.DARK_AQUA + "Use /votemute <player> <reason> to vote a player to be muted!");
+        return true;
     }
 
 }

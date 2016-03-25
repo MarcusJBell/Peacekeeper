@@ -20,6 +20,7 @@ public class CommandManager {
     public SuperVanishCommand superVanishCommand;
     public PowerToolCommand powerToolCommand;
     public WarnCommand warnCommand;
+    public VoteMuteCommand voteMuteCommand;
     private Peacekeeper peacekeeper;
 
     public CommandManager(Peacekeeper peacekeeper) {
@@ -44,6 +45,7 @@ public class CommandManager {
 //        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
         superVanishCommand = new SuperVanishCommand(peacekeeper);
         powerToolCommand = new PowerToolCommand(peacekeeper);
+        voteMuteCommand = new VoteMuteCommand(peacekeeper);
     }
 
     public void registerCommand(String commandName, CommandExecutor executor) {
