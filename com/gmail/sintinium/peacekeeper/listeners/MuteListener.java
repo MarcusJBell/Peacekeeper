@@ -81,7 +81,6 @@ public class MuteListener implements Listener {
         String split[] = event.getMessage().split("\\s+");
         if (split.length <= 0) return;
         String m = split[0].toLowerCase();
-        Bukkit.getConsoleSender().sendMessage(m);
         if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/afk") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.DARK_RED + "You cannot use that command while muted.");

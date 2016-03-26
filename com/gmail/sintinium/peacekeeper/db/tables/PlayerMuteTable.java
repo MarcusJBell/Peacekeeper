@@ -10,19 +10,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerMuteTable extends BaseTable {
 
     // (MuteID, MuteTime User, Type, Length, Reason, Admin, RecordID)
 
-    public HashMap<UUID, MuteData> mutedPlayers;
+    public ConcurrentHashMap<UUID, MuteData> mutedPlayers;
 
     public PlayerMuteTable(@Nonnull final Peacekeeper peacekeeper) {
         super(peacekeeper, "Mutes");
-        mutedPlayers = new HashMap<>();
+        mutedPlayers = new ConcurrentHashMap<UUID, MuteData>();
         String tableSet = SQLTableUtils.getTableSet(
                 new String[]{"MuteID", "MuteTime", "PlayerID", "Length", "Reason", "AdminID", "RecordID"},
                 new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER + " UNIQUE", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}

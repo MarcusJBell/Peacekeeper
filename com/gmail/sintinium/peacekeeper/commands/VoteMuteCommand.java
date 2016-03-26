@@ -13,7 +13,7 @@ public class VoteMuteCommand extends BaseCommand {
 
     public ConcurrentHashMap<String, VoteMuteData> voteMutes;
 
-    VoteMuteCommand(Peacekeeper peacekeeper) {
+    public VoteMuteCommand(Peacekeeper peacekeeper) {
         super(peacekeeper);
         voteMutes = new ConcurrentHashMap<>();
     }

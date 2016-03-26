@@ -190,6 +190,7 @@ public class Peacekeeper extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new WarnListener(this), this);
         Bukkit.getPluginManager().registerEvents(muteListener = new MuteListener(this), this);
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new LoggerListener(), this);
     }
 
     public boolean loadDependencies() {
