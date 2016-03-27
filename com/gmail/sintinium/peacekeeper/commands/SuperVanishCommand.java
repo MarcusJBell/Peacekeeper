@@ -1,6 +1,5 @@
 package com.gmail.sintinium.peacekeeper.commands;
 
-import com.earth2me.essentials.User;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.listeners.VanishListeners;
 import org.bukkit.ChatColor;
@@ -57,15 +56,15 @@ public class SuperVanishCommand extends BaseCommand {
             superVanishedPlayers.remove(player.getName());
             player.removePotionEffect(PotionEffectType.INVISIBILITY);
             VanishListeners.unhidePlayer(player);
-            if (peacekeeper.essentialsHook.essentials != null) {
-                User user = peacekeeper.essentialsHook.essentials.getUser(player);
-                user.setHidden(false);
-            }
+//            if (peacekeeper.essentialsHook.essentials != null) {
+//                User user = peacekeeper.essentialsHook.essentials.getUser(player);
+//                user.setHidden(false);
+//            }
         } else {
-            if (peacekeeper.essentialsHook.essentials != null) {
-                User user = peacekeeper.essentialsHook.essentials.getUser(player);
-                user.setHidden(true);
-            }
+//            if (peacekeeper.essentialsHook.essentials != null) {
+//                User user = peacekeeper.essentialsHook.essentials.getUser(player);
+//                user.setHidden(true);
+//            }
             superVanishedPlayers.add(player.getName());
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
             VanishListeners.superHidePlayer(player);

@@ -50,7 +50,7 @@ public class UserTable extends BaseTable {
     }
 
     public boolean doesPlayerExist(Player player) {
-        return player != null && doesValueExist("UUID", player.getUniqueId().toString());
+        return doesValueExist("UUID", player.getUniqueId().toString());
     }
 
     public boolean doesPlayerExist(int playerID) {
@@ -151,12 +151,13 @@ public class UserTable extends BaseTable {
             e.printStackTrace();
         }
         return null;
+
     }
 
     public String getUsername(Integer id) {
-        if (id == null) return "Console";
+        if (id == null) return "AutoModerator";
         String username = getString("Username", "PlayerID", id);
-        return username == null || username.equals("null") ? "Console" : username;
+        return username == null || username.equals("null") ? "AutoModerator" : username;
     }
 
     public String getUserUUID(int id) {

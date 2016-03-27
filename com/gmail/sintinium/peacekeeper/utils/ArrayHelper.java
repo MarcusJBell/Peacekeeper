@@ -13,4 +13,13 @@ public class ArrayHelper {
         return result;
     }
 
+    public static char[] covertCharArray(Character[] characters) {
+        char[] chars = new char[characters.length];
+        for (int i = 0; i < characters.length; i++) {
+            if (characters[i] == null) continue;
+            chars[i] = characters[i];
+        }
+        return chars;
+    }
+
 }

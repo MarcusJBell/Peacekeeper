@@ -9,7 +9,7 @@ public class SQLTableUtils {
         String result = "";
         for (int i = 0; i < names.length; i++) {
             if (i != 0) result += ",";
-            result += "'" + names[i] + "' " + types[i];
+            result += "'" + names[i].replaceAll("\'", "'") + "' " + types[i];
         }
         return result;
     }

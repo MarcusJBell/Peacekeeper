@@ -90,7 +90,7 @@ public abstract class BaseTable {
      */
     public void deleteRow(@Nonnull String where, @Nonnull String value) {
         if (!StringUtils.isNumeric(value))
-            value = "'" + value + "'";
+            value = "'" + value.replaceAll("\'", "'") + "'";
         try {
             db.query("DELETE FROM " + tableName + " WHERE " + where + "=" + value + ";");
         } catch (SQLException e) {
@@ -118,7 +118,7 @@ public abstract class BaseTable {
     public void updateValue(@Nonnull String set, @Nonnull String where, @Nonnull String value) {
         try {
             if (!StringUtils.isNumeric(value))
-                value = "'" + value + "'";
+                value = "'" + value.replaceAll("\'", "'") + "'";
             PreparedStatement statement = db.prepare("UPDATE " + tableName +
                     " SET " + set +
                     " WHERE " + where + "=" + value + ";");
@@ -151,7 +151,7 @@ public abstract class BaseTable {
     private String getString(@Nonnull String select, @Nonnull String where, @Nonnull String value, boolean like) {
         try {
             if (!StringUtils.isNumeric(value))
-                value = "'" + value + "'";
+                value = "'" + value.replaceAll("\'", "'") + "'";
             ResultSet set;
             if (like) {
                 set = db.query("SELECT " + select + " FROM " + tableName + " WHERE " + where + " LIKE " + value + " ORDER BY Length(" + where + ") ASC;");
@@ -282,7 +282,7 @@ public abstract class BaseTable {
     public boolean doesValueExist(@Nonnull String where, @Nonnull String value, boolean like) {
         try {
             if (!StringUtils.isNumeric(value))
-                value = "'" + value + "'";
+                value = "'" + value.replaceAll("\'", "'") + "'";
             ResultSet set;
             if (like) {
                 set = db.query("SELECT EXISTS (" +
@@ -335,7 +335,7 @@ public abstract class BaseTable {
         ResultSet set = null;
         try {
             if (!StringUtils.isNumeric(value)) {
-                value = "'" + value + "'";
+                value = "'" + value.replaceAll("\'", "'") + "'";
             }
             set = db.query("SELECT " + select + " FROM " + tableName + " WHERE " + where + "=" + value + ";");
             if (!set.next()) {

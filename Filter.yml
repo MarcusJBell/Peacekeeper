@@ -1,0 +1,88 @@
+filter:
+  filteredwords:
+    blocked:
+    - assclown
+    - asswipe
+    - asshole
+    - dumbass
+    - hardass
+    - jackass
+    - lardass
+    - lameass
+    - fuck
+    - nigg
+    - fuk
+    - cunt
+    - bitch
+    - bastard
+    - gringo
+    - wetback
+    - penis
+    - vagina
+    - boob
+    - dick
+    - shit
+    - fag
+    - douche
+    - dyke
+    - clit
+    - cock
+    - slut
+    - handjob
+    - hand job
+    - blowjob
+    - blow job
+    - kunt
+    - lesbo
+    - nut sack
+    - nutstack
+    - ballsack
+    - ball sack
+    - prick
+    - pussy
+    - pussies
+    - queer
+    - testicle
+    - wank
+    - whore
+    - wetback
+    - jeezus
+    - jezus
+    - weiner
+    - sex
+    - lynch
+    - virgin
+    - burn in hell
+    - orgasm
+    - tits
+    - suck my
+    - hitler
+    - nazi
+    - wtf
+    - lmao
+    - donger
+    - milf
+    - satan
+    - hitler
+    - heil
+    - abort
+    - drug
+    - cocaine
+    - marijuana
+    exact:
+    - cum
+    - weed
+    semiblocked:
+    exception:
+    replaced:
+      omg: omgosh
+      god: God
+      jesus: Jesus
+      christ: Christ
+    strict:
+      ip:
+        message: 192.227.230.47
+        length: 604800000
+      domain:
+        message: agapemc.mcserver.ws
+        length: 604800000

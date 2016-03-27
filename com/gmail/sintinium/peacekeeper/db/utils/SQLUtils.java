@@ -8,15 +8,21 @@ public class SQLUtils {
     public static String getAsSQLStringList(Object[] strings) {
         String string = "(";
         for (int i = 0; i < strings.length - 1; i++) {
-            if (!StringUtils.isNumeric(String.valueOf(strings[i])))
-                string += "'" + strings[i] + "',";
-            else
+            if (strings[i] == null) {
+                strings[i] = "null";
+            }
+            if (!StringUtils.isNumeric(String.valueOf(strings[i]))) {
+                string += "'" + strings[i].toString().replaceAll("\'", "''") + "',";
+            } else
                 string += strings[i] + ",";
         }
         String finalString = String.valueOf(strings[strings.length - 1]);
-        if (!StringUtils.isNumeric(finalString))
-            string += "'" + strings[strings.length - 1] + "'";
-        else
+        if (!StringUtils.isNumeric(finalString)) {
+            if (strings[strings.length - 1] == null) {
+                string += "'" + null + "'";
+            } else
+                string += "'" + strings[strings.length - 1].toString().replaceAll("\'", "'") + "'";
+        } else
             string += finalString;
 
         return string + ")";
@@ -26,7 +32,7 @@ public class SQLUtils {
     public static String[] getAsSQLArray(Object[] strings) {
         String[] returnList = new String[strings.length];
         for (int i = 0; i < strings.length; i++) {
-            String value = StringUtils.isNumeric(String.valueOf(strings[i])) ? String.valueOf(strings[i]) : "'" + strings[i] + "'";
+            String value = StringUtils.isNumeric(String.valueOf(strings[i])) ? String.valueOf(strings[i]) : "'" + strings[i].toString().replaceAll("\'", "'") + "'";
             returnList[i] = value;
         }
         return returnList;
@@ -42,7 +48,7 @@ public class SQLUtils {
             String colName = String.valueOf(colNames[i]);
             String value = String.valueOf(values[i]);
             if (!StringUtils.isNumeric(value)) {
-                value = "'" + value + "'";
+                value = "'" + value.replaceAll("\'", "'") + "'";
             }
             string += colName + "=" + value;
         }

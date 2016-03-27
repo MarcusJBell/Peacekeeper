@@ -14,7 +14,7 @@ public class BanUtils {
         }
         String adminName;
         if (banData.adminId == null) {
-            adminName = "Console";
+            adminName = "AutoModerator";
         } else {
             adminName = peacekeeper.userTable.getUsername(banData.adminId);
         }
@@ -42,14 +42,14 @@ public class BanUtils {
     public static String generateSyncedBanMessage(BanData banData, String adminName) {
         String message = "";
         if (adminName == null) {
-            adminName = "Console";
+            adminName = "AutoModerator";
         }
         if (banData.type == null) {
             return "";
         }
         if (banData.type == PlayerBanTable.PLAYER) {
             if (banData.banLength == null) {
-                message += "§4You have been permanently banned from this server by: " + "§4" + adminName + "\n";
+                message += "§4You have been suspended until approved appeal by: " + "§4" + adminName + "\n";
                 message += "§4Reason: §e" + banData.reason + "\n";
             } else {
                 message += "§4You have been suspended from this server by: " + "§4" + adminName + "\n";
