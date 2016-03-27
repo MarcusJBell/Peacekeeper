@@ -40,6 +40,8 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChatMessage(AsyncPlayerChatEvent event) {
+        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
+
         if (checkFilter(event.getPlayer(), event.getMessage())) {
             event.setCancelled(true);
             broadcastFilter(event.getPlayer(), event.getMessage(), 0);
@@ -54,6 +56,8 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommandProcess(PlayerCommandPreprocessEvent event) {
+        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
+
         String split[] = event.getMessage().split("\\s+");
         if (split.length <= 0) return;
         String m = split[0].toLowerCase();
@@ -67,11 +71,14 @@ public class ChatFilter implements Listener {
 
     @EventHandler
     public void onBookEditEvent(PlayerEditBookEvent event) {
+        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
+
         String book;
         StringBuilder builder = new StringBuilder();
         for (String s : event.getNewBookMeta().getPages()) {
             builder.append(s).append(" ");
         }
+
         book = builder.toString();
         Peacekeeper.logFile.logBook(event.getPlayer().getName(), book);
         if (checkFilter(event.getPlayer(), book)) {
@@ -82,6 +89,8 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSignEdit(SignChangeEvent event) {
+        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
+
         String sign;
         StringBuilder builder = new StringBuilder();
         for (String s : event.getLines()) {
@@ -97,6 +106,8 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onRename(InventoryClickEvent event) {
+        if (event.getWhoClicked().hasPermission("peacekeeper.filter.bypass")) return;
+
         if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.ANVIL) {
             if (event.getRawSlot() == 2) {
                 Player p = Bukkit.getPlayer(event.getWhoClicked().getUniqueId());
@@ -127,18 +138,24 @@ public class ChatFilter implements Listener {
         }
 
         String clipped = message;
-        char last = clipped.charAt(clipped.length() - 1);
-        if (last == '.' || last == ',' || last == '!' || last == '?') {
-            clipped = clipped.substring(0, clipped.length() - 1);
+        for (int i = clipped.length() - 1; i > 0; i--) {
+            char last = clipped.charAt(i);
+            if (!Character.isAlphabetic(last) && !Character.isDigit(last)) {
+                clipped = clipped.substring(0, i);
+            } else {
+                break;
+            }
         }
+        Bukkit.getConsoleSender().sendMessage(clipped);
 
-        Pattern pattern = Pattern.compile(CommandUtils.CONTAINS_SPECIAL_CHAR);
-        String wildcarded = pattern.matcher(ChatColor.stripColor(clipped)).replaceAll("[A-Za-z0-9]");
+
+        Pattern pattern;
+        String wildcarded = ChatColor.stripColor(clipped);
         String flatWildcard = wildcarded.replaceAll("\\s+", "");
 //        String wildcarded = clipped.replace(, "/w");
 
         for (String s : peacekeeper.chatFilter.blockedWords) {
-            if (s.matches("\\b(?i)" + flatWildcard + "\\b") || message.contains(s)) {
+            if (s.matches("\\b(?i)\\\\" + flatWildcard + "\\\\b") || message.contains(s)) {
                 return true;
             }
         }
@@ -154,8 +171,11 @@ public class ChatFilter implements Listener {
         String[] split = wildcarded.split(" ");
         for (String sp : split) {
 
+            pattern = Pattern.compile(CommandUtils.CONTAINS_SPECIAL_CHAR);
+            sp = pattern.matcher(ChatColor.stripColor(clipped)).replaceFirst("[A-Za-z0-9]");
+
             for (final String s : peacekeeper.chatFilter.wholeOnly) {
-                if (s.equalsIgnoreCase(sp)) {
+                if (sp.equalsIgnoreCase(s)) {
                     return true;
                 }
             }
@@ -267,6 +287,7 @@ public class ChatFilter implements Listener {
         }
         m += "\n" + ChatColor.DARK_AQUA + "Type: " + ChatColor.AQUA + typeMessage;
         player.sendMessage(m);
+        Bukkit.getConsoleSender().sendMessage(m);
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.equals(player)) continue;
             if (p.hasPermission("peacekeeper.command.mute")) {

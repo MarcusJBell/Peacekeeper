@@ -1,6 +1,6 @@
 name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
-version: 1.0.4
+version: 1.0.5
 depend: [SQLibrary]
 loadbefore: [Essentials]
 softdepend: [ScoreboardStats, Essentials]
@@ -56,6 +56,7 @@ permissions:
         peacekeeper.command.*: true
         peacekeeper.info.ip: true
         peacekeeper.release.notify: true
+        peacekeeper.filter.bypass: true
   peacekeeper.command.*:
     description: Has permission to use all manual commands
     default: op
@@ -79,6 +80,9 @@ permissions:
         peacekeeper.command.banip: true
         peacekeeper.command.release: true
         peacekeeper.command.vanish: true
+  peacekeeper.filter.bypass:
+    description: Has permission to bypass the chat filter
+    default: op
   peacekeeper.command.overridepunishment:
     description: Has permission to override another admin's punishments
     default: op
