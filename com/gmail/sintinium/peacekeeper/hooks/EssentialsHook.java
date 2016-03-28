@@ -17,7 +17,9 @@ public class EssentialsHook {
     }
 
     public void updateUser(String name) {
+        if (essentials == null) return;
         User user = essentials.getUser(name);
+        if (user == null) return;
         user.updateActivity(true);
     }
 

@@ -1,6 +1,6 @@
 name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
-version: 1.0.5
+version: 1.0.6
 depend: [SQLibrary]
 loadbefore: [Essentials]
 softdepend: [ScoreboardStats, Essentials]
@@ -13,6 +13,7 @@ commands:
     permission: peacekeeper.command.report
     usage: §4Syntax error! Usage §r§c/report <player(s)...>
   viewreports:
+    aliases: [vreport, reports]
     description: Used to view/modify reports
     permission: peacekeeper.command.viewreports
     usage: §3Use §b'/viewreports ?' §3for help and usages
@@ -21,6 +22,7 @@ commands:
     permission: peacekeeper.command.warn
     usage: §4Syntax error! Usage §r§c/warn <player> <reason>
   suspend:
+    aliases: [tempban]
     description: Suspends a player from the server
     permission: peacekeeper.command.suspend
     usage: §4Syntax error! Usage §r§c/suspend <player> <reason>
@@ -33,6 +35,7 @@ commands:
     permission: peacekeeper.command.ban
     usage: §4Syntax error! Usage §r§c/banip <player> <reason>
   banip:
+    aliases: [ipban, suspendip, ipsuspend]
     description: Bans an IP
     permission: peacekeeper.command.banip
     usage: §4Syntax error! Usage §r§c/banip <player|IP> <reason>
@@ -41,10 +44,12 @@ commands:
     permission: peacekeeper.release
     usage: §4Syntax error! Usage §r§c/release <player|IP>
   playerinfo:
+    aliases: [pinfo, plookup]
     description: Get a player's information
     permission: peacekeeper.command.playerinfo
     usage: §4Syntax error! Usage §r§c/playerinfo <player>!
   records:
+    aliases: [rec]
     description: Display all of a users records
     permission: peacekeeper.command.records
     usage: §3Use §b'/records ?' §3for help and usages

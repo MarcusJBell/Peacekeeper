@@ -7,6 +7,7 @@ import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ArrayHelper;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
+import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -196,7 +197,6 @@ public class ChatFilter implements Listener {
         return false;
     }
 
-
     private boolean checkStrictIP(Player player, String message) {
         if (CommandUtils.isIP(message)) {
             if (messageContainsBlockedIP(player, message)) {
@@ -250,6 +250,7 @@ public class ChatFilter implements Listener {
                         .PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
                 final String message = BanUtils.generateBanMessage(peacekeeper, banData);
+                ChatUtils.banPlayerMessage(null, player.getName(), banData.banLength, banData.reason);
                 Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
