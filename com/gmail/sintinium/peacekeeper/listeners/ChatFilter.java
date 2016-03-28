@@ -122,7 +122,7 @@ public class ChatFilter implements Listener {
     }
 
     private boolean checkFilter(Player player, String message) {
-        message = message.toLowerCase();
+        message = Pattern.quote(message.toLowerCase());
 //        final String originalMessage = message;
         if (CommandUtils.containsNumber(message, 6) || message.contains("server") || message.contains("craft") || message.contains(".ws") || message.contains(".no")) {
             if (checkStrictIP(player, message)) {
@@ -146,8 +146,6 @@ public class ChatFilter implements Listener {
                 break;
             }
         }
-        Bukkit.getConsoleSender().sendMessage(clipped);
-
 
         Pattern pattern;
         String wildcarded = ChatColor.stripColor(clipped);
@@ -155,7 +153,7 @@ public class ChatFilter implements Listener {
 //        String wildcarded = clipped.replace(, "/w");
 
         for (String s : peacekeeper.chatFilter.blockedWords) {
-            if (s.matches("\\b(?i)\\\\" + flatWildcard + "\\\\b") || message.contains(s)) {
+            if (s.matches("\\b(?i)" + Pattern.compile(flatWildcard) + "\\b") || message.contains(s)) {
                 return true;
             }
         }
@@ -168,11 +166,11 @@ public class ChatFilter implements Listener {
 //            }
 //        }
 
-        String[] split = wildcarded.split(" ");
+        String[] split = wildcarded.split("\\s+");
         for (String sp : split) {
 
             pattern = Pattern.compile(CommandUtils.CONTAINS_SPECIAL_CHAR);
-            sp = pattern.matcher(ChatColor.stripColor(clipped)).replaceFirst("[A-Za-z0-9]");
+            sp = pattern.matcher(sp).replaceFirst("[A-Za-z0-9]");
 
             for (final String s : peacekeeper.chatFilter.wholeOnly) {
                 if (sp.equalsIgnoreCase(s)) {

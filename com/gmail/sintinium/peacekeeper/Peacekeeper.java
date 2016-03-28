@@ -6,6 +6,7 @@ import com.gmail.sintinium.peacekeeper.data.MuteData;
 import com.gmail.sintinium.peacekeeper.data.VoteMuteData;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
+import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
 import com.gmail.sintinium.peacekeeper.io.FilterFile;
@@ -50,7 +51,7 @@ public class Peacekeeper extends JavaPlugin {
     public BanListener banListener;
     public DatabaseQueueManager databaseQueueManager;
     public ScoreboardStatsHook scoreboardStatsHook;
-    //    public EssentialsHook essentialsHook;
+    public EssentialsHook essentialsHook;
     public ConfigFile configFile;
     public FilterFile chatFilter;
     public JsonChat jsonChat;
@@ -194,6 +195,7 @@ public class Peacekeeper extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
         Bukkit.getPluginManager().registerEvents(new LoggerListener(), this);
         Bukkit.getPluginManager().registerEvents(new ChatFilter(this), this);
+        Bukkit.getPluginManager().registerEvents(new CreativePatchListener(), this);
     }
 
     public boolean loadDependencies() {
@@ -203,7 +205,7 @@ public class Peacekeeper extends JavaPlugin {
         }
         scoreboardStatsHook = new ScoreboardStatsHook(this);
         scoreboardStatsHook.loadPlugin();
-//        essentialsHook = new EssentialsHook(this);
+        essentialsHook = new EssentialsHook(this);
         return true;
     }
 

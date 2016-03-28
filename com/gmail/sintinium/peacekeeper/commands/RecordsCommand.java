@@ -112,6 +112,7 @@ public class RecordsCommand extends BaseCommand {
                         clearCached();
                         if (!StringUtils.isNumeric(args[1])) {
                             sender.sendMessage("Record ID must be number");
+                            return;
                         }
                         Integer recordID = Integer.parseInt(args[1]);
                         RecordData data = peacekeeper.recordTable.getRecordData(recordID);

@@ -19,8 +19,24 @@ public class VanishListeners implements Listener {
 
     private Peacekeeper peacekeeper;
 
-    public VanishListeners(Peacekeeper peacekeeper) {
+    public VanishListeners(final Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
+
+        if (peacekeeper.essentialsHook.essentials != null) {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(peacekeeper, new Runnable() {
+                @Override
+                public void run() {
+                    if (!peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.isEmpty()) {
+                        for (String s : peacekeeper.commandManager.superVanishCommand.superVanishedPlayers) {
+                            Player p = Bukkit.getPlayer(s);
+                            if (p != null) {
+                                peacekeeper.essentialsHook.updateUser(s);
+                            }
+                        }
+                    }
+                }
+            }, 0L, 1200L);
+        }
     }
 
     public static void hidePlayer(Player player) {
