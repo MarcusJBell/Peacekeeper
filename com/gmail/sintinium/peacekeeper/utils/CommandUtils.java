@@ -8,6 +8,7 @@ public class CommandUtils {
     public static final String IP_ADDRESS_PATTERN = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
     public static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
     public static final String CONTAINS_NUMBER_PATTERN = ".*\\d+.*";
+    public static final String CONTAINS_SPECIAL_CHAR_NOBACK = "[^A-Za-z0-9\\\\ ]";
     public static final String CONTAINS_SPECIAL_CHAR = "[^A-Za-z0-9 ]";
     public static final String CONTAINS_PUNCH = "[.!? ]";
 
@@ -46,11 +47,12 @@ public class CommandUtils {
     }
 
     public static boolean containsSpecial(String input) {
-        Pattern pattern = Pattern.compile(CONTAINS_SPECIAL_CHAR);
+        Pattern pattern = Pattern.compile(CONTAINS_SPECIAL_CHAR_NOBACK);
         return pattern.matcher(input).find();
     }
 
     public static boolean matchAll(String input, String exp) {
+//        Bukkit.getConsoleSender().sendMessage("\\b(?i)" + exp + "\\b");
         return input.matches("\\b(?i)" + exp + "\\b");
 //        Pattern pattern = Pattern.compile("\\b(?i)" + exp + "\\b");
 //        Bukkit.getConsoleSender().sendMessage(input + " " + pattern.pattern());

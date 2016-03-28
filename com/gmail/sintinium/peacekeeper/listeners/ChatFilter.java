@@ -123,7 +123,8 @@ public class ChatFilter implements Listener {
     }
 
     private boolean checkFilter(Player player, String message) {
-        message = Pattern.quote(message.toLowerCase());
+        final String realMessage = message;
+        message = ChatColor.stripColor(message.toLowerCase());
 //        final String originalMessage = message;
         if (CommandUtils.containsNumber(message, 6) || message.contains("server") || message.contains("craft") || message.contains(".ws") || message.contains(".no")) {
             if (checkStrictIP(player, message)) {
@@ -138,23 +139,28 @@ public class ChatFilter implements Listener {
             }
         }
 
+        Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+        if (pattern.matcher(message).matches()) {
+            return false;
+        }
+
         String clipped = message;
         for (int i = clipped.length() - 1; i > 0; i--) {
             char last = clipped.charAt(i);
-            if (!Character.isAlphabetic(last) && !Character.isDigit(last)) {
+            if (last != '\\' && !Character.isAlphabetic(last) && !Character.isDigit(last)) {
                 clipped = clipped.substring(0, i);
             } else {
                 break;
             }
         }
 
-        Pattern pattern;
-        String wildcarded = ChatColor.stripColor(clipped);
+
+        String wildcarded = clipped;
         String flatWildcard = wildcarded.replaceAll("\\s+", "");
 //        String wildcarded = clipped.replace(, "/w");
 
         for (String s : peacekeeper.chatFilter.blockedWords) {
-            if (s.matches("\\b(?i)" + Pattern.compile(flatWildcard) + "\\b") || message.contains(s)) {
+            if (s.matches("\\b(?i)" + flatWildcard.replaceAll("[^A-Za-z0-9]", "") + "\\b") || message.contains(s)) {
                 return true;
             }
         }
@@ -167,17 +173,22 @@ public class ChatFilter implements Listener {
 //            }
 //        }
 
-        String[] split = wildcarded.split("\\s+");
-        for (String sp : split) {
-
-            pattern = Pattern.compile(CommandUtils.CONTAINS_SPECIAL_CHAR);
-            sp = pattern.matcher(sp).replaceFirst("[A-Za-z0-9]");
-
+        for (String sp : realMessage.split("\\s+")) {
             for (final String s : peacekeeper.chatFilter.wholeOnly) {
                 if (sp.equalsIgnoreCase(s)) {
                     return true;
                 }
             }
+        }
+
+        String[] split = wildcarded.split("\\s+");
+        for (String sp : split) {
+
+            pattern = Pattern.compile(CommandUtils.CONTAINS_SPECIAL_CHAR_NOBACK);
+            sp = pattern.matcher(sp).replaceFirst("[A-Za-z0-9]");
+
+            Pattern p = Pattern.compile("[^A-Za-z0-9\\[\\]\\- ]");
+            sp = p.matcher(sp).replaceAll("");
 
             for (final String s : peacekeeper.chatFilter.blockedWords) {
                 if (CommandUtils.matchAll(s, sp)) {
