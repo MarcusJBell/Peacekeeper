@@ -23,24 +23,27 @@ public class PlayerBanTable extends BaseTable {
         super(peacekeeper, "Bans");
         String tableSet = SQLTableUtils.getTableSet(
                 new String[]{"BanID", "Time", "PlayerID", "IP", "Reason", "AdminID", "Length", "Type", "RecordID"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER + " UNIQUE", SQLTableUtils.VARCHAR + "(30) UNIQUE",
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.VARCHAR + "(30)",
                         SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
         );
         init(tableSet);
     }
 
     public int banUser(int playerID, @Nonnull BanData banData) {
-        return insertOrReplace(
+        if (banData.bannedUser != null && doesValueExist("PlayerID", banData.bannedUser)) {
+            deleteRow("PlayerID", banData.bannedUser);
+        }
+        return insert(
                 new Object[]{"Time", "PlayerID", "IP", "Reason", "AdminID", "Length", "Type", "RecordID"},
                 new Object[]{banData.banTime, playerID, banData.ip, banData.reason, banData.adminId, banData.banLength, banData.type, banData.recordId}
         );
     }
 
     public Integer banIP(@Nonnull BanData banData) {
-        if (banData.ip != null && isIPBanned(banData.ip)) {
-            unbanIP(banData.ip);
-        } else if (banData.ip == null) return null;
-        return insertOrReplace(
+        if (banData.ip != null && doesValueExist("IP", banData.ip)) {
+            deleteRow("IP", banData.ip);
+        }
+        return insert(
                 new Object[]{"Time", "PlayerID", "IP", "Reason", "AdminID", "Length", "Type", "RecordID"},
                 new Object[]{banData.banTime, null, banData.ip, banData.reason, banData.adminId, banData.banLength, banData.type, banData.recordId}
         );

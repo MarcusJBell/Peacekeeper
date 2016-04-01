@@ -39,17 +39,17 @@ public abstract class BaseTable {
      * @param replace    Should insert or should replace if already exists
      * @return returns the primary key of the inserted values. Returns null if SQLException is thrown
      */
-    private Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList, boolean replace) {
+    public Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
         String cols = SQLUtils.getAsSQLStringList(columnList);
         String values = SQLUtils.getAsSQLStringList(valueList);
         try {
-            if (replace) {
-                db.query("INSERT OR REPLACE INTO " + tableName + " " + cols +
-                        " VALUES " + values + ";");
-            } else {
+//            if (replace) {
+//                db.query("INSERT OR REPLACE INTO " + tableName + " " + cols +
+//                        " VALUES " + values + ";");
+//            } else {
                 db.query("INSERT INTO " + tableName + " " + cols +
                         " VALUES " + values + ";");
-            }
+//            }
             ResultSet set = db.query("SELECT last_insert_rowid()");
             int rowID = set.getInt(1);
             set.close();
@@ -67,9 +67,9 @@ public abstract class BaseTable {
      * @param valueList  Array of variables that are in the same order as column names
      * @return returns the primary key of the inserted values
      */
-    public Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
-        return insert(columnList, valueList, false);
-    }
+//    public Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
+//        return insert(columnList, valueList, false);
+//    }
 
     /**
      * Inserts or replaces values into a table
@@ -78,9 +78,9 @@ public abstract class BaseTable {
      * @param valueList  Array of variables that are in the same order as column names
      * @return returns the primary key of the inserted values
      */
-    public Integer insertOrReplace(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
-        return insert(columnList, valueList, true);
-    }
+//    public Integer insertOrReplace(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
+//        return insert(columnList, valueList, true);
+//    }
 
     /**
      * Deletes the row that contains the given variables

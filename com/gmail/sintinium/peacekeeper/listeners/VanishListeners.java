@@ -116,6 +116,10 @@ public class VanishListeners implements Listener {
             event.setJoinMessage(null);
             superHidePlayer(event.getPlayer());
             event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false, false));
+        } else {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.showPlayer(event.getPlayer());
+            }
         }
 //        else if (peacekeeper.commandManager.vanishCommand.vanishedPlayers.contains(event.getPlayer().getName())) {
 //            hidePlayer(event.getPlayer());

@@ -19,7 +19,7 @@ public class PlayerWarnTable extends BaseTable {
     }
 
     public int warnPlayer(int playerID, String reason, Integer adminID, int recordID) {
-        return insertOrReplace(
+        return insert(
                 new Object[]{"WarnTime", "PlayerID", "Reason", "AdminID", "RecordID"},
                 new Object[]{System.currentTimeMillis(), playerID, reason, adminID, recordID}
         );

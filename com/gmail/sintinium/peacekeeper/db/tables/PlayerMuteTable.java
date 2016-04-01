@@ -25,7 +25,7 @@ public class PlayerMuteTable extends BaseTable {
         mutedPlayers = new ConcurrentHashMap<UUID, MuteData>();
         String tableSet = SQLTableUtils.getTableSet(
                 new String[]{"MuteID", "MuteTime", "PlayerID", "Length", "Reason", "AdminID", "RecordID"},
-                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER + " UNIQUE", SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
+                new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}
         );
         init(tableSet);
 
@@ -44,7 +44,10 @@ public class PlayerMuteTable extends BaseTable {
     }
 
     public int muteUser(int playerID, Long length, String reason, Integer adminID, int recordID) {
-        return insertOrReplace(
+        if (doesValueExist("PlayerID", playerID)) {
+            deleteRow("PlayerID", playerID);
+        }
+        return insert(
                 new Object[]{"MuteTime", "PlayerID", "Length", "Reason", "AdminID", "RecordID"},
                 new Object[]{System.currentTimeMillis(), playerID, length, reason, adminID, recordID}
         );

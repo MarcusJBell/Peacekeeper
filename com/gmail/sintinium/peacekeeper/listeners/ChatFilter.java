@@ -22,7 +22,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -70,22 +71,51 @@ public class ChatFilter implements Listener {
         }
     }
 
-    @EventHandler
-    public void onBookEditEvent(PlayerEditBookEvent event) {
-        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBookDropEvent(PlayerDropItemEvent event) {
+        BookMeta bookMeta;
+        if (event.getItemDrop().getItemStack().getType() == Material.BOOK_AND_QUILL || event.getItemDrop().getItemStack().getType() == Material.WRITTEN_BOOK) {
+            bookMeta = (BookMeta) event.getItemDrop().getItemStack().getItemMeta();
+        } else {
+            return;
+        }
 
+        if (handleBook(event.getPlayer(), bookMeta)) {
+            event.setCancelled(true);
+            event.getPlayer().getInventory().remove(event.getItemDrop().getItemStack().getType());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBookMove(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player) || event.getCurrentItem() == null) return;
+        BookMeta bookMeta;
+        if (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL || event.getCurrentItem().getType() == Material.WRITTEN_BOOK) {
+            bookMeta = (BookMeta) event.getCurrentItem().getItemMeta();
+        } else {
+            return;
+        }
+
+        if (handleBook((Player) event.getWhoClicked(), bookMeta)) {
+            event.setCancelled(true);
+            event.getWhoClicked().getInventory().remove(event.getCurrentItem());
+        }
+    }
+
+    public boolean handleBook(Player player, BookMeta bookMeta) {
         String book;
         StringBuilder builder = new StringBuilder();
-        for (String s : event.getNewBookMeta().getPages()) {
+        for (String s : bookMeta.getPages()) {
             builder.append(s).append(" ");
         }
-
         book = builder.toString();
-        Peacekeeper.logFile.logBook(event.getPlayer().getName(), book);
-        if (checkFilter(event.getPlayer(), book)) {
-            event.setCancelled(true);
-            broadcastFilter(event.getPlayer(), book, 2);
+        Peacekeeper.logFile.logBook(player.getName(), book);
+
+        if (checkFilter(player, book)) {
+            broadcastFilter(player, book, 2);
+            return true;
         }
+        return false;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -251,25 +281,30 @@ public class ChatFilter implements Listener {
     }
 
     private void handleBan(final Player player, final long length) {
-        peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
             @Override
-            public void runTask() {
-                int playerID = peacekeeper.userTable.getPlayerIDFromUUID(player.getUniqueId().toString());
-                Long finalLength = length == -999 ? null : length;
-                int recordID = peacekeeper.recordTable.addRecord(playerID, null, null, PlayerRecordTable.BAN, finalLength, "Advertising", null);
-                BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, "Advertising", null, finalLength, PlayerBanTable
-                        .PLAYER, recordID);
-                peacekeeper.banTable.banUser(playerID, banData);
-                final String message = BanUtils.generateBanMessage(peacekeeper, banData);
-                ChatUtils.banPlayerMessage(Bukkit.getConsoleSender(), player.getName(), banData.banLength, banData.reason);
-                Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
+            public void run() {
+                peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
                     @Override
-                    public void run() {
-                        player.kickPlayer(message);
+                    public void runTask() {
+                        int playerID = peacekeeper.userTable.getPlayerIDFromUUID(player.getUniqueId().toString());
+                        Long finalLength = length == -999 ? null : length;
+                        int recordID = peacekeeper.recordTable.addRecord(playerID, null, null, PlayerRecordTable.BAN, finalLength, "Advertising", null);
+                        BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, "Advertising", null, finalLength, PlayerBanTable
+                                .PLAYER, recordID);
+                        peacekeeper.banTable.banUser(playerID, banData);
+                        final String message = BanUtils.generateBanMessage(peacekeeper, banData);
+                        ChatUtils.banPlayerMessage(Bukkit.getConsoleSender(), player.getName(), banData.banLength, banData.reason);
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
+                            @Override
+                            public void run() {
+                                player.kickPlayer(message);
+                            }
+                        });
                     }
                 });
             }
-        });
+        }, 2L);
     }
 
     // 0 = chat, 1 = command, 2 = book, 3 = sign, 4 = item
