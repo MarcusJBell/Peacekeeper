@@ -49,20 +49,19 @@ public class PunishmentHelper {
         return new PunishmentResult(processedTime, offenseCount);
     }
 
-    @Deprecated
-    public int getOffsenseCount(ConversationListener.ConversationType conversationType, int playerID) {
-        List<RecordData> datas = null;
-        switch (conversationType) {
-            case SUSPEND:
-                datas = processDataForGaps(peacekeeper.recordTable.getRecordsByType(playerID, PlayerRecordTable.BAN));
-                break;
-            case MUTE:
-                datas = processDataForGaps(peacekeeper.recordTable.getRecordsByType(playerID, PlayerRecordTable.MUTE));
-                break;
-        }
-        if (datas == null) return 0;
-        return datas.size();
-    }
+//    public int getOffsenseCount(ConversationListener.ConversationType conversationType, int playerID) {
+//        List<RecordData> datas = null;
+//        switch (conversationType) {
+//            case SUSPEND:
+//                datas = processDataForGaps(peacekeeper.recordTable.getRecordsByType(playerID, PlayerRecordTable.BAN));
+//                break;
+//            case MUTE:
+//                datas = processDataForGaps(peacekeeper.recordTable.getRecordsByType(playerID, PlayerRecordTable.MUTE));
+//                break;
+//        }
+//        if (datas == null) return 0;
+//        return datas.size();
+//    }
 
     @Nullable
     private List<RecordData> processDataForGaps(List<RecordData> datas) {

@@ -5,6 +5,7 @@ import com.gmail.sintinium.peacekeeper.data.conversation.ReportConversationData;
 import com.gmail.sintinium.peacekeeper.listeners.ConversationListener;
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
+import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -25,7 +26,8 @@ public class ReportCommand extends BaseCommand {
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
-                        Peacekeeper.logFile.logToFile(player.getName() + " has created new report");
+//                        Peacekeeper.logFile.logToFile(player.getName() + " has created new report");
+                        ChatUtils.broadcast(ChatColor.YELLOW + player.getName() + " has created a new report");
                     }
                 });
             }

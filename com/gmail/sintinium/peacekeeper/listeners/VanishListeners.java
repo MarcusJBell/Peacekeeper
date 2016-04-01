@@ -48,7 +48,9 @@ public class VanishListeners implements Listener {
 
     public static void superHidePlayer(Player player) {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || p.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) continue;
+            if (p.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || p.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
+                continue;
+            }
             p.hidePlayer(player);
         }
     }
@@ -60,7 +62,7 @@ public class VanishListeners implements Listener {
     }
 
     public void hideToPlayer(Player player) {
-        if (!player.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || !player.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
+        if (player.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || player.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
             return;
         }
 
@@ -114,10 +116,11 @@ public class VanishListeners implements Listener {
             event.setJoinMessage(null);
             superHidePlayer(event.getPlayer());
             event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false, false));
-        } else if (peacekeeper.commandManager.vanishCommand.vanishedPlayers.contains(event.getPlayer().getName())) {
-            hidePlayer(event.getPlayer());
-            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false, false));
         }
+//        else if (peacekeeper.commandManager.vanishCommand.vanishedPlayers.contains(event.getPlayer().getName())) {
+//            hidePlayer(event.getPlayer());
+//            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false, false));
+//        }
         hideToPlayer(event.getPlayer());
         peacekeeper.scoreboardStatsHook.updateScoreboard();
     }
@@ -128,9 +131,9 @@ public class VanishListeners implements Listener {
             event.setQuitMessage(null);
             peacekeeper.scoreboardStatsHook.updateScoreboard();
         }
-        if (peacekeeper.commandManager.vanishCommand.vanishedPlayers.contains(event.getPlayer().getName())) {
-            removeEffects(event.getPlayer());
-        }
+//        if (peacekeeper.commandManager.vanishCommand.vanishedPlayers.contains(event.getPlayer().getName())) {
+//            removeEffects(event.getPlayer());
+//        }
     }
 
     @EventHandler

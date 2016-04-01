@@ -41,11 +41,12 @@ public class ReleaseCommand extends BaseCommand {
                         ChatUtils.playerNotFoundMessage(sender, args[0]);
                         return;
                     }
+                    ChatUtils.releaseMessage(sender, peacekeeper.userTable.getUsername(playerID));
+
                     final String uuid = peacekeeper.userTable.getUserUUID(playerID);
                     peacekeeper.banTable.unbanPlayer(playerID);
                     peacekeeper.banTable.unbanIP(peacekeeper.userTable.getIP(playerID));
                     peacekeeper.muteTable.unmutePlayer(playerID);
-                    ChatUtils.releaseMessage(sender, peacekeeper.userTable.getUsername(playerID));
                     peacekeeper.banListener.cachedBans.remove(UUID.fromString(uuid));
                     peacekeeper.muteTable.mutedPlayers.remove(UUID.fromString(uuid));
 
