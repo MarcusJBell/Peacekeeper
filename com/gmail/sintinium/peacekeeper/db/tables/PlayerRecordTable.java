@@ -92,12 +92,14 @@ public class PlayerRecordTable extends BaseTable {
             if (recordCount == null) return null;
             if (recordCount == 0) return null;
             ResultSet set;
-            if (time != null)
+            if (time != null) {
                 set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " AND " + " Time>=" + time + " ORDER BY rowid DESC;");
-            else
+            } else {
                 set = db.query("SELECT * FROM " + tableName + " WHERE playerID=" + playerID + " AND Type=" + recordType + " ORDER BY rowid DESC;");
+            }
             while (set.next()) {
-                result.add(getDataFromStarSet(set));
+                RecordData data = getDataFromStarSet(set);
+                result.add(data);
             }
             set.close();
         } catch (SQLException e) {

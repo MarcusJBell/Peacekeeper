@@ -142,7 +142,7 @@ public class PlayerBanTable extends BaseTable {
         Integer adminID = set.getInt("AdminID");
         if (set.wasNull()) adminID = null;
         String length = set.getString("Length");
-        if (set.wasNull()) length = null;
+        if (set.wasNull() || length.equals("null")) length = null;
         Long finalLength = null;
         if (length != null && !length.equals("null")) finalLength = Long.parseLong(length);
         return new BanData(set.getInt("BanID"), time, playerID, set.getString("IP"), set.getString("Reason"), adminID, finalLength, set.getInt("Type"), set.getInt("RecordID"));

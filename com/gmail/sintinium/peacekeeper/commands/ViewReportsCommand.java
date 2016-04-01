@@ -54,7 +54,7 @@ public class ViewReportsCommand extends BaseCommand {
                     }
                 } else if (args[0].equalsIgnoreCase("del") && args.length > 1) {
                     if (!sender.hasPermission("peacekeeper.command.viewreports.delete")) {
-                        sender.sendMessage(ChatColor.DARK_RED + "You do not have permission for this ocmmand");
+                        ChatUtils.noPermission(sender);
                         return;
                     }
                     if (!StringUtils.isNumeric(args[1])) {
@@ -70,7 +70,7 @@ public class ViewReportsCommand extends BaseCommand {
                     }
                 } else if (args[0].equalsIgnoreCase("delall") && args.length > 1) {
                     if (!sender.hasPermission("peacekeeper.command.viewreports.deleteall")) {
-                        sender.sendMessage(ChatColor.DARK_RED + "You do not have permission for this ocmmand");
+                        ChatUtils.noPermission(sender);
                         return;
                     }
                     Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[1]);

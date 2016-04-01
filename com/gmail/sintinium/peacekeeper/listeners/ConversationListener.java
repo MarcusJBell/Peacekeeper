@@ -232,10 +232,8 @@ public class ConversationListener implements Listener {
 
     public void onMuteChatFinish(final Player sender) {
         final ConversationData data = conversations.get(sender);
-        final String ordinal = TimeUtils.ordinal(peacekeeper.punishmentHelper.getOffsenseCount(ConversationType.MUTE, data.playerID) + 1);
-        String finalReason = data.reason + " (" + ordinal + " offense)";
-        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, finalReason, categoriesToString(data), (MuteConversationData) data);
-        ChatUtils.muteMessage(sender, data.punishedUsername, data.finalTime, finalReason);
+
+        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, data.reason, categoriesToString(data), (MuteConversationData) data);
 
         String categoryString = categoriesToString(data);
         if (data.timeResults.size() == 1)
@@ -246,11 +244,8 @@ public class ConversationListener implements Listener {
 
     public void onSuspendChatFinish(Player sender) {
         ConversationData data = conversations.get(sender);
-        final String ordinal = TimeUtils.ordinal(peacekeeper.punishmentHelper.getOffsenseCount(ConversationType.SUSPEND, data.playerID) + 1);
 
-        String finalReason = data.reason + " (" + ordinal + " offense)";
-        SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, finalReason, categoriesToString(data), (SuspendConversationData) data);
-        ChatUtils.banPlayerMessage(sender, data.punishedUsername, data.finalTime, finalReason);
+        SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, data.reason, categoriesToString(data), (SuspendConversationData) data);
 
         String categoryString = categoriesToString(data);
         if (data.timeResults.size() == 1)

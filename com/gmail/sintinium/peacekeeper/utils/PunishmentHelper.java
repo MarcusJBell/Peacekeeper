@@ -39,15 +39,17 @@ public class PunishmentHelper {
                 datas = processDataForGaps(peacekeeper.recordTable.getRecordsByType(playerID, PlayerRecordTable.MUTE));
                 break;
         }
-        if (datas == null) {
+        if (datas == null || datas.size() == 0) {
             return new PunishmentResult(length, 0);
         }
+
         long totalLastLength = getPreviousTotalLength(datas);
         int offenseCount = datas.size();
         long processedTime = totalLastLength + (length * (int) Math.pow(1.5, offenseCount));
         return new PunishmentResult(processedTime, offenseCount);
     }
 
+    @Deprecated
     public int getOffsenseCount(ConversationListener.ConversationType conversationType, int playerID) {
         List<RecordData> datas = null;
         switch (conversationType) {
@@ -68,7 +70,9 @@ public class PunishmentHelper {
         List<RecordData> processedData = new ArrayList<>();
         long lastTime = System.currentTimeMillis();
         for (RecordData d : datas) {
-            if (lastTime - d.time > THIRTY_DAY_MONTH * 2L) break;
+            if (lastTime - d.time > THIRTY_DAY_MONTH * 2L) {
+                break;
+            }
             lastTime = d.time;
             processedData.add(d);
         }

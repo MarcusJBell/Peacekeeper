@@ -28,7 +28,7 @@ public class MuteCommand extends BaseCommand {
     }
 
     // Method that is actually called to mute a user
-    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long inLength, final String reason, final String description, final MuteConversationData conversationData) {
+    public static void muteUser(final CommandSender sender, final Peacekeeper peacekeeper, final String uuid, final String username, final int playerID, final Long inLength, final String reasonInput, final String description, final MuteConversationData conversationData) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
@@ -45,16 +45,30 @@ public class MuteCommand extends BaseCommand {
                 }
 
                 final Long length;
+
+                final PunishmentHelper.PunishmentResult result;
                 if (inLength != null) {
-                    final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(playerID, ConversationListener.ConversationType.MUTE, inLength);
+                    result = peacekeeper.punishmentHelper.getTime(playerID, ConversationListener.ConversationType.MUTE, inLength);
                     length = result.time;
-                } else
+                } else {
                     length = null;
+                    result = null;
+                }
+
+                final String ordinal;
+                final String reason;
+                if (result != null) {
+                    ordinal = TimeUtils.ordinal(result.offenseCount + 1);
+                    reason = reasonInput + " (" + ordinal + " offense)";
+                } else {
+                    reason = reasonInput;
+                }
 
                 int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.MUTE, length, reason, description);
                 int muteID = peacekeeper.muteTable.muteUser(playerID, length, reason, adminID, recordID);
                 MuteData muteData = peacekeeper.muteTable.muteData(muteID);
                 peacekeeper.muteTable.mutedPlayers.put(UUID.fromString(uuid), muteData);
+                ChatUtils.muteMessage(sender, username, length, reason);
 
                 // Get player back on main thread
                 final MuteData MUTE_DATA = muteData;

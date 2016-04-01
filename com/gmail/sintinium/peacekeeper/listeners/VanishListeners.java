@@ -60,21 +60,33 @@ public class VanishListeners implements Listener {
     }
 
     public void hideToPlayer(Player player) {
-        for (String s : peacekeeper.commandManager.superVanishCommand.superVanishedPlayers) {
-            Player p = Peacekeeper.getPlayer(s);
-            if (p != null)
-                if (!p.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || !p.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
-                    player.hidePlayer(p);
-                }
+        if (!player.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || !player.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
+            return;
         }
 
-        for (String s : peacekeeper.commandManager.vanishCommand.vanishedPlayers) {
-            if (player.hasPermission("peacekeeper.command.vanish.cansee")) return;
-            Player p = Peacekeeper.getPlayer(s);
-            if (p != null) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (peacekeeper.commandManager.superVanishCommand.superVanishedPlayers.contains(p.getName())) {
                 player.hidePlayer(p);
+            } else {
+                player.showPlayer(p);
             }
         }
+
+//        for (String s : peacekeeper.commandManager.superVanishCommand.superVanishedPlayers) {
+//            Player p = Peacekeeper.getExactPlayer(s);
+//            if (p != null)
+//                if (!p.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || !p.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
+//                    player.hidePlayer(p);
+//                }
+//        }
+//
+//        for (String s : peacekeeper.commandManager.vanishCommand.vanishedPlayers) {
+//            if (player.hasPermission("peacekeeper.command.vanish.cansee")) return;
+//            Player p = Peacekeeper.getExactPlayer(s);
+//            if (p != null) {
+//                player.hidePlayer(p);
+//            }
+//        }
     }
 
     @EventHandler

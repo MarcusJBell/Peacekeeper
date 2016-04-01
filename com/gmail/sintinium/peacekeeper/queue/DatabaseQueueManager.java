@@ -36,6 +36,7 @@ public class DatabaseQueueManager {
                         e.printStackTrace();
                     }
                     currentTask = queue.poll();
+
                     try {
                         if (currentTask == null) return;
                         peacekeeper.database.open();

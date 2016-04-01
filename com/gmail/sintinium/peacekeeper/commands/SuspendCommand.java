@@ -26,7 +26,7 @@ public class SuspendCommand extends BaseCommand {
     }
 
     // Suspends the given player from the server
-    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long inLength, final String reason, final String description, final SuspendConversationData conversationData) {
+    public static void suspendUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final Long inLength, final String reasonInput, final String description, final SuspendConversationData conversationData) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {
@@ -44,16 +44,30 @@ public class SuspendCommand extends BaseCommand {
                 }
 
                 final Long time;
+                final PunishmentHelper.PunishmentResult result;
                 if (inLength != null) {
-                    final PunishmentHelper.PunishmentResult result = peacekeeper.punishmentHelper.getTime(playerID, ConversationListener.ConversationType.MUTE, inLength);
+                    result = peacekeeper.punishmentHelper.getTime(playerID, ConversationListener.ConversationType.SUSPEND, inLength);
                     time = result.time;
-                } else
+                } else {
                     time = null;
+                    result = null;
+                }
+
+                final String ordinal;
+                final String reason;
+                if (result != null) {
+                    ordinal = TimeUtils.ordinal(result.offenseCount + 1);
+                    reason = reasonInput + " (" + ordinal + " offense)";
+                } else {
+                    reason = reasonInput;
+                }
 
                 int recordID = peacekeeper.recordTable.addRecord(playerID, null, adminID, PlayerRecordTable.BAN, time, reason, description);
                 BanData banData = new BanData(null, System.currentTimeMillis(), playerID, null, reason, adminID, time, PlayerBanTable.PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
                 final String banMessage = BanUtils.generateBanMessage(peacekeeper, banData);
+
+                ChatUtils.banPlayerMessage(sender, username, time, reason);
 
                 // Kick player back on main thread
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {

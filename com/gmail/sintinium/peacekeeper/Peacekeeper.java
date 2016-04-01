@@ -43,6 +43,8 @@ public class Peacekeeper extends JavaPlugin {
     public PlayerBanTable banTable;
     public PlayerWarnTable warnTable;
 
+//    public ShadowBanFile shadowBanFile;
+
     public CommandManager commandManager;
     public TimeManager timeManager;
     public PunishmentHelper punishmentHelper;

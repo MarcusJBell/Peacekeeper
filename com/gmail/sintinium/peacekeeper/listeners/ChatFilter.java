@@ -124,7 +124,7 @@ public class ChatFilter implements Listener {
 
     private boolean checkFilter(Player player, String message) {
         final String realMessage = message;
-        message = ChatColor.stripColor(message.toLowerCase());
+        message = ChatColor.stripColor(message.toLowerCase()).replaceAll("\"", "");
 //        final String originalMessage = message;
         if (CommandUtils.containsNumber(message, 6) || message.contains("server") || message.contains("craft") || message.contains(".ws") || message.contains(".no")) {
             if (checkStrictIP(player, message)) {
@@ -242,7 +242,7 @@ public class ChatFilter implements Listener {
                 }
             }
 
-            if ((double) (index) / (double) (12) >= .75d) {
+            if ((double) (index) / (double) (e.getKey().length) >= .75d) {
                 handleBan(player, e.getValue());
                 return true;
             }
@@ -261,7 +261,7 @@ public class ChatFilter implements Listener {
                         .PLAYER, recordID);
                 peacekeeper.banTable.banUser(playerID, banData);
                 final String message = BanUtils.generateBanMessage(peacekeeper, banData);
-                ChatUtils.banPlayerMessage(null, player.getName(), banData.banLength, banData.reason);
+                ChatUtils.banPlayerMessage(Bukkit.getConsoleSender(), player.getName(), banData.banLength, banData.reason);
                 Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
