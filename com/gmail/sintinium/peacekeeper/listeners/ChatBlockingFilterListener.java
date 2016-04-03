@@ -30,18 +30,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class ChatFilter implements Listener {
+public class ChatBlockingFilterListener implements Listener {
 
+    public boolean filterChat = true, filterCommands = true, filterBook = true, filterSign = true, filterItems = true;
     private Peacekeeper peacekeeper;
     private Set<String> tempSentence;
 
-    public ChatFilter(Peacekeeper peacekeeper) {
+    public ChatBlockingFilterListener(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
         tempSentence = new HashSet<>();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChatMessage(AsyncPlayerChatEvent event) {
+        if (!filterChat) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
 
         if (checkFilter(event.getPlayer(), event.getMessage())) {
@@ -58,6 +60,7 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommandProcess(PlayerCommandPreprocessEvent event) {
+        if (!filterCommands) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
 
         String split[] = event.getMessage().split("\\s+");
@@ -73,6 +76,7 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBookDropEvent(PlayerDropItemEvent event) {
+        if (!filterBook) return;
         BookMeta bookMeta;
         if (event.getItemDrop().getItemStack().getType() == Material.BOOK_AND_QUILL || event.getItemDrop().getItemStack().getType() == Material.WRITTEN_BOOK) {
             bookMeta = (BookMeta) event.getItemDrop().getItemStack().getItemMeta();
@@ -88,6 +92,7 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBookMove(InventoryClickEvent event) {
+        if (!filterBook) return;
         if (!(event.getWhoClicked() instanceof Player) || event.getCurrentItem() == null) return;
         BookMeta bookMeta;
         if (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL || event.getCurrentItem().getType() == Material.WRITTEN_BOOK) {
@@ -108,10 +113,10 @@ public class ChatFilter implements Listener {
         for (String s : bookMeta.getPages()) {
             builder.append(s).append(" ");
         }
-        book = builder.toString();
+        book = ChatColor.stripColor(builder.toString());
         Peacekeeper.logFile.logBook(player.getName(), book);
 
-        if (checkFilter(player, book)) {
+        if (checkFilter(player, book, true)) {
             broadcastFilter(player, book, 2);
             return true;
         }
@@ -120,6 +125,7 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSignEdit(SignChangeEvent event) {
+        if (!filterSign) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
 
         String sign;
@@ -137,6 +143,7 @@ public class ChatFilter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onRename(InventoryClickEvent event) {
+        if (!filterItems) return;
         if (event.getWhoClicked().hasPermission("peacekeeper.filter.bypass")) return;
 
         if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.ANVIL) {
@@ -153,11 +160,15 @@ public class ChatFilter implements Listener {
     }
 
     private boolean checkFilter(Player player, String message) {
+        return checkFilter(player, message, false);
+    }
+
+    private boolean checkFilter(Player player, String message, boolean book) {
         final String realMessage = message;
         message = ChatColor.stripColor(message.toLowerCase()).replaceAll("\"", "");
 //        final String originalMessage = message;
         if (CommandUtils.containsNumber(message, 6) || message.contains("server") || message.contains("craft") || message.contains(".ws") || message.contains(".no")) {
-            if (checkStrictIP(player, message)) {
+            if (checkStrictIP(player, message, book)) {
                 return true;
             }
         } else {
@@ -238,12 +249,12 @@ public class ChatFilter implements Listener {
         return false;
     }
 
-    private boolean checkStrictIP(Player player, String message) {
-        if (CommandUtils.isIP(message)) {
-            if (messageContainsBlockedIP(player, message)) {
+    private boolean checkStrictIP(Player player, String message, boolean book) {
+        if (CommandUtils.isIP(message) || CommandUtils.isIP(message.replaceAll("\\s+", ""))) {
+            if (messageContainsBlockedIP(player, message) || messageContainsBlockedIP(player, message.replaceAll("\\s+", ""))) {
                 return true;
             }
-        } else {
+        } else if (!book) {
             if (advancedIPChecker(player, message)) {
                 return true;
             }
@@ -333,6 +344,7 @@ public class ChatFilter implements Listener {
         m += "\n" + ChatColor.DARK_AQUA + "Type: " + ChatColor.AQUA + typeMessage;
         player.sendMessage(m);
         Bukkit.getConsoleSender().sendMessage(m);
+        Peacekeeper.logFile.logBlockedChat(player.getName(), message);
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.equals(player)) continue;
             if (p.hasPermission("peacekeeper.command.mute")) {

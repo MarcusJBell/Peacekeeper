@@ -1,4 +1,29 @@
+spamfilter:
+  #types: blocking, filtering, off
+  #blocking - blocks message entirely
+  #filtering - filters the message to remove unnessessary spam
+  #off - disables this type of filtering
+  type:
+    #Filter for excessive caps
+    caps: "filtering"
+    #Filter for repeated messages
+    spam: "blocking"
+    #Filter for excessive charactors in a message
+    excessivechars: "filtering"
+  amounts:
+    #Percentage threshold for filter to kick in (range from 0-100)
+    caps: 75
+    #How identical to the last message it has to be (range from 0-100)
+    spam: 90
+    #Amount of charators that needs to be reapted for filter
+    excessivechars: 6
 filter:
+  toggles:
+    chat: true
+    commands: true
+    books: true
+    items: true
+    signs: true
   filteredwords:
     blocked:
     - assclown

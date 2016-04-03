@@ -56,6 +56,8 @@ public class Peacekeeper extends JavaPlugin {
     public EssentialsHook essentialsHook;
     public ConfigFile configFile;
     public FilterFile chatFilter;
+    public ChatBlockingFilterListener chatBlockingFilterListener;
+    public ChatSpamFilterListener chatSpamFilterListener;
     public JsonChat jsonChat;
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
@@ -196,7 +198,8 @@ public class Peacekeeper extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(muteListener = new MuteListener(this), this);
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
         Bukkit.getPluginManager().registerEvents(new LoggerListener(), this);
-        Bukkit.getPluginManager().registerEvents(new ChatFilter(this), this);
+        Bukkit.getPluginManager().registerEvents(chatBlockingFilterListener = new ChatBlockingFilterListener(this), this);
+        Bukkit.getPluginManager().registerEvents(chatSpamFilterListener = new ChatSpamFilterListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CreativePatchListener(), this);
     }
 

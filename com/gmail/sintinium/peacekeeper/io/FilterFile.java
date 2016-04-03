@@ -1,6 +1,7 @@
 package com.gmail.sintinium.peacekeeper.io;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
+import com.gmail.sintinium.peacekeeper.listeners.ChatSpamFilterListener;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,7 +26,9 @@ public class FilterFile {
 
     public FilterFile(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
+        loadToggles();
         loadFilter();
+        loadSpamFilter();
     }
 
     public void reloadDefaultConfig() {
@@ -48,6 +51,29 @@ public class FilterFile {
             reloadDefaultConfig();
         }
         return config;
+    }
+
+    public void loadSpamFilter() {
+        File file = getFile();
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        ChatSpamFilterListener filter = peacekeeper.chatSpamFilterListener;
+        filter.capType = config.getString("spamfilter.type.caps");
+        filter.spamType = config.getString("spamfilter.type.spam");
+        filter.excessiveCharType = config.getString("spamfilter.type.excessivechars");
+
+        filter.caps = (float) (config.getInt("spamfilter.amounts.caps")) / 100f;
+        filter.spam = (float) (config.getInt("spamfilter.amounts.spam")) / 100f;
+        filter.excessiveCharCount = config.getInt("spamfilter.amounts.excessivechars");
+    }
+
+    public void loadToggles() {
+        File file = getFile();
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        peacekeeper.chatBlockingFilterListener.filterChat = config.getBoolean("filter.toggles.chat");
+        peacekeeper.chatBlockingFilterListener.filterCommands = config.getBoolean("filter.toggles.commands");
+        peacekeeper.chatBlockingFilterListener.filterBook = config.getBoolean("filter.toggles.books");
+        peacekeeper.chatBlockingFilterListener.filterItems = config.getBoolean("filter.toggles.items");
+        peacekeeper.chatBlockingFilterListener.filterSign = config.getBoolean("filter.toggles.signs");
     }
 
     public void loadFilter() {
