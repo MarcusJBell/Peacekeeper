@@ -6,7 +6,7 @@ spamfilter:
   type:
     #Filter for excessive caps
     caps: "filtering"
-    #Filter for repeated messages
+    #Filter for repeated messages (Only accepts blocking or off)
     spam: "blocking"
     #Filter for excessive charactors in a message
     excessivechars: "filtering"

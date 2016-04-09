@@ -41,7 +41,7 @@ public class ChatBlockingFilterListener implements Listener {
         tempSentence = new HashSet<>();
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChatMessage(AsyncPlayerChatEvent event) {
         if (!filterChat) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
@@ -58,7 +58,7 @@ public class ChatBlockingFilterListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onCommandProcess(PlayerCommandPreprocessEvent event) {
         if (!filterCommands) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
@@ -74,7 +74,7 @@ public class ChatBlockingFilterListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBookDropEvent(PlayerDropItemEvent event) {
         if (!filterBook) return;
         BookMeta bookMeta;
@@ -90,7 +90,7 @@ public class ChatBlockingFilterListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBookMove(InventoryClickEvent event) {
         if (!filterBook) return;
         if (!(event.getWhoClicked() instanceof Player) || event.getCurrentItem() == null) return;
@@ -123,7 +123,7 @@ public class ChatBlockingFilterListener implements Listener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onSignEdit(SignChangeEvent event) {
         if (!filterSign) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
@@ -141,7 +141,7 @@ public class ChatBlockingFilterListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onRename(InventoryClickEvent event) {
         if (!filterItems) return;
         if (event.getWhoClicked().hasPermission("peacekeeper.filter.bypass")) return;
@@ -320,7 +320,7 @@ public class ChatBlockingFilterListener implements Listener {
 
     // 0 = chat, 1 = command, 2 = book, 3 = sign, 4 = item
     private void broadcastFilter(Player player, String message, int type) {
-        String m = ChatColor.DARK_RED + player.getName() + ChatColor.RED + " used blocked word(s): " + message;
+        String m = ChatColor.DARK_RED + player.getName() + ChatColor.RED + " used blocked word(s):\n \"" + message + "\"";
         String typeMessage;
         switch (type) {
             case 0:

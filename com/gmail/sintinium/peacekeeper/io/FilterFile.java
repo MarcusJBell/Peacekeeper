@@ -53,22 +53,25 @@ public class FilterFile {
         return config;
     }
 
+
     public void loadSpamFilter() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         ChatSpamFilterListener filter = peacekeeper.chatSpamFilterListener;
-        filter.capType = config.getString("spamfilter.type.caps");
-        filter.spamType = config.getString("spamfilter.type.spam");
-        filter.excessiveCharType = config.getString("spamfilter.type.excessivechars");
+        filter.capType = config.getString("spamfilter.type.caps").toLowerCase();
+        filter.spamType = config.getString("spamfilter.type.spam").toLowerCase();
+        filter.excessiveCharType = config.getString("spamfilter.type.excessivechars").toLowerCase();
 
         filter.caps = (float) (config.getInt("spamfilter.amounts.caps")) / 100f;
         filter.spam = (float) (config.getInt("spamfilter.amounts.spam")) / 100f;
         filter.excessiveCharCount = config.getInt("spamfilter.amounts.excessivechars");
+        filter.spamCount = config.getInt("spamfilter.amounts.characterspamcount");
     }
 
     public void loadToggles() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+
         peacekeeper.chatBlockingFilterListener.filterChat = config.getBoolean("filter.toggles.chat");
         peacekeeper.chatBlockingFilterListener.filterCommands = config.getBoolean("filter.toggles.commands");
         peacekeeper.chatBlockingFilterListener.filterBook = config.getBoolean("filter.toggles.books");

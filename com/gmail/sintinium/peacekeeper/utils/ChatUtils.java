@@ -86,6 +86,10 @@ public class ChatUtils {
         sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command");
     }
 
+    public static void autoModerator(Player p, String message) {
+        p.sendMessage(ChatColor.AQUA + "[" + ChatColor.DARK_AQUA + "AutoModerator" + ChatColor.AQUA + "]: " + ChatColor.DARK_AQUA + message);
+    }
+
     /**
      * Util to make pages for chat since I can't find any good documentation on bukkit's paginator util
      *
