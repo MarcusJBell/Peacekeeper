@@ -87,7 +87,7 @@ public class ChatUtils {
     }
 
     public static void autoModerator(Player p, String message) {
-        p.sendMessage(ChatColor.AQUA + "[" + ChatColor.DARK_AQUA + "AutoModerator" + ChatColor.AQUA + "]: " + ChatColor.DARK_AQUA + message);
+        p.sendMessage(ChatColor.AQUA + "[" + ChatColor.DARK_AQUA + "Peacekeeper" + ChatColor.AQUA + "]: " + ChatColor.DARK_AQUA + message);
     }
 
     /**

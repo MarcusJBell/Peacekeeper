@@ -3,6 +3,7 @@ package com.gmail.sintinium.peacekeeper.listeners;
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.MutablePair;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
+import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import com.gmail.sintinium.peacekeeper.utils.FilterUtils;
 import javafx.util.Pair;
 import org.bukkit.Bukkit;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -19,7 +21,7 @@ import java.util.regex.Pattern;
 public class ChatSpamFilterListener implements Listener {
 
     //Types: blocking, filtering, off
-    public String capType = "blocking", spamType = "blocking", excessiveCharType = "blocking";
+    public String capType = "blocking", spamType = "blocking", excessiveCharType = "blocking", specialType = "blocking";
     //Percentage threshold for filter to kick in
     public float caps = .90f, spam = .75f;
     //Amount of repeated characters for filter to pick up
@@ -38,14 +40,38 @@ public class ChatSpamFilterListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onChatEvent(AsyncPlayerChatEvent event) {
+    public void onChatEvent(AsyncPlayerChatEvent chatEvent) {
+        FilterEvent event = new FilterEvent(chatEvent.getPlayer(), chatEvent.getMessage());
+        filterEvent(event);
+
+        if (event.isCancelled()) chatEvent.setCancelled(true);
+        chatEvent.setMessage(event.getMessage());
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onCommandPreprocess(PlayerCommandPreprocessEvent commandEvent) {
+        String split[] = commandEvent.getMessage().split("\\s+");
+        if (split.length <= 0) return;
+        String m = split[0].toLowerCase();
+        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/afk") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
+            FilterEvent event = new FilterEvent(commandEvent.getPlayer(), CommandUtils.argsToReason(commandEvent.getMessage().split(" "), 1));
+            filterEvent(event);
+
+            if (event.isCancelled()) commandEvent.setCancelled(true);
+            commandEvent.setMessage(m + " " + event.getMessage());
+        }
+    }
+
+    public void filterEvent(FilterEvent event) {
+        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
         if (allDisabled()) return;
         boolean filtered = false;
         if (!categories.isEmpty()) categories.clear();
         final String originalMessage = event.getMessage();
-        if (handleExcessives(event)) filtered = true;
         if (handleCaps(event)) filtered = true;
+        if (handleExcessives(event)) filtered = true;
         if (handleSpam(event)) filtered = true;
+        if (handleSpecials(event)) filtered = true;
 
         if (filtered && !event.isCancelled()) {
             ChatUtils.autoModerator(event.getPlayer(), ChatColor.YELLOW + "Your message was filtered to prevent spam. If you believe this is a false positive please report it as a bug.");
@@ -54,7 +80,33 @@ public class ChatSpamFilterListener implements Listener {
         }
     }
 
-    private boolean handleCaps(AsyncPlayerChatEvent event) {
+    private boolean handleSpecials(FilterEvent event) {
+        if (specialType.equalsIgnoreCase("filtering")) {
+            return filterSpecial(event);
+        } else if (specialType.equalsIgnoreCase("blocking")) {
+            blockSpecials(event);
+            return false;
+        }
+        return false;
+    }
+
+    private boolean filterSpecial(FilterEvent event) {
+        if (FilterUtils.isSpecial(event.getMessage())) {
+            Pattern pattern = Pattern.compile("[^~`!@#$%^&*()_+-=\\|\\[\\]{};':\"/?.>,<a-zA-Z0-9 ]");
+            event.setMessage(pattern.matcher(event.getMessage()).replaceAll(""));
+            return true;
+        }
+        return false;
+    }
+
+    private void blockSpecials(FilterEvent event) {
+        if (FilterUtils.isSpecial(event.getMessage())) {
+            event.setCancelled(true);
+            categories.add("Special char(s)");
+        }
+    }
+
+    private boolean handleCaps(FilterEvent event) {
         if (capType.equalsIgnoreCase("filtering")) {
             return filterCaps(event);
         } else if (capType.equalsIgnoreCase("blocking")) {
@@ -64,7 +116,7 @@ public class ChatSpamFilterListener implements Listener {
         return false;
     }
 
-    private boolean filterCaps(AsyncPlayerChatEvent event) {
+    private boolean filterCaps(FilterEvent event) {
         String message = event.getMessage();
         int capCount = FilterUtils.upperCaseCount(message.replaceAll("[^a-zA-Z0-9]", ""));
         if (capCount >= spamCount && (float) capCount / (float) message.length() >= caps) {
@@ -76,7 +128,7 @@ public class ChatSpamFilterListener implements Listener {
     }
 
     // Blocks message if contains too many caps
-    private void blockCaps(AsyncPlayerChatEvent event) {
+    private void blockCaps(FilterEvent event) {
         String message = event.getMessage();
         int capCount = FilterUtils.upperCaseCount(message.replaceAll("[^a-zA-Z0-9]", ""));
         if (capCount >= spamCount && (float) capCount / (float) message.length() >= caps) {
@@ -85,18 +137,18 @@ public class ChatSpamFilterListener implements Listener {
         }
     }
 
-    private boolean handleSpam(AsyncPlayerChatEvent event) {
+    private boolean handleSpam(FilterEvent event) {
         if (spamType.equalsIgnoreCase("blocking")) {
             blockSpam(event);
         }
         return false;
     }
 
-    private void blockSpam(AsyncPlayerChatEvent event) {
+    private void blockSpam(FilterEvent event) {
 
     }
 
-    private boolean handleExcessives(AsyncPlayerChatEvent event) {
+    private boolean handleExcessives(FilterEvent event) {
         if (excessiveCharType.equalsIgnoreCase("filtering")) {
             return filterExcessives(event);
         } else if (excessiveCharType.equalsIgnoreCase("blocking")) {
@@ -106,7 +158,7 @@ public class ChatSpamFilterListener implements Listener {
         return false;
     }
 
-    private boolean filterExcessives(AsyncPlayerChatEvent event) {
+    private boolean filterExcessives(FilterEvent event) {
         String message = event.getMessage();
         ArrayList<MutablePair<Character, Integer>> duplicates = FilterUtils.duplicateCharatersCount(message, true);
         boolean filtered = false;
@@ -122,7 +174,7 @@ public class ChatSpamFilterListener implements Listener {
     }
 
     // Blocks messages  if contains excessive chars
-    private void blockExcessives(AsyncPlayerChatEvent event) {
+    private void blockExcessives(FilterEvent event) {
         Pair<Character, Integer> p = FilterUtils.highestRepeatedCharacterCount(event.getMessage(), true);
         if (p == null) return;
         if (p.getValue() >= excessiveCharCount) {
@@ -144,6 +196,39 @@ public class ChatSpamFilterListener implements Listener {
                 p.sendMessage(m);
             }
         }
+    }
+
+    public class FilterEvent {
+
+        Player player;
+        boolean cancelled = false;
+        String message;
+
+        public FilterEvent(Player player, String message) {
+            this.player = player;
+            this.message = message;
+        }
+
+        public boolean isCancelled() {
+            return cancelled;
+        }
+
+        public void setCancelled(boolean cancelled) {
+            this.cancelled = cancelled;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public Player getPlayer() {
+            return player;
+        }
+
     }
 
 }

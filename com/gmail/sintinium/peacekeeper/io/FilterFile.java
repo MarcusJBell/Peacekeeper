@@ -60,6 +60,7 @@ public class FilterFile {
         ChatSpamFilterListener filter = peacekeeper.chatSpamFilterListener;
         filter.capType = config.getString("spamfilter.type.caps").toLowerCase();
         filter.spamType = config.getString("spamfilter.type.spam").toLowerCase();
+        filter.specialType = config.getString("spamfilter.type.specialchars").toLowerCase();
         filter.excessiveCharType = config.getString("spamfilter.type.excessivechars").toLowerCase();
 
         filter.caps = (float) (config.getInt("spamfilter.amounts.caps")) / 100f;

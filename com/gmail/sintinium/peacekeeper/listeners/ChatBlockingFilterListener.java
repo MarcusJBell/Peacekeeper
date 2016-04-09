@@ -225,11 +225,11 @@ public class ChatBlockingFilterListener implements Listener {
         String[] split = wildcarded.split("\\s+");
         for (String sp : split) {
 
+            Pattern p = Pattern.compile("[^A-Za-z0-9*!#$? ]");
+            sp = p.matcher(sp).replaceAll("");
+
             pattern = Pattern.compile(CommandUtils.CONTAINS_SPECIAL_CHAR_NOBACK);
             sp = pattern.matcher(sp).replaceFirst("[A-Za-z0-9]");
-
-            Pattern p = Pattern.compile("[^A-Za-z0-9\\[\\]\\- ]");
-            sp = p.matcher(sp).replaceAll("");
 
             for (final String s : peacekeeper.chatFilter.blockedWords) {
                 if (CommandUtils.matchAll(s, sp)) {

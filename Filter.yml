@@ -4,6 +4,8 @@ spamfilter:
   #filtering - filters the message to remove unnessessary spam
   #off - disables this type of filtering
   type:
+    #Filter for special chars (alt codes)
+    specialchars: "blocking"
     #Filter for excessive caps
     caps: "filtering"
     #Filter for repeated messages (Only accepts blocking or off)

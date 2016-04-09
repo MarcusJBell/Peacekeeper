@@ -8,6 +8,36 @@ import java.util.ArrayList;
 
 public class FilterUtils {
 
+    static char[] symbols = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', '\\', '|', ':', ';', '"', '\'', '?', '/', '>', '.', '<', ',', '~', '`'};
+
+    public static boolean isSpecial(String s) {
+        for (char c : s.toCharArray()) {
+            if (!Character.isAlphabetic(c) && !Character.isDigit(c)) {
+                for (char sc : symbols) {
+                    if (c == sc) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public static String filterSpecials(String s) {
+        StringBuilder result = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (!Character.isAlphabetic(c) && !Character.isDigit(c)) {
+                for (char sc : symbols) {
+                    if (c == sc) {
+                        result.append(c);
+                        break;
+                    }
+                }
+            }
+        }
+        return result.toString();
+    }
+
     public static int upperCaseCount(String s) {
         int capCount = 0;
         for (int i = 0; i < s.length(); i++) {
