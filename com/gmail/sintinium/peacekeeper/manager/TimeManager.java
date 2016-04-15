@@ -67,7 +67,12 @@ public class TimeManager {
             String length = null;
             if (time)
                 length = config.getString(actualKey + ".length");
+            boolean warn = false;
+            if (config.contains(actualKey + ".warn")) {
+                warn = config.getBoolean(actualKey + ".warn");
+            }
             TimeResult result = new TimeResult(description, length);
+            result.shouldWarn = warn;
             results.add(result);
         }
         configMap.put(type, results);
@@ -76,6 +81,7 @@ public class TimeManager {
     public class TimeResult {
         public String description;
         public String length;
+        public boolean shouldWarn;
 
         public TimeResult(String description, String length) {
             this.description = description;

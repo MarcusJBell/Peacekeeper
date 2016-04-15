@@ -7,10 +7,13 @@ import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
 public class MuteListener implements Listener {
@@ -72,6 +75,31 @@ public class MuteListener implements Listener {
             muteData.lastTime = System.currentTimeMillis();
         } else {
             event.getPlayer().sendMessage(ChatColor.DARK_RED + "You are currently muted");
+        }
+    }
+
+    @EventHandler
+    public void signEdit(SignChangeEvent event) {
+        if (!peacekeeper.muteTable.mutedPlayers.containsKey(event.getPlayer().getUniqueId())) return;
+        event.setCancelled(true);
+        event.getPlayer().sendMessage(ChatColor.DARK_RED + "You cannot use signs while muted.");
+    }
+
+    @EventHandler
+    public void bookMove(InventoryClickEvent event) {
+        if (!peacekeeper.muteTable.mutedPlayers.containsKey(event.getWhoClicked().getUniqueId())) return;
+        if (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL || event.getCurrentItem().getType() == Material.WRITTEN_BOOK) {
+            event.setCancelled(true);
+            event.getWhoClicked().sendMessage(ChatColor.DARK_RED + "You cannot use books while muted.");
+        }
+    }
+
+    @EventHandler
+    public void bookDrop(PlayerDropItemEvent event) {
+        if (!peacekeeper.muteTable.mutedPlayers.containsKey(event.getPlayer().getUniqueId())) return;
+        if (event.getItemDrop().getItemStack().getType() == Material.BOOK_AND_QUILL || event.getItemDrop().getItemStack().getType() == Material.WRITTEN_BOOK) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(ChatColor.DARK_RED + "You cannot use books while muted.");
         }
     }
 

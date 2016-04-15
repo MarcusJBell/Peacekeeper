@@ -66,7 +66,7 @@ public class ChatBlockingFilterListener implements Listener {
         String split[] = event.getMessage().split("\\s+");
         if (split.length <= 0) return;
         String m = split[0].toLowerCase();
-        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/afk") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
+        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
             if (checkFilter(event.getPlayer(), event.getMessage())) {
                 event.setCancelled(true);
                 broadcastFilter(event.getPlayer(), event.getMessage(), 1);
@@ -224,6 +224,7 @@ public class ChatBlockingFilterListener implements Listener {
 
         String[] split = wildcarded.split("\\s+");
         for (String sp : split) {
+            String noSymbol = sp.replaceAll("[^A-Za-z0-9]", "");
 
             Pattern p = Pattern.compile("[^A-Za-z0-9*!#$? ]");
             sp = p.matcher(sp).replaceAll("");
@@ -232,7 +233,7 @@ public class ChatBlockingFilterListener implements Listener {
             sp = pattern.matcher(sp).replaceFirst("[A-Za-z0-9]");
 
             for (final String s : peacekeeper.chatFilter.blockedWords) {
-                if (CommandUtils.matchAll(s, sp)) {
+                if (CommandUtils.matchAll(s, sp) || CommandUtils.matchAll(s, noSymbol)) {
                     return true;
                 }
             }

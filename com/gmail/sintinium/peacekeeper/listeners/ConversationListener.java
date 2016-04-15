@@ -54,26 +54,26 @@ public class ConversationListener implements Listener {
                         onReportFinish(sender);
                     }
                 }
+            }
+        });
+    }
 
-                Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
-                    @Override
-                    public void run() {
-                        List<String> missedChat = data.missedMessages;
-                        peacekeeper.conversationListener.conversations.remove(sender);
+    public void confirmOrCancel(final Player sender) {
+        final ConversationData data = peacekeeper.conversationListener.conversations.get(sender);
+        Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
+            @Override
+            public void run() {
+                List<String> missedChat = data.missedMessages;
+                peacekeeper.conversationListener.conversations.remove(sender);
 
-                        if (missedChat.isEmpty()) {
-                            if (cancelled)
-                                sender.sendMessage("Cancelled, you missed no chat messages");
-                            else
-                                sender.sendMessage("You missed no chat messages");
-                        } else {
-                            sender.sendMessage(ChatColor.DARK_AQUA + "--- Missed Chat ---");
-                            for (String message : missedChat) {
-                                sender.sendMessage(message);
-                            }
-                        }
+                if (missedChat.isEmpty()) {
+                    sender.sendMessage("You missed no chat messages");
+                } else {
+                    sender.sendMessage(ChatColor.DARK_AQUA + "--- Missed Chat ---");
+                    for (String message : missedChat) {
+                        sender.sendMessage(message);
                     }
-                });
+                }
             }
         });
     }
@@ -232,30 +232,58 @@ public class ConversationListener implements Listener {
 
     public void onMuteChatFinish(final Player sender) {
         final ConversationData data = conversations.get(sender);
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, data.reason, categoriesToString(data), (MuteConversationData) data);
 
-        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, data.reason, categoriesToString(data), (MuteConversationData) data);
-
-        String categoryString = categoriesToString(data);
-        if (data.timeResults.size() == 1)
-            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute category: " + ChatColor.AQUA + categoryString);
-        else
-            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute categories: " + ChatColor.AQUA + categoryString);
+                String categoryString = categoriesToString(data);
+                if (data.timeResults.size() == 1)
+                    ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute category: " + ChatColor.AQUA + categoryString);
+                else
+                    ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute categories: " + ChatColor.AQUA + categoryString);
+            }
+        };
+        sendConfirm(sender, r, shouldWarn(data), data.punishedUsername, ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + data.punishedUsername, ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + data.reason, ChatColor.DARK_AQUA + "Categories: " + ChatColor.AQUA + categoriesToString(data));
     }
 
-    public void onSuspendChatFinish(Player sender) {
-        ConversationData data = conversations.get(sender);
+    public void onSuspendChatFinish(final Player sender) {
+        final ConversationData data = conversations.get(sender);
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, data.reason, categoriesToString(data), (SuspendConversationData) data);
 
-        SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, data.reason, categoriesToString(data), (SuspendConversationData) data);
+                String categoryString = categoriesToString(data);
+                if (data.timeResults.size() == 1)
+                    ChatUtils.broadcast(ChatColor.DARK_AQUA + "Suspend category: " + ChatColor.AQUA + categoryString);
+                else
+                    ChatUtils.broadcast(ChatColor.DARK_AQUA + "Suspend categories: " + ChatColor.AQUA + categoryString);
+            }
+        };
+        sendConfirm(sender, r, shouldWarn(data), data.punishedUsername, ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + data.punishedUsername, ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + data.reason, ChatColor.DARK_AQUA + "Categories: " + ChatColor.AQUA + categoriesToString(data));
+    }
 
-        String categoryString = categoriesToString(data);
-        if (data.timeResults.size() == 1)
-            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Suspend category: " + ChatColor.AQUA + categoryString);
-        else
-            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Suspend categories: " + ChatColor.AQUA + categoryString);
+    private void sendConfirm(Player sender, Runnable action, boolean shouldWarn, String punishing, String... message) {
+        sender.sendMessage(ChatColor.YELLOW + "Please confirm the following...");
+        for (String s : message) {
+            sender.sendMessage(s);
+        }
+        if (shouldWarn) {
+            sender.sendMessage(ChatColor.GOLD + "NOTE: These categories should be warned before punishing via /warn.");
+            sender.sendMessage(ChatColor.DARK_RED + "-- Failure to warn could result in staff discipline if necessary");
+            sender.sendMessage(ChatColor.DARK_RED + "-- Be sure to do " + ChatColor.AQUA + "/rec p " + punishing + ChatColor.DARK_RED + " to check their records for warnings!");
+        }
+        sender.sendMessage(ChatColor.DARK_AQUA + "Type '/pk confirm' if the information above is accurate");
+        sender.sendMessage(ChatColor.DARK_AQUA + "Type '/pk cancel' to cancel punishment");
+        peacekeeper.commandManager.peacekeeperCommand.confirmDatas.put(sender, action);
     }
 
     // Messages the player what they need to type to continue on with the conversation
     public void sendConversationInstructions(Player player) {
+        player.sendMessage("");
+        player.sendMessage("");
+        player.sendMessage("");
         player.sendMessage("");
         player.sendMessage("");
         player.sendMessage("");
@@ -327,6 +355,7 @@ public class ConversationListener implements Listener {
     // If a player quits remove them from the conversation to prevent any memory leaks
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
+        peacekeeper.commandManager.peacekeeperCommand.confirmDatas.remove(event.getPlayer());
         conversations.remove(event.getPlayer());
     }
 
@@ -340,6 +369,13 @@ public class ConversationListener implements Listener {
             categoryString += ", " + r.description;
         }
         return categoryString;
+    }
+
+    public boolean shouldWarn(ConversationData data) {
+        for (TimeManager.TimeResult r : data.timeResults) {
+            if (r.shouldWarn) return true;
+        }
+        return false;
     }
 
     public Integer splitSelect(String message) {

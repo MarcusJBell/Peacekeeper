@@ -46,6 +46,7 @@ public class ChatSpamFilterListener implements Listener {
 
         if (event.isCancelled()) chatEvent.setCancelled(true);
         chatEvent.setMessage(event.getMessage());
+        if (chatEvent.getMessage().isEmpty()) chatEvent.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -53,25 +54,27 @@ public class ChatSpamFilterListener implements Listener {
         String split[] = commandEvent.getMessage().split("\\s+");
         if (split.length <= 0) return;
         String m = split[0].toLowerCase();
-        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/afk") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
+        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
             FilterEvent event = new FilterEvent(commandEvent.getPlayer(), CommandUtils.argsToReason(commandEvent.getMessage().split(" "), 1));
             filterEvent(event);
 
+//            if (event.getMessage().isEmpty()) commandEvent.setCancelled(true);
             if (event.isCancelled()) commandEvent.setCancelled(true);
             commandEvent.setMessage(m + " " + event.getMessage());
         }
     }
 
     public void filterEvent(FilterEvent event) {
-        if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
+        if (peacekeeper.conversationListener.conversations.containsKey(event.getPlayer()) || event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
         if (allDisabled()) return;
         boolean filtered = false;
         if (!categories.isEmpty()) categories.clear();
         final String originalMessage = event.getMessage();
+
+        if (handleSpecials(event)) filtered = true;
         if (handleCaps(event)) filtered = true;
         if (handleExcessives(event)) filtered = true;
         if (handleSpam(event)) filtered = true;
-        if (handleSpecials(event)) filtered = true;
 
         if (filtered && !event.isCancelled()) {
             ChatUtils.autoModerator(event.getPlayer(), ChatColor.YELLOW + "Your message was filtered to prevent spam. If you believe this is a false positive please report it as a bug.");
@@ -92,7 +95,7 @@ public class ChatSpamFilterListener implements Listener {
 
     private boolean filterSpecial(FilterEvent event) {
         if (FilterUtils.isSpecial(event.getMessage())) {
-            Pattern pattern = Pattern.compile("[^~`!@#$%^&*()_+-=\\|\\[\\]{};':\"/?.>,<a-zA-Z0-9 ]");
+            Pattern pattern = Pattern.compile("[^~`!@#$%^&*()_+-=\\\\|\\[\\]{};':\"/?.>,<a-zA-Z0-9 ]");
             event.setMessage(pattern.matcher(event.getMessage()).replaceAll(""));
             return true;
         }
@@ -100,8 +103,9 @@ public class ChatSpamFilterListener implements Listener {
     }
 
     private void blockSpecials(FilterEvent event) {
-        if (FilterUtils.isSpecial(event.getMessage())) {
-            event.setCancelled(true);
+        Pattern pattern = Pattern.compile("[^~`!@#$%^&*()_+-=\\\\|\\[\\]{};':\"/?.>,<a-zA-Z0-9 ]");
+        if (pattern.matcher(event.getMessage()).find()) {
+            event.setCancelled();
             categories.add("Special char(s)");
         }
     }
@@ -132,7 +136,7 @@ public class ChatSpamFilterListener implements Listener {
         String message = event.getMessage();
         int capCount = FilterUtils.upperCaseCount(message.replaceAll("[^a-zA-Z0-9]", ""));
         if (capCount >= spamCount && (float) capCount / (float) message.length() >= caps) {
-            event.setCancelled(true);
+            event.setCancelled();
             categories.add("EXCESSIVE CAPS");
         }
     }
@@ -178,7 +182,7 @@ public class ChatSpamFilterListener implements Listener {
         Pair<Character, Integer> p = FilterUtils.highestRepeatedCharacterCount(event.getMessage(), true);
         if (p == null) return;
         if (p.getValue() >= excessiveCharCount) {
-            event.setCancelled(true);
+            event.setCancelled();
             categories.add("Excessive Char(s)");
         }
     }
@@ -213,8 +217,8 @@ public class ChatSpamFilterListener implements Listener {
             return cancelled;
         }
 
-        public void setCancelled(boolean cancelled) {
-            this.cancelled = cancelled;
+        public void setCancelled() {
+            this.cancelled = true;
         }
 
         public String getMessage() {

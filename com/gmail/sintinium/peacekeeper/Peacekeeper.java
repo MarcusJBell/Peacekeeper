@@ -76,6 +76,11 @@ public class Peacekeeper extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.hasPermission("peacekeeper.broadcast")) {
+                p.sendMessage(ChatColor.DARK_AQUA + "[Peacekeeper] " + ChatColor.AQUA + "Loading version " + this.getDescription().getVersion());
+            }
+        }
         getServer().getScheduler().cancelTasks(this);
         if (!loadDependencies()) {
             getServer().getPluginManager().disablePlugin(this);
@@ -106,6 +111,11 @@ public class Peacekeeper extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.hasPermission("peacekeeper.broadcast")) {
+                p.sendMessage(ChatColor.DARK_AQUA + "[Peacekeeper] " + ChatColor.AQUA + "Unloading version " + this.getDescription().getVersion());
+            }
+        }
         getLogger().info("Finishing up tasks...");
         long time = System.currentTimeMillis();
         boolean warned = false;
