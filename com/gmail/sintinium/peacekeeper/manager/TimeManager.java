@@ -1,6 +1,7 @@
 package com.gmail.sintinium.peacekeeper.manager;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
+import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -81,11 +82,13 @@ public class TimeManager {
     public class TimeResult {
         public String description;
         public String length;
+        public long timeLength;
         public boolean shouldWarn;
 
         public TimeResult(String description, String length) {
             this.description = description;
             this.length = length;
+            timeLength = TimeUtils.stringToMillis(length);
         }
 
     }

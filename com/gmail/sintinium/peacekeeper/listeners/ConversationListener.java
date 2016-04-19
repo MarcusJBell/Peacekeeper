@@ -10,7 +10,6 @@ import com.gmail.sintinium.peacekeeper.data.conversation.SuspendConversationData
 import com.gmail.sintinium.peacekeeper.manager.TimeManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
-import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,9 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConversationListener implements Listener {
 
@@ -183,10 +180,10 @@ public class ConversationListener implements Listener {
                 final ConversationData data = conversations.get(event.getPlayer());
 
                 if (data.timeResults.contains(data.results.get(select - 1))) {
-                    data.finalTime -= TimeUtils.stringToMillis(data.results.get(select - 1).length);
+//                    data.finalTime -= TimeUtils.stringToMillis(data.results.get(select - 1).length);
                     data.timeResults.remove(data.results.get(select - 1));
                 } else {
-                    data.finalTime += TimeUtils.stringToMillis(data.results.get(select - 1).length);
+//                    data.finalTime += TimeUtils.stringToMillis(data.results.get(select - 1).length);
                     data.timeResults.add(data.results.get(select - 1));
                 }
                 sendConversationInstructions(event.getPlayer());
@@ -213,10 +210,10 @@ public class ConversationListener implements Listener {
             @Override
             public void runTask() {
                 if (data.timeResults.contains(data.results.get(stockID - 1))) {
-                    data.finalTime -= TimeUtils.stringToMillis(data.results.get(stockID - 1).length);
+//                    data.finalTime -= TimeUtils.stringToMillis(data.results.get(stockID - 1).length);
                     data.timeResults.remove(data.results.get(stockID - 1));
                 } else {
-                    data.finalTime += TimeUtils.stringToMillis(data.results.get(stockID - 1).length);
+//                    data.finalTime += TimeUtils.stringToMillis(data.results.get(stockID - 1).length);
                     data.timeResults.add(data.results.get(stockID - 1));
                 }
                 sendConversationInstructions(event.getPlayer());
@@ -235,7 +232,7 @@ public class ConversationListener implements Listener {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, data.finalTime, data.reason, categoriesToString(data), (MuteConversationData) data);
+                MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, calcTime(data.timeResults), data.reason, categoriesToString(data), (MuteConversationData) data);
 
                 String categoryString = categoriesToString(data);
                 if (data.timeResults.size() == 1)
@@ -252,7 +249,7 @@ public class ConversationListener implements Listener {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, data.finalTime, data.reason, categoriesToString(data), (SuspendConversationData) data);
+                SuspendCommand.suspendUser(peacekeeper, sender, data.playerID, data.punishedUsername, calcTime(data.timeResults), data.reason, categoriesToString(data), (SuspendConversationData) data);
 
                 String categoryString = categoriesToString(data);
                 if (data.timeResults.size() == 1)
@@ -387,6 +384,29 @@ public class ConversationListener implements Listener {
             return null;
         }
         return Integer.parseInt(split[1]);
+    }
+
+    public long calcTime(Set<TimeManager.TimeResult> timeResults) {
+        List<TimeManager.TimeResult> result = new ArrayList<>(timeResults);
+        Collections.sort(result, new Comparator<TimeManager.TimeResult>() {
+            @Override
+            public int compare(TimeManager.TimeResult o1, TimeManager.TimeResult o2) {
+                return Long.compare(o1.timeLength, o2.timeLength);
+            }
+        });
+        Collections.reverse(result);
+        long finalTime = 0;
+        int index = 0;
+        for (TimeManager.TimeResult r : timeResults) {
+            if (index > 2) break;
+            if (index == 0) {
+                finalTime += r.timeLength;
+            } else {
+                finalTime += r.timeLength / (index * 2);
+            }
+            index++;
+        }
+        return finalTime;
     }
 
     public enum ConversationType {

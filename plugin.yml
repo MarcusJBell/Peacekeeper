@@ -62,6 +62,7 @@ permissions:
         peacekeeper.info.ip: true
         peacekeeper.release.notify: true
         peacekeeper.filter.bypass: true
+        peacekeeper.filter.broadcast: true
   peacekeeper.command.*:
     description: Has permission to use all manual commands
     default: op
@@ -85,6 +86,9 @@ permissions:
         peacekeeper.command.banip: true
         peacekeeper.command.release: true
         peacekeeper.command.vanish: true
+  peacekeeper.filter.broadcast:
+    description: Has permission to view blocked messages
+    default: op
   peacekeeper.filter.bypass:
     description: Has permission to bypass the chat filter
     default: op

@@ -348,7 +348,7 @@ public class ChatBlockingFilterListener implements Listener {
         Peacekeeper.logFile.logBlockedChat(player.getName(), message);
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.equals(player)) continue;
-            if (p.hasPermission("peacekeeper.command.mute")) {
+            if (p.hasPermission("peacekeeper.filter.broadcast")) {
                 p.sendMessage(m);
             }
         }
