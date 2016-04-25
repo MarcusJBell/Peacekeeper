@@ -1,7 +1,7 @@
 package com.gmail.sintinium.peacekeeper.io;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
-import com.gmail.sintinium.peacekeeper.listeners.ChatSpamFilterListener;
+import com.gmail.sintinium.peacekeeper.filter.listeners.ChatSpamFilterListener;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

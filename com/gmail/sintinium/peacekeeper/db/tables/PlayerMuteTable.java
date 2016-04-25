@@ -22,7 +22,7 @@ public class PlayerMuteTable extends BaseTable {
 
     public PlayerMuteTable(@Nonnull final Peacekeeper peacekeeper) {
         super(peacekeeper, "Mutes");
-        mutedPlayers = new ConcurrentHashMap<UUID, MuteData>();
+        mutedPlayers = new ConcurrentHashMap<>();
         String tableSet = SQLTableUtils.getTableSet(
                 new String[]{"MuteID", "MuteTime", "PlayerID", "Length", "Reason", "AdminID", "RecordID"},
                 new String[]{SQLTableUtils.INTEGER + " PRIMARY KEY", SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER, SQLTableUtils.TEXT, SQLTableUtils.INTEGER, SQLTableUtils.INTEGER}

@@ -55,6 +55,14 @@ public class TimeManager {
             loadType(config, key + ".Suspend", SUSPEND, true);
             loadType(config, key + ".Mute", MUTE, true);
             loadType(config, key + ".Report", REPORT, false);
+
+            String autoBlocking = "AutoModerator.BlockingFilter.";
+            peacekeeper.filterManager.filterEnabled = config.getBoolean(autoBlocking + "enabled");
+            peacekeeper.filterManager.message = config.getString(autoBlocking + "message");
+            peacekeeper.filterManager.length = TimeUtils.stringToMillis(config.getString(autoBlocking + "length"));
+            peacekeeper.filterManager.striketime = TimeUtils.stringToMillis(config.getString(autoBlocking + "striketime"));
+            peacekeeper.filterManager.strikecount = config.getInt(autoBlocking + "strikecount");
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -50,12 +50,18 @@ public class ReleaseCommand extends BaseCommand {
                     peacekeeper.banListener.cachedBans.remove(UUID.fromString(uuid));
                     peacekeeper.muteTable.mutedPlayers.remove(UUID.fromString(uuid));
 
+                    final String adminName;
+                    if (sender instanceof Player) {
+                        adminName = sender.getName();
+                    } else {
+                        adminName = "AutoModerator";
+                    }
                     Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                         @Override
                         public void run() {
                             Player player = Bukkit.getPlayer(UUID.fromString(uuid));
                             if (player != null)
-                                player.sendMessage(ChatColor.YELLOW + "Your punishments have been released by: " + ChatColor.BLUE + sender.getName());
+                                player.sendMessage(ChatColor.YELLOW + "Your punishments have been released by: " + ChatColor.BLUE + adminName);
                         }
                     });
                 }

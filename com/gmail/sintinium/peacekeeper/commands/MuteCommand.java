@@ -72,12 +72,14 @@ public class MuteCommand extends BaseCommand {
 
                 // Get player back on main thread
                 final MuteData MUTE_DATA = muteData;
+                final String adminName = peacekeeper.userTable.getUsername(muteData.adminId);
                 Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
                     @Override
                     public void run() {
                         Player player = Peacekeeper.getExactPlayer(username);
                         if (player != null) {
-                            player.sendMessage(ChatColor.DARK_RED + "You have been muted by: " + ChatColor.RED + MUTE_DATA.adminName);
+                            player.sendMessage(ChatColor.DARK_RED + "You have been muted by: " + ChatColor.RED + adminName);
+                            player.sendMessage(ChatColor.DARK_RED + "Reason: " + ChatColor.YELLOW + reason);
                             if (length != null)
                                 player.sendMessage(ChatColor.YELLOW + "Mute will end in: " + TimeUtils.millsToString(length));
                         }

@@ -1,4 +1,4 @@
-package com.gmail.sintinium.peacekeeper.listeners;
+package com.gmail.sintinium.peacekeeper.filter.listeners;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.MutablePair;

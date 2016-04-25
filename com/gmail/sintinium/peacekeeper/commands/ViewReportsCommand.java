@@ -79,7 +79,7 @@ public class ViewReportsCommand extends BaseCommand {
                         return;
                     }
                     peacekeeper.reportTable.deleteRow("PlayerID", playerID);
-                    ChatUtils.broadcast(ChatColor.YELLOW + sender.getName() + ChatColor.GREEN + " has all of users: " + ChatColor.YELLOW + peacekeeper.userTable.getUsername(playerID) + ChatColor.GREEN + " reports");
+                    ChatUtils.broadcast(ChatColor.YELLOW + sender.getName() + ChatColor.GREEN + " has deleted all of users: " + ChatColor.YELLOW + peacekeeper.userTable.getUsername(playerID) + ChatColor.GREEN + " reports");
                 } else if (args[0].equalsIgnoreCase("id") && args.length > 1) {
                     if (!StringUtils.isNumeric(args[1])) {
                         sender.sendMessage(ChatColor.DARK_RED + "Report ID must be a number.");

@@ -6,6 +6,9 @@ import com.gmail.sintinium.peacekeeper.data.MuteData;
 import com.gmail.sintinium.peacekeeper.data.VoteMuteData;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
+import com.gmail.sintinium.peacekeeper.filter.FilterManager;
+import com.gmail.sintinium.peacekeeper.filter.listeners.ChatBlockingFilterListener;
+import com.gmail.sintinium.peacekeeper.filter.listeners.ChatSpamFilterListener;
 import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
 import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
@@ -58,6 +61,7 @@ public class Peacekeeper extends JavaPlugin {
     public FilterFile chatFilter;
     public ChatBlockingFilterListener chatBlockingFilterListener;
     public ChatSpamFilterListener chatSpamFilterListener;
+    public FilterManager filterManager;
     public JsonChat jsonChat;
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
@@ -208,8 +212,11 @@ public class Peacekeeper extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(muteListener = new MuteListener(this), this);
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
         Bukkit.getPluginManager().registerEvents(new LoggerListener(), this);
+
         Bukkit.getPluginManager().registerEvents(chatBlockingFilterListener = new ChatBlockingFilterListener(this), this);
         Bukkit.getPluginManager().registerEvents(chatSpamFilterListener = new ChatSpamFilterListener(this), this);
+        Bukkit.getPluginManager().registerEvents(filterManager = new FilterManager(this), this);
+
         Bukkit.getPluginManager().registerEvents(new CreativePatchListener(), this);
     }
 

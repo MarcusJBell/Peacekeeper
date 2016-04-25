@@ -1,4 +1,4 @@
-package com.gmail.sintinium.peacekeeper.listeners;
+package com.gmail.sintinium.peacekeeper.filter.listeners;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.BanData;
@@ -26,6 +26,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -34,11 +35,14 @@ public class ChatBlockingFilterListener implements Listener {
 
     public boolean filterChat = true, filterCommands = true, filterBook = true, filterSign = true, filterItems = true;
     private Peacekeeper peacekeeper;
-    private Set<String> tempSentence;
+
+    private Set<String> blockedWords;
+    private Set<String> foundBlocked;
 
     public ChatBlockingFilterListener(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
-        tempSentence = new HashSet<>();
+        blockedWords = new HashSet<>();
+        foundBlocked = new HashSet<>();
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -163,27 +167,36 @@ public class ChatBlockingFilterListener implements Listener {
         return checkFilter(player, message, false);
     }
 
-    private boolean checkFilter(Player player, String message, boolean book) {
-        final String realMessage = message;
+    private boolean checkFilter(final Player player, String message, boolean book) {
+        if (peacekeeper.muteTable.mutedPlayers.containsKey(player.getUniqueId())) {
+            return false;
+        }
+        blockedWords.clear();
+        foundBlocked.clear();
+
+        String realMessage = message;
         message = ChatColor.stripColor(message.toLowerCase()).replaceAll("\"", "");
+        boolean blocked = false;
 //        final String originalMessage = message;
         if (CommandUtils.containsNumber(message, 6) || message.contains("server") || message.contains("craft") || message.contains(".ws") || message.contains(".no")) {
             if (checkStrictIP(player, message, book)) {
-                return true;
+                blocked = true;
             }
         } else {
             for (Map.Entry<String, Long> e : peacekeeper.chatFilter.strict.entrySet()) {
                 if (message.contains(e.getKey())) {
                     handleBan(player, e.getValue());
-                    return true;
+                    blocked = true;
                 }
             }
         }
 
+        //TODO: Find out what the heck this code was added for.
         Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
         if (pattern.matcher(message).matches()) {
             return false;
         }
+        //
 
         String clipped = message;
         for (int i = clipped.length() - 1; i > 0; i--) {
@@ -195,16 +208,9 @@ public class ChatBlockingFilterListener implements Listener {
             }
         }
 
-
         String wildcarded = clipped;
         String flatWildcard = wildcarded.replaceAll("\\s+", "");
 //        String wildcarded = clipped.replace(, "/w");
-
-        for (String s : peacekeeper.chatFilter.blockedWords) {
-            if (s.matches("\\b(?i)" + flatWildcard.replaceAll("[^A-Za-z0-9]", "") + "\\b") || message.contains(s)) {
-                return true;
-            }
-        }
 
 //        for (final String s : peacekeeper.chatFilter.semiblocked) {
 //            for (String e : peacekeeper.chatFilter.exceptions) {
@@ -217,13 +223,16 @@ public class ChatBlockingFilterListener implements Listener {
         for (String sp : realMessage.split("\\s+")) {
             for (final String s : peacekeeper.chatFilter.wholeOnly) {
                 if (sp.equalsIgnoreCase(s)) {
-                    return true;
+                    blocked = true;
+                    blockedWords.add(sp);
                 }
             }
         }
 
         String[] split = wildcarded.split("\\s+");
+        int index = 0;
         for (String sp : split) {
+            final String realSp = sp;
             String noSymbol = sp.replaceAll("[^A-Za-z0-9]", "");
 
             Pattern p = Pattern.compile("[^A-Za-z0-9*!#$? ]");
@@ -234,20 +243,39 @@ public class ChatBlockingFilterListener implements Listener {
 
             for (final String s : peacekeeper.chatFilter.blockedWords) {
                 if (CommandUtils.matchAll(s, sp) || CommandUtils.matchAll(s, noSymbol)) {
-                    return true;
+                    blocked = true;
+                    blockedWords.add(realSp);
                 }
             }
 
             for (final String s : peacekeeper.chatFilter.semiblocked) {
                 for (String e : peacekeeper.chatFilter.exceptions) {
                     if (!CommandUtils.matchAll(e, sp) && CommandUtils.matchAll(s, sp)) {
-                        return true;
+                        blocked = true;
+                        blockedWords.add(realSp);
                     }
                 }
             }
+            index++;
         }
 
-        return false;
+        for (String s : peacekeeper.chatFilter.blockedWords) {
+            if (blockedWords.contains(s)) continue;
+            if (flatWildcard.contains(s) || s.matches("\\b(?i)" + flatWildcard.replaceAll("[^A-Za-z0-9]", "") + "\\b")) {
+                blocked = true;
+                foundBlocked.add(s);
+            }
+        }
+
+        if (blocked) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(peacekeeper, new Runnable() {
+                @Override
+                public void run() {
+                    peacekeeper.filterManager.addBlocked(player);
+                }
+            }, 10L);
+        }
+        return blocked;
     }
 
     private boolean checkStrictIP(Player player, String message, boolean book) {
@@ -321,7 +349,19 @@ public class ChatBlockingFilterListener implements Listener {
 
     // 0 = chat, 1 = command, 2 = book, 3 = sign, 4 = item
     private void broadcastFilter(Player player, String message, int type) {
+        Iterator<String> it = blockedWords.iterator();
+        while (it.hasNext()) {
+            String s = it.next();
+            Pattern pat = Pattern.compile("(?i)" + Pattern.quote(s));
+            message = pat.matcher(message).replaceAll(ChatColor.UNDERLINE + "" + ChatColor.BOLD + s + ChatColor.RED);
+        }
+
         String m = ChatColor.DARK_RED + player.getName() + ChatColor.RED + " used blocked word(s):\n \"" + message + "\"";
+
+        if (!foundBlocked.isEmpty()) {
+            m += "\n" + ChatColor.DARK_RED + "Found similar: " + ChatColor.RED + foundBlocked.toString();
+        }
+
         String typeMessage;
         switch (type) {
             case 0:
@@ -346,6 +386,7 @@ public class ChatBlockingFilterListener implements Listener {
         player.sendMessage(m);
         Bukkit.getConsoleSender().sendMessage(m);
         Peacekeeper.logFile.logBlockedChat(player.getName(), message);
+
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.equals(player)) continue;
             if (p.hasPermission("peacekeeper.filter.broadcast")) {
