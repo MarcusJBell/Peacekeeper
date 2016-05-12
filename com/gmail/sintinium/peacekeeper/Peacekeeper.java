@@ -25,6 +25,7 @@ import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nonnull;
@@ -142,6 +143,9 @@ public PlayerWarnTable warnTable;
         }
         getServer().getScheduler().cancelTasks(this);
         database.close();
+        
+        //Unregister listeners
+        HandlerList.unregisterAll(this);
     }
 
     public boolean loadCompatibilities() {
