@@ -4,11 +4,14 @@ import com.gmail.sintinium.peacekeeper.Peacekeeper;
 import com.gmail.sintinium.peacekeeper.data.ReportData;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
+import com.gmail.sintinium.peacekeeper.utils.CraftBukkitUtils;
+import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,6 +141,12 @@ public class ViewReportsCommand extends BaseCommand {
         sender.sendMessage(ChatColor.DARK_AQUA + "---- Start of report ----");
         ReportData reportData = peacekeeper.reportTable.getReport(reportID);
         sender.sendMessage(ChatColor.YELLOW + "Message: " + ChatColor.WHITE + reportData.message);
+        if (sender instanceof Player) {
+            String createJSON = "[\"\",{\"text\":\"Report created: \",\"color\":\"dark_aqua\"},{\"text\":\"" + TimeUtils.formatTime(reportData.time) + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - reportData.time) + " ago" + "\",\"color\":\"gold\"}]}}}]";
+            CraftBukkitUtils.tellRawMessage((Player) sender, createJSON);
+        } else
+            sender.sendMessage(ChatColor.DARK_AQUA + "Record Created: " + ChatColor.AQUA + TimeUtils.formatTime(reportData.time));
+
         sender.sendMessage(ChatColor.DARK_AQUA + "Categories: " + ChatColor.AQUA + reportData.categories);
         sender.sendMessage(ChatColor.DARK_AQUA + "Report sent by: " + ChatColor.AQUA + peacekeeper.userTable.getUsername(reportData.playerID));
     }

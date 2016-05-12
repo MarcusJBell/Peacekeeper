@@ -21,7 +21,6 @@ import com.gmail.sintinium.peacekeeper.queue.DatabaseQueueManager;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.BanUtils;
 import com.gmail.sintinium.peacekeeper.utils.PunishmentHelper;
-import com.gmail.sintinium.peacekeeper.utils.jsonchat.JsonChat;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,16 +37,16 @@ public class Peacekeeper extends JavaPlugin {
 
     public static String appealUrl;
     public static LogFile logFile;
+    public static String craftVersion;
     public SQLite database;
     public UserTable userTable;
     public PlayerReportTable reportTable;
     public PlayerRecordTable recordTable;
     public PlayerMuteTable muteTable;
     public PlayerBanTable banTable;
-    public PlayerWarnTable warnTable;
 
 //    public ShadowBanFile shadowBanFile;
-
+public PlayerWarnTable warnTable;
     public CommandManager commandManager;
     public TimeManager timeManager;
     public PunishmentHelper punishmentHelper;
@@ -62,7 +61,6 @@ public class Peacekeeper extends JavaPlugin {
     public ChatBlockingFilterListener chatBlockingFilterListener;
     public ChatSpamFilterListener chatSpamFilterListener;
     public FilterManager filterManager;
-    public JsonChat jsonChat;
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
     public static Player getPlayer(String name) {
@@ -149,17 +147,7 @@ public class Peacekeeper extends JavaPlugin {
     public boolean loadCompatibilities() {
         String packageName = getServer().getClass().getPackage().getName();
         String version = packageName.substring(packageName.lastIndexOf('.') + 1);
-        try {
-            final Class<?> clazz = Class.forName("com.gmail.sintinium.peacekeeper.utils.jsonchat." + version + ".JsonChat");
-            if (JsonChat.class.isAssignableFrom(clazz)) {
-                this.jsonChat = (JsonChat) clazz.getConstructor().newInstance();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            getLogger().severe("Could not find support for this CraftBukkit version");
-            setEnabled(false);
-            return false;
-        }
+        craftVersion = version;
         getLogger().info("Loading support for " + version);
         return true;
     }

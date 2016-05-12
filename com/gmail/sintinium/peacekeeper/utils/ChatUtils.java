@@ -12,7 +12,7 @@ import java.util.SortedMap;
 public class ChatUtils {
 
     public static void sendTellRaw(Peacekeeper peacekeeper, Player player, String message) {
-        peacekeeper.jsonChat.tellRawMessage(player, message);
+        CraftBukkitUtils.tellRawMessage(player, message);
     }
 
     // Clears chat for the given player/sender

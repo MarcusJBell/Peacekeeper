@@ -6,6 +6,7 @@ import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
+import com.gmail.sintinium.peacekeeper.utils.CraftBukkitUtils;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -248,7 +249,7 @@ public class RecordsCommand extends BaseCommand {
         sender.sendMessage(ChatColor.DARK_AQUA + "Type: " + ChatColor.AQUA + data.getTypeName());
         if (sender instanceof Player) {
             String createJSON = "[\"\",{\"text\":\"Record created: \",\"color\":\"dark_aqua\"},{\"text\":\"" + TimeUtils.formatTime(data.time) + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - data.time) + " ago" + "\",\"color\":\"gold\"}]}}}]";
-            peacekeeper.jsonChat.tellRawMessage((Player) sender, createJSON);
+            CraftBukkitUtils.tellRawMessage((Player) sender, createJSON);
         } else
             sender.sendMessage(ChatColor.DARK_AQUA + "Record Created: " + ChatColor.AQUA + TimeUtils.formatTime(data.time));
 

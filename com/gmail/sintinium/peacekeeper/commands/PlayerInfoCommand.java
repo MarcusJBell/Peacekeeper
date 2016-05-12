@@ -7,6 +7,7 @@ import com.gmail.sintinium.peacekeeper.data.PlayerData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerBanTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
+import com.gmail.sintinium.peacekeeper.utils.CraftBukkitUtils;
 import com.gmail.sintinium.peacekeeper.utils.TimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,7 +48,7 @@ public class PlayerInfoCommand extends BaseCommand {
                 sender.sendMessage(ChatColor.DARK_AQUA + "Username: " + ChatColor.AQUA + playerData.username);
                 String joinJSON = "[\"\",{\"text\":\"Join date: \",\"color\":\"dark_aqua\"},{\"text\":\"" + joinTime + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - player.getFirstPlayed()) + " ago" + "\",\"color\":\"gold\"}]}}}]";
                 if (sender instanceof Player) {
-                    peacekeeper.jsonChat.tellRawMessage((Player) sender, joinJSON);
+                    CraftBukkitUtils.tellRawMessage((Player) sender, joinJSON);
                 } else {
                     sender.sendMessage(ChatColor.DARK_AQUA + "Join date: " + ChatColor.AQUA + joinTime);
                 }
@@ -56,7 +57,7 @@ public class PlayerInfoCommand extends BaseCommand {
                     sender.sendMessage(ChatColor.DARK_AQUA + "Last seen: " + ChatColor.AQUA + lastSeen);
                 } else {
                     String lastSeenJSON = "[\"\",{\"text\":\"Last seen: \",\"color\":\"dark_aqua\"},{\"text\":\"" + lastSeen + "\",\"color\":\"aqua\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + TimeUtils.millsToString(System.currentTimeMillis() - player.getLastPlayed()) + " ago" + "\",\"color\":\"gold\"}]}}}]";
-                    peacekeeper.jsonChat.tellRawMessage((Player) sender, lastSeenJSON);
+                    CraftBukkitUtils.tellRawMessage((Player) sender, lastSeenJSON);
                 }
 
                 if (sender.hasPermission("peacekeeper.playerinfo.ip")) {

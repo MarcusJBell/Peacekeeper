@@ -53,6 +53,9 @@ public class ConversationListener implements Listener {
                 }
             }
         });
+        if (cancelled) {
+            conversations.remove(sender);
+        }
     }
 
     public void confirmOrCancel(final Player sender) {
@@ -98,7 +101,7 @@ public class ConversationListener implements Listener {
         if (conversations.containsKey(event.getPlayer())) {
             event.setCancelled(true);
             if (event.getMessage().equals("CANCELCONVERSATION")) {
-                removeConversation(event.getPlayer(), true);
+                syncCancel(event.getPlayer());
                 return;
             } else if (event.getMessage().equals("FINISHEDCONVERSATION")) {
                 removeConversation(event.getPlayer(), false);
@@ -225,6 +228,7 @@ public class ConversationListener implements Listener {
         final ReportConversationData data = (ReportConversationData) conversations.get(player);
         peacekeeper.commandManager.reportCommand.submitReport(player, data.getFinalMessage(), categoriesToString(data), data.reportingUsers);
         player.sendMessage(ChatColor.GREEN + "Thank you for your report.");
+        conversations.remove(player);
     }
 
     public void onMuteChatFinish(final Player sender) {
