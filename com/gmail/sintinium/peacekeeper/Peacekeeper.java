@@ -157,6 +157,7 @@ public PlayerWarnTable warnTable;
     }
 
     public void loadConfig() {
+        reloadConfig();
         configFile = new ConfigFile(this);
         configFile.loadConfiguration();
         timeManager = new TimeManager(this);
@@ -169,9 +170,6 @@ public PlayerWarnTable warnTable;
                 set.getKey().sendMessage(ChatColor.DARK_AQUA + "Configuration reloaded");
             }
         }
-
-        //TODO: Get this from config file
-        appealUrl = "http://amitycrafters.enjin.com/banappeals";
     }
 
 
