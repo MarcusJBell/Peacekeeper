@@ -233,19 +233,15 @@ public class ConversationListener implements Listener {
 
     public void onMuteChatFinish(final Player sender) {
         final ConversationData data = conversations.get(sender);
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, calcTime(data.timeResults), data.reason, categoriesToString(data), (MuteConversationData) data);
+        MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, calcTime(data.timeResults), data.reason, categoriesToString(data), (MuteConversationData) data);
 
-                String categoryString = categoriesToString(data);
-                if (data.timeResults.size() == 1)
-                    ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute category: " + ChatColor.AQUA + categoryString);
-                else
-                    ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute categories: " + ChatColor.AQUA + categoryString);
-            }
-        };
-        sendConfirm(sender, r, shouldWarn(data), data.punishedUsername, ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + data.punishedUsername, ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + data.reason, ChatColor.DARK_AQUA + "Categories: " + ChatColor.AQUA + categoriesToString(data));
+        String categoryString = categoriesToString(data);
+        if (data.timeResults.size() == 1)
+            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute category: " + ChatColor.AQUA + categoryString);
+        else
+            ChatUtils.broadcast(ChatColor.DARK_AQUA + "Mute categories: " + ChatColor.AQUA + categoryString);
+        confirmOrCancel(sender);
+//        sendConfirm(sender, r, shouldWarn(data), data.punishedUsername, ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + data.punishedUsername, ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + data.reason, ChatColor.DARK_AQUA + "Categories: " + ChatColor.AQUA + categoriesToString(data));
     }
 
     public void onSuspendChatFinish(final Player sender) {

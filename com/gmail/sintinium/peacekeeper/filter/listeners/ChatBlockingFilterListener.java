@@ -191,12 +191,10 @@ public class ChatBlockingFilterListener implements Listener {
             }
         }
 
-        //TODO: Find out what the heck this code was added for.
         Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
         if (pattern.matcher(message).matches()) {
             return false;
         }
-        //
 
         String clipped = message;
         for (int i = clipped.length() - 1; i > 0; i--) {
