@@ -98,7 +98,7 @@ public class ChatUtils {
      * @param page       current page number
      * @param pageLength max lines per page
      */
-    public static void paginate(CommandSender sender, SortedMap<Integer, String> map, int page, int pageLength, String... endPageMessage) {
+    public static void paginate(CommandSender sender, SortedMap<Integer, String> map, int page, int pageLength, boolean raw, String... endPageMessage) {
         sender.sendMessage(ChatColor.DARK_AQUA + "---- Page: " + page + "/" + (((map.size() - 1) / pageLength) + 1) + " ----");
         int i = 0, k = 0;
         page--;
@@ -106,7 +106,11 @@ public class ChatUtils {
             k++;
             if ((((page * pageLength) + i + 1) == k) && (k != ((page * pageLength) + pageLength + 1))) {
                 i++;
-                sender.sendMessage(ChatColor.DARK_AQUA + " - " + e.getValue());
+                if (raw) {
+                    CraftBukkitUtils.tellRawMessage((Player) sender, e.getValue());
+                } else {
+                    sender.sendMessage(ChatColor.DARK_AQUA + " - " + e.getValue());
+                }
             }
         }
 

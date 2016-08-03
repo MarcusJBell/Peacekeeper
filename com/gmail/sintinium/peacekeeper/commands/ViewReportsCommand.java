@@ -42,7 +42,7 @@ public class ViewReportsCommand extends BaseCommand {
                         sender.sendMessage(ChatColor.GREEN + "There are currently no reports");
                         return;
                     }
-                    ChatUtils.paginate(sender, reportDataToPages(reportData), 1, pageLength, "Next page: /viewreports 2");
+                    ChatUtils.paginate(sender, reportDataToPages(reportData), 1, pageLength, false, "Next page: /viewreports 2");
                     boolean preExisting = viewingPlayers.containsKey(sender);
                     viewingPlayers.put(sender, reportData);
 
@@ -96,7 +96,7 @@ public class ViewReportsCommand extends BaseCommand {
                         return;
                     }
                     SortedMap<Integer, String> strings = reportDataToPages(viewingPlayers.get(sender));
-                    ChatUtils.paginate(sender, strings, Integer.parseInt(args[0]), pageLength, "Next page: /viewreports " + (Integer.parseInt(args[0]) + 1));
+                    ChatUtils.paginate(sender, strings, Integer.parseInt(args[0]), pageLength, false, "Next page: /viewreports " + (Integer.parseInt(args[0]) + 1));
                     sender.sendMessage(ChatColor.DARK_AQUA + "To view a report do /viewreports id <ReportID>");
 
                 } else {

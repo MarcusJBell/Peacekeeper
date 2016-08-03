@@ -1,6 +1,7 @@
 package com.gmail.sintinium.peacekeeper.commands;
 
 import com.gmail.sintinium.peacekeeper.Peacekeeper;
+import com.gmail.sintinium.peacekeeper.builders.JsonBuilder;
 import com.gmail.sintinium.peacekeeper.data.RecordData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
@@ -50,8 +51,8 @@ public class RecordsCommand extends BaseCommand {
             peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
                 @Override
                 public void runTask() {
-                    SortedMap<Integer, String> strings = recordDataToPages(viewingPlayers.get(sender));
-                    ChatUtils.paginate(sender, strings, Integer.parseInt(args[0]), pageLength, "Next page: /records " + (Integer.parseInt(args[0]) + 1));
+                    SortedMap<Integer, String> strings = recordDataToPages(viewingPlayers.get(sender), sender instanceof Player);
+                    ChatUtils.paginate(sender, strings, Integer.parseInt(args[0]), pageLength, sender instanceof Player, "Next page: /records " + (Integer.parseInt(args[0]) + 1));
                     sender.sendMessage(ChatColor.DARK_AQUA + "For detailed record info do /records id <RecordID>");
                 }
             });
@@ -160,7 +161,7 @@ public class RecordsCommand extends BaseCommand {
                 }
                 boolean preExisting = viewingPlayers.containsKey(sender);
                 viewingPlayers.put(sender, recordDatas);
-                ChatUtils.paginate(sender, recordDataToPages(recordDatas), 1, pageLength, "Next page: /records 2");
+                ChatUtils.paginate(sender, recordDataToPages(recordDatas, sender instanceof Player), 1, pageLength, sender instanceof Player, "Next page: /records 2");
                 sender.sendMessage(ChatColor.DARK_AQUA + "For detailed record info do /records id <RecordID>");
 
                 // Remove user from map after 10 minutes to clear memory
@@ -206,12 +207,33 @@ public class RecordsCommand extends BaseCommand {
         sender.sendMessage(ChatColor.DARK_AQUA + command + ": " + ChatColor.AQUA + description);
     }
 
-    public SortedMap<Integer, String> recordDataToPages(List<RecordData> datas) {
+    public SortedMap<Integer, String> recordDataToPages(List<RecordData> datas, boolean player) {
         SortedMap<Integer, String> map = new TreeMap<>(Collections.reverseOrder());
         for (int i = 0; i < datas.size(); i++) {
-            map.put(i, recordDataToStringFromDB(datas.get(i)));
+            if (!player) {
+                map.put(i, recordDataToStringFromDB(datas.get(i)));
+                continue;
+            }
+            JsonBuilder builder = recordDataFromDB(datas.get(i));
+            builder.withText(" [INFO]").withColor(ChatColor.YELLOW).withHoverEvent(JsonBuilder.HoverAction.SHOW_TEXT, ChatColor.stripColor(advancedDataToString(datas.get(i)))).withClickEvent(JsonBuilder.ClickAction.RUN_COMMAND, "/records id " + datas.get(i).recordID);
+            map.put(i, builder.toString());
         }
         return map;
+    }
+
+    public JsonBuilder recordDataFromDB(RecordData data) {
+        JsonBuilder builder = new JsonBuilder();
+        builder.withText("RecordID: ").withColor(ChatColor.DARK_AQUA).withText("" + data.recordID).withColor(ChatColor.AQUA).withText(", ");
+//        result += "RecordID:" + ChatColor.AQUA + data.recordID + ChatColor.DARK_AQUA + ", ";
+        if (data.type != PlayerRecordTable.IP)
+            builder.withText("Player: ").withColor(ChatColor.DARK_AQUA).withText("'" + peacekeeper.userTable.getUsername(data.playerID) + "'").withColor(ChatColor.AQUA);
+//            result += "Player:" + ChatColor.AQUA + "'" + peacekeeper.userTable.getUsername(data.playerID) + "'" + ChatColor.DARK_AQUA + ", ";
+        else
+            builder.withText("IP: ").withColor(ChatColor.DARK_AQUA).withText("'" + data.ip + "'").withColor(ChatColor.AQUA);
+//            result += "IP:" + ChatColor.AQUA + "'" + data.ip + "'" + ChatColor.DARK_AQUA + ", ";
+        builder.withText(", Type: ").withColor(ChatColor.DARK_AQUA).withText(data.getTypeName()).withColor(ChatColor.AQUA);
+//        result += "Type:" + ChatColor.AQUA + data.getTypeName();
+        return builder;
     }
 
     /**
@@ -229,6 +251,36 @@ public class RecordsCommand extends BaseCommand {
             result += "IP:" + ChatColor.AQUA + "'" + data.ip + "'" + ChatColor.DARK_AQUA + ", ";
         result += "Type:" + ChatColor.AQUA + data.getTypeName();
         return result;
+    }
+
+    public String advancedDataToString(RecordData data) {
+        StringBuilder builder = new StringBuilder();
+
+//        builder.append("§3").append("RecordID: ").append("§b").append(data.recordID).append("\n");
+//
+//        if (data.playerID != null)
+//            builder.append("§3").append("Player: ").append("§b").append(peacekeeper.userTable.getUsername(data.playerID)).append("\n");
+//        else
+//            builder.append("§3").append("IP: '").append(ChatColor.RED).append(data.ip).append("'").append("\n");
+
+        if (data.adminID != null)
+            builder.append("§3").append("Admin: ").append("§b").append(peacekeeper.userTable.getUsername(data.adminID)).append("\n");
+        else
+            builder.append("§3").append("Admin: ").append("§b").append("CONSOLE").append("\n");
+
+//        builder.append("§3").append("Type: ").append("§b").append(data.getTypeName()).append("\n");
+        builder.append("§3").append("Record Created: ").append("§b").append(TimeUtils.millsToString(System.currentTimeMillis() - data.time)).append(" ago \n");
+        if (data.type != PlayerRecordTable.WARNING) {
+            if (data.length != null)
+                builder.append("§3").append("Length: ").append("§b").append(TimeUtils.millsToString(data.length)).append("\n");
+            else
+                builder.append("§3").append("Length: ").append(ChatColor.RED).append("FOREVER").append("\n");
+        }
+        String stockReason = data.category;
+        if (stockReason != null && !stockReason.equalsIgnoreCase("null"))
+            builder.append("§3").append("Category: ").append("§b").append("\"").append(stockReason).append("\"").append("\n");
+        builder.append("§eClick [INFO] for reason");
+        return builder.toString();
     }
 
     public String advancedDataToChat(CommandSender sender, RecordData data) {
