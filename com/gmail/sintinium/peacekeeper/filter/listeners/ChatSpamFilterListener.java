@@ -168,7 +168,7 @@ public class ChatSpamFilterListener implements Listener {
         boolean filtered = false;
         for (MutablePair<Character, Integer> p : duplicates) {
             if (p.value >= excessiveCharCount) {
-                Pattern pattern = Pattern.compile(FilterUtils.charCountToString(p.key, p.value));
+                Pattern pattern = Pattern.compile(Pattern.quote(FilterUtils.charCountToString(p.key, p.value)));
                 message = pattern.matcher(message).replaceAll(FilterUtils.charCountToString(p.key, 1));
                 filtered = true;
             }

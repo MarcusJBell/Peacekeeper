@@ -1,7 +1,6 @@
 package com.gmail.sintinium.peacekeeper.utils;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +39,6 @@ public class ArrayHelper {
         List<Integer> sorted = new ArrayList<>(new HashSet<>(indices));
         Collections.sort(sorted);
         sorted = Lists.reverse(sorted);
-        Bukkit.getConsoleSender().sendMessage(sorted.toString());
         for (int i : sorted) {
             list.remove(i);
         }
