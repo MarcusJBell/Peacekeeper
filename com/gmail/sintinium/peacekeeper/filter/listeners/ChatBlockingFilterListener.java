@@ -5,10 +5,7 @@ import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerBanTable;
 import com.gmail.sintinium.peacekeeper.db.tables.PlayerRecordTable;
 import com.gmail.sintinium.peacekeeper.queue.IQueueableTask;
-import com.gmail.sintinium.peacekeeper.utils.ArrayHelper;
-import com.gmail.sintinium.peacekeeper.utils.BanUtils;
-import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
-import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
+import com.gmail.sintinium.peacekeeper.utils.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,15 +22,13 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class ChatBlockingFilterListener implements Listener {
 
     public boolean filterChat = true, filterCommands = true, filterBook = true, filterSign = true, filterItems = true;
+    public int leniency = 1;
     private Peacekeeper peacekeeper;
 
     private Set<String> blockedWords;
@@ -164,7 +159,8 @@ public class ChatBlockingFilterListener implements Listener {
     }
 
     private boolean checkFilter(Player player, String message) {
-        return checkFilter(player, message, false);
+        boolean r = checkFilter(player, message, false);
+        return r;
     }
 
     private boolean checkFilter(final Player player, String message, boolean book) {
@@ -207,7 +203,67 @@ public class ChatBlockingFilterListener implements Listener {
         }
 
         String wildcarded = clipped;
-        String flatWildcard = wildcarded.replaceAll("\\s+", "");
+        String flatWildcard = wildcarded.trim().replaceAll(" +", " ");
+        char[] flatWildcardArray = flatWildcard.toCharArray();
+        List<Character> flatChars = new ArrayList<>();
+
+        List<Integer> toRemoveBefore = new ArrayList<>();
+        List<Integer> toRemoveAfter = new ArrayList<>();
+        // Actually flatting the wildcard
+        for (int i = 0; i < flatWildcardArray.length; i++) {
+            char c = flatWildcardArray[i];
+            flatChars.add(c);
+            if (c == ' ') {
+                continue;
+            }
+            int beforeCount = 0;
+            int afterCount = 0;
+            //Before
+            for (int b = i - 1; b > 0; b--) {
+                if (i == 0) break;
+                char bc = flatWildcardArray[b];
+                if (bc == ' ') break;
+                else beforeCount++;
+            }
+            //After
+            for (int b = i + 1; b < flatWildcardArray.length; b++) {
+                char bc = flatWildcardArray[b];
+                if (bc == ' ') break;
+                else afterCount++;
+            }
+
+            if (beforeCount < leniency && afterCount < leniency) {
+                if (i != 0)
+                    toRemoveBefore.add(i);
+//                    flatChars = FilterUtils.removeLastSpace(flatChars, i);
+                if (i < flatWildcardArray.length)
+                    toRemoveAfter.add(i);
+            }
+
+        }
+
+//        String test = "h e l l o";
+//        List<Character> cs = new ArrayList<>();
+//        for (char c : test.toCharArray()) {
+//            cs.add(c);
+//        }
+//        cs = FilterUtils.removeLastSpace(cs, 4);
+//        cs = FilterUtils.removeLastSpace(cs, 2);
+//        cs = FilterUtils.removeLastSpace(cs, 4);
+//        cs = FilterUtils.removeLastSpace(cs, 5);
+//        StringBuilder bu = new StringBuilder();
+//        for (Character c : cs) {
+//            bu.append(c);
+//        }
+//        Bukkit.getConsoleSender().sendMessage(bu.toString());
+        List<Integer> indices = FilterUtils.getLastSpaceIndices(flatChars, toRemoveBefore);
+        indices.addAll(FilterUtils.getNextSpaceIndices(flatChars, toRemoveAfter));
+        flatChars = ArrayHelper.removeAllIndices(flatChars, indices);
+        StringBuilder builder = new StringBuilder();
+        for (Character c : flatChars) {
+            builder.append(c);
+        }
+        flatWildcard = builder.toString();
 //        String wildcarded = clipped.replace(, "/w");
 
 //        for (final String s : peacekeeper.chatFilter.semiblocked) {

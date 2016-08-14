@@ -78,6 +78,7 @@ public class FilterFile {
         peacekeeper.chatBlockingFilterListener.filterBook = config.getBoolean("filter.toggles.books");
         peacekeeper.chatBlockingFilterListener.filterItems = config.getBoolean("filter.toggles.items");
         peacekeeper.chatBlockingFilterListener.filterSign = config.getBoolean("filter.toggles.signs");
+        peacekeeper.chatBlockingFilterListener.leniency = config.getInt("filter.settings.leniency") - 1;
     }
 
     public void loadFilter() {

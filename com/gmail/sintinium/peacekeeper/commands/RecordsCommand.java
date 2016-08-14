@@ -214,16 +214,15 @@ public class RecordsCommand extends BaseCommand {
                 map.put(i, recordDataToStringFromDB(datas.get(i)));
                 continue;
             }
-            JsonBuilder builder = recordDataFromDB(datas.get(i));
-            builder.withText(" [INFO]").withColor(ChatColor.YELLOW).withHoverEvent(JsonBuilder.HoverAction.SHOW_TEXT, ChatColor.stripColor(advancedDataToString(datas.get(i)))).withClickEvent(JsonBuilder.ClickAction.RUN_COMMAND, "/records id " + datas.get(i).recordID);
-            map.put(i, builder.toString());
+            map.put(i, recordDataFromDB(datas.get(i)).toString());
         }
         return map;
     }
 
     public JsonBuilder recordDataFromDB(RecordData data) {
         JsonBuilder builder = new JsonBuilder();
-        builder.withText("RecordID: ").withColor(ChatColor.DARK_AQUA).withText("" + data.recordID).withColor(ChatColor.AQUA).withText(", ");
+        builder.withText("").withHoverEvent(JsonBuilder.HoverAction.SHOW_TEXT, advancedDataToString(data)).withClickEvent(JsonBuilder.ClickAction.RUN_COMMAND, "/records id " + data.recordID);
+        builder.withText("RecordID: ").withColor(ChatColor.DARK_AQUA).withText("" + data.recordID).withColor(ChatColor.AQUA).withText(", ").withColor(ChatColor.DARK_AQUA);
 //        result += "RecordID:" + ChatColor.AQUA + data.recordID + ChatColor.DARK_AQUA + ", ";
         if (data.type != PlayerRecordTable.IP)
             builder.withText("Player: ").withColor(ChatColor.DARK_AQUA).withText("'" + peacekeeper.userTable.getUsername(data.playerID) + "'").withColor(ChatColor.AQUA);
@@ -269,17 +268,16 @@ public class RecordsCommand extends BaseCommand {
             builder.append("§3").append("Admin: ").append("§b").append("CONSOLE").append("\n");
 
 //        builder.append("§3").append("Type: ").append("§b").append(data.getTypeName()).append("\n");
-        builder.append("§3").append("Record Created: ").append("§b").append(TimeUtils.millsToString(System.currentTimeMillis() - data.time)).append(" ago \n");
+        builder.append("§3").append("Record Created: ").append("§b").append(TimeUtils.millsToString(System.currentTimeMillis() - data.time, 3)).append(" ago");
         if (data.type != PlayerRecordTable.WARNING) {
             if (data.length != null)
-                builder.append("§3").append("Length: ").append("§b").append(TimeUtils.millsToString(data.length)).append("\n");
+                builder.append("\n").append("§3").append("Length: ").append("§b").append(TimeUtils.millsToString(data.length, 3));
             else
-                builder.append("§3").append("Length: ").append(ChatColor.RED).append("FOREVER").append("\n");
+                builder.append("\n").append("§3").append("Length: ").append("§c").append("FOREVER");
         }
         String stockReason = data.category;
         if (stockReason != null && !stockReason.equalsIgnoreCase("null"))
-            builder.append("§3").append("Category: ").append("§b").append("\"").append(stockReason).append("\"").append("\n");
-        builder.append("§eClick [INFO] for reason");
+            builder.append("\n").append("§3").append("Category: ").append("§b").append("\\\"").append(stockReason).append("\\\"");
         return builder.toString();
     }
 

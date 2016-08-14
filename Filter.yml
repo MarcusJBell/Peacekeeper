@@ -20,6 +20,9 @@ spamfilter:
     #Amount of charators that needs to be reapted for filter
     excessivechars: 6
 filter:
+  settings:
+    #How many letters to allow word collapsing for 'blocked' words but not 'wholeonly' (Ex. 1 will work for 'h e c k' but not 'h ec k' where a setting of 2 world etc..) (Default: 2)
+    leniency: 2
   toggles:
     chat: true
     commands: true

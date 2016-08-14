@@ -5,6 +5,7 @@ import javafx.util.Pair;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FilterUtils {
 
@@ -145,5 +146,42 @@ public class FilterUtils {
         }
         return builder.toString();
     }
+
+    public static List<Integer> getLastSpaceIndices(List<Character> chars, List<Integer> indices) {
+        List<Integer> result = new ArrayList<>();
+        for (int index : indices) {
+            for (int i = index - 1; i > 0; i--) {
+                if (chars.get(i) == ' ') {
+                    result.add(i);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    public static List<Integer> getNextSpaceIndices(List<Character> chars, List<Integer> indices) {
+        List<Integer> result = new ArrayList<>();
+        for (int index : indices) {
+            for (int i = index + 1; i < chars.size(); i++) {
+                if (chars.get(i) == ' ') {
+                    result.add(i);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+//    public static List<Character> removeNextSpace(List<> chars, int startingIndex) {
+//        List<Character> result = new ArrayList<>(chars);
+//        for (int i = startingIndex + 1; i < chars.size(); i++) {
+//            if (chars.get(i) == ' ') {
+//                result.remove(i);
+//                break;
+//            }
+//        }
+//        return chars;
+//    }
 
 }

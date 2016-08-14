@@ -45,8 +45,18 @@ public class TimeUtils {
         return 0;
     }
 
-    // Turns milliseconds into readable time that will be displayed to the user. Cannot be reversed in the above methods.
     public static String millsToString(long milliseconds) {
+        return millsToString(milliseconds, 6);
+    }
+
+    /**
+     * Turns milliseconds into readable time that will be displayed to the user. Cannot be reversed in the above methods.
+     *
+     * @param milliseconds Time to convert
+     * @param levels       Max levels of time? (Ex. 2 levels would result 1 year, 1 week)
+     * @return returns converted time
+     */
+    public static String millsToString(long milliseconds, int levels) {
         String finalTime = "";
         int years = (int) TimeUnit.MILLISECONDS.toDays(milliseconds / 365);
         milliseconds -= TimeUnit.DAYS.toMillis(years * 365);
@@ -73,12 +83,18 @@ public class TimeUtils {
         times.put("minute", minutes);
         times.put("second", seconds);
 
+        int usedLevels = 1;
+
         Iterator it = times.entrySet().iterator();
         int count = 0;
         while (it.hasNext()) {
             Entry pair = (Entry) it.next();
             int value = (Integer) pair.getValue();
             String unit = (String) pair.getKey();
+            if (usedLevels > levels) break;
+            if (value > 0) {
+                usedLevels++;
+            }
             String convertToReadable = convertToReadable(value, unit);
             if (convertToReadable == null) continue;
             if (count != 0)
@@ -88,7 +104,7 @@ public class TimeUtils {
         }
 
         if (finalTime.equals("")) {
-            finalTime = "1 second";
+            finalTime = "ERROR";
         }
         return finalTime;
     }
