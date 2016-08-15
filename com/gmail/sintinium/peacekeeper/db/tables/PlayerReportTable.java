@@ -64,7 +64,7 @@ public class PlayerReportTable extends BaseTable {
         return tableRowCount();
     }
 
-    public ReportData reportDataFromStarSet(ResultSet set) throws SQLException {
+    private ReportData reportDataFromStarSet(ResultSet set) throws SQLException {
         return new ReportData(set.getInt("ReportID"), set.getInt("PlayerID"), set.getString("Message"), set.getLong("Time"), set.getString("Category"));
     }
 

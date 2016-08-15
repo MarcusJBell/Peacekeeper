@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BanListener implements Listener {
 
     public Map<UUID, BanData> cachedBans;
-    public Map<UUID, Boolean> pendingPlayers;
-    Peacekeeper peacekeeper;
+    private Map<UUID, Boolean> pendingPlayers;
+    private Peacekeeper peacekeeper;
 
     public BanListener(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;

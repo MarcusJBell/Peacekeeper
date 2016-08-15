@@ -11,8 +11,8 @@ import java.util.UUID;
 
 public class CreativePatchListener implements Listener {
 
-    public final int TOTALTIME = 1500;
-    public HashMap<UUID, Long> timers;
+    private final int TOTALTIME = 1500;
+    private HashMap<UUID, Long> timers;
 
     public CreativePatchListener() {
         timers = new HashMap<>();

@@ -87,11 +87,11 @@ public class PlayerMuteTable extends BaseTable {
 
     //Null if muted by console, or auto-muted by filter
     @Nullable
-    public Integer getAdminID(int muteID) {
+    private Integer getAdminID(int muteID) {
         return getInt("AdminID", "MuteID", muteID);
     }
 
-    public MuteData getMuteDataFromStarSet(String username, ResultSet set) throws SQLException {
+    private MuteData getMuteDataFromStarSet(String username, ResultSet set) throws SQLException {
         Long length = set.getLong("Length");
         if (set.wasNull()) length = null;
         Integer adminID = set.getInt("AdminID");

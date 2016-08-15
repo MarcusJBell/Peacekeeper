@@ -11,16 +11,16 @@ import java.util.Set;
 
 public class CommandManager {
 
-    public Set<PluginCommand> commands;
     public PeacekeeperCommand peacekeeperCommand;
-    public MuteCommand muteCommand;
-    public SuspendCommand suspendCommand;
     public ReportCommand reportCommand;
-    public VanishCommand vanishCommand;
     public SuperVanishCommand superVanishCommand;
     public PowerToolCommand powerToolCommand;
     public WarnCommand warnCommand;
     public VoteMuteCommand voteMuteCommand;
+    private Set<PluginCommand> commands;
+    private MuteCommand muteCommand;
+    private SuspendCommand suspendCommand;
+    private VanishCommand vanishCommand;
     private Peacekeeper peacekeeper;
 
     public CommandManager(Peacekeeper peacekeeper) {
@@ -48,7 +48,7 @@ public class CommandManager {
         voteMuteCommand = new VoteMuteCommand(peacekeeper);
     }
 
-    public void registerCommand(String commandName, CommandExecutor executor) {
+    private void registerCommand(String commandName, CommandExecutor executor) {
         PluginCommand command = peacekeeper.getCommand(commandName);
         if (command == null) {
             peacekeeper.getLogger().warning("Could not register command.. " + commandName);

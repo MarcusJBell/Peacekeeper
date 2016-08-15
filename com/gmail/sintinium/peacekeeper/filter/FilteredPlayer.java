@@ -3,7 +3,7 @@ package com.gmail.sintinium.peacekeeper.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilteredPlayer {
+class FilteredPlayer {
 
     public List<Long> blockedTimes;
 

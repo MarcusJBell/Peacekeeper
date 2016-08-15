@@ -1,6 +1,6 @@
 name: Peacekeeper
 main: com.gmail.sintinium.peacekeeper.Peacekeeper
-version: 1.3
+version: 1.3.2
 depend: [SQLibrary]
 loadbefore: [Essentials]
 softdepend: [ScoreboardStats, Essentials]

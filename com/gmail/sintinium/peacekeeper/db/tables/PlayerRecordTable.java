@@ -85,7 +85,7 @@ public class PlayerRecordTable extends BaseTable {
     }
 
     @Nullable
-    public List<RecordData> getRecordsByTypeWithinTime(int playerID, int recordType, Long time) {
+    private List<RecordData> getRecordsByTypeWithinTime(int playerID, int recordType, Long time) {
         List<RecordData> result = new ArrayList<>();
         try {
             Integer recordCount = recordCount(playerID);
@@ -170,7 +170,7 @@ public class PlayerRecordTable extends BaseTable {
         return valueCount("PlayerID", playerID);
     }
 
-    public RecordData getDataFromStarSet(ResultSet set) throws SQLException {
+    private RecordData getDataFromStarSet(ResultSet set) throws SQLException {
         Integer playerID = set.getInt("PlayerID");
         if (set.wasNull()) playerID = null;
         Long length = set.getLong("Length");

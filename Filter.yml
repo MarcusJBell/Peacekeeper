@@ -29,6 +29,18 @@ filter:
     books: true
     items: true
     signs: true
+  checkedcommands:
+  - msg
+  - tell
+  - m
+  - t
+  - whisper
+  - mail
+  - email
+  - say
+  - me
+  - action
+  - describe
   filteredwords:
     blocked:
     - assclown

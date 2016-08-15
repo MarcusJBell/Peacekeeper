@@ -18,9 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ViewReportsCommand extends BaseCommand {
 
-    public Map<CommandSender, List<ReportData>> viewingPlayers;
+    private Map<CommandSender, List<ReportData>> viewingPlayers;
 
-    int pageLength = 7;
+    private int pageLength = 7;
 
     public ViewReportsCommand(Peacekeeper peacekeeper) {
         super(peacekeeper);
@@ -110,11 +110,11 @@ public class ViewReportsCommand extends BaseCommand {
         return true;
     }
 
-    public void usage(CommandSender sender) {
+    private void usage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_AQUA + "Use '" + ChatColor.AQUA + "/viewreports ?" + ChatColor.DARK_AQUA + "' for help and usages");
     }
 
-    public void allUsage(CommandSender sender) {
+    private void allUsage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_AQUA + "---- Reports Help ----");
         sendUsageElement(sender, "/viewreports all", "View all reports");
         sendUsageElement(sender, "/viewreports id <ReportID>", "View a report");
@@ -122,11 +122,11 @@ public class ViewReportsCommand extends BaseCommand {
         sendUsageElement(sender, "/viewreports delall <Username>", "Delete all reports from given user");
     }
 
-    public void sendUsageElement(CommandSender sender, String command, String description) {
+    private void sendUsageElement(CommandSender sender, String command, String description) {
         sender.sendMessage(ChatColor.DARK_AQUA + command + ": " + ChatColor.AQUA + description);
     }
 
-    public SortedMap<Integer, String> reportDataToPages(List<ReportData> datas) {
+    private SortedMap<Integer, String> reportDataToPages(List<ReportData> datas) {
         SortedMap<Integer, String> map = new TreeMap<>(Collections.reverseOrder());
         for (int i = 0; i < datas.size(); i++) {
             map.put(i, reportDataToStringFromDB(datas.get(i)));
@@ -134,7 +134,7 @@ public class ViewReportsCommand extends BaseCommand {
         return map;
     }
 
-    public void advancedInfo(CommandSender sender, int reportID) {
+    private void advancedInfo(CommandSender sender, int reportID) {
         if (!peacekeeper.reportTable.doesValueExist("ReportID", reportID)) {
             sender.sendMessage(ChatColor.DARK_RED + "Report with ID " + ChatColor.RED + reportID + ChatColor.DARK_RED + " was not found in database");
         }
@@ -157,7 +157,7 @@ public class ViewReportsCommand extends BaseCommand {
      * @param data RecordData to process
      * @return returns RecordData as a string
      */
-    public String reportDataToStringFromDB(ReportData data) {
+    private String reportDataToStringFromDB(ReportData data) {
         String result = "";
         String username = peacekeeper.userTable.getUsername(data.playerID);
         result += ChatColor.DARK_AQUA + "ReportID:" + ChatColor.AQUA + data.reportID + " ";
@@ -165,7 +165,7 @@ public class ViewReportsCommand extends BaseCommand {
         return result;
     }
 
-    public void clearViewers() {
+    private void clearViewers() {
         viewingPlayers.clear();
     }
 

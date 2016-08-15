@@ -136,7 +136,7 @@ public class PlayerBanTable extends BaseTable {
         return getInt("RecordID", "BanID", banID);
     }
 
-    public BanData getDataFromStarSet(ResultSet set) throws SQLException {
+    private BanData getDataFromStarSet(ResultSet set) throws SQLException {
         if (set == null) return null;
         Long time = set.getLong("Time");
         if (set.wasNull()) time = null;

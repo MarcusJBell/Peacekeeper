@@ -38,7 +38,7 @@ public class IPBanCommand extends BaseCommand {
         return true;
     }
 
-    public void handlePlayer(final CommandSender sender, String[] args) {
+    private void handlePlayer(final CommandSender sender, String[] args) {
         final BanData banData;
         String reason = CommandUtils.argsToReason(args, 1);
         Integer playerID = peacekeeper.userTable.getPlayerIDFromUsername(args[0]);
@@ -71,7 +71,7 @@ public class IPBanCommand extends BaseCommand {
         ChatUtils.banIPMessage(sender, ip, null, reason);
     }
 
-    public void handleIP(final CommandSender sender, final String[] args) {
+    private void handleIP(final CommandSender sender, final String[] args) {
         final BanData banData;
         Integer adminID = null;
         if (sender instanceof Player) {

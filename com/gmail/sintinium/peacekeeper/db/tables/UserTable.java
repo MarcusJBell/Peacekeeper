@@ -111,7 +111,7 @@ public class UserTable extends BaseTable {
         return null;
     }
 
-    public void handleDuplicates(CommandSender sender, List<PlayerData> playerDatas) {
+    private void handleDuplicates(CommandSender sender, List<PlayerData> playerDatas) {
         sender.sendMessage(ChatColor.YELLOW + "Updating duplicate usernames...");
         sender.sendMessage(ChatColor.YELLOW + "This will take ~" + playerDatas.size() + " seconds");
         for (PlayerData p : playerDatas) {
@@ -129,7 +129,7 @@ public class UserTable extends BaseTable {
         }
     }
 
-    public void updateName(UUID uuid, PlayerData playerData) {
+    private void updateName(UUID uuid, PlayerData playerData) {
         if (uuid == null || playerData == null) return;
         String set = SQLUtils.getAsSQLSet(
                 new String[]{"Username"},
@@ -168,7 +168,7 @@ public class UserTable extends BaseTable {
         return getString("IP", "PlayerID", id);
     }
 
-    public PlayerData getDataFromStarSet(ResultSet set) throws SQLException {
+    private PlayerData getDataFromStarSet(ResultSet set) throws SQLException {
         return new PlayerData(set.getInt("PlayerID"), set.getString("Username"), UUID.fromString(set.getString("UUID")), set.getString("IP"));
     }
 

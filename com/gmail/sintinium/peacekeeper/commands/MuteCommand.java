@@ -152,7 +152,7 @@ public class MuteCommand extends BaseCommand {
         return true;
     }
 
-    public void updateMute(final CommandSender sender, final PlayerData playerData, final MuteData muteData, final String reason, String previousMuter, final boolean selves) {
+    private void updateMute(final CommandSender sender, final PlayerData playerData, final MuteData muteData, final String reason, String previousMuter, final boolean selves) {
         final String oldBanner = previousMuter + "'s";
         Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
             @Override
@@ -176,7 +176,7 @@ public class MuteCommand extends BaseCommand {
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
     // console without it being annoying
-    public void handleConsole(final CommandSender sender, final String args[]) {
+    private void handleConsole(final CommandSender sender, final String args[]) {
         if (args.length < 3) {
             sender.sendMessage("Args: mute <player> <length> <reason>");
             return;
@@ -200,7 +200,7 @@ public class MuteCommand extends BaseCommand {
         });
     }
 
-    public void playerNotFoundMessage(CommandSender sender, String name) {
+    private void playerNotFoundMessage(CommandSender sender, String name) {
         sender.sendMessage(ChatColor.DARK_RED + "Player " + name + " was not found in the database");
     }
 

@@ -12,9 +12,9 @@ public class DatabaseQueueManager {
 
     public final Runnable thread;
     public final BukkitTask bukkitTask;
-    public Peacekeeper peacekeeper;
     public Queue<IQueueableTask> queue;
     public boolean running = true, closed = false;
+    private Peacekeeper peacekeeper;
     private IQueueableTask currentTask;
 
     public DatabaseQueueManager(final Peacekeeper peacekeeper) {

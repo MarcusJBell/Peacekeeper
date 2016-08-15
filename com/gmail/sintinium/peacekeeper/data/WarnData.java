@@ -6,11 +6,11 @@ import org.bukkit.ChatColor;
 public class WarnData {
 
     public int warnID;
-    public long warnTime;
-    public int playerID;
-    public String reason;
-    public Integer adminID;
-    public int recordID;
+    private long warnTime;
+    private int playerID;
+    private String reason;
+    private Integer adminID;
+    private int recordID;
 
     public WarnData(int warnID, long warnTime, int playerID, String reason, Integer adminID, int recordID) {
         this.warnID = warnID;

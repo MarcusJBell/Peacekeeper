@@ -77,7 +77,7 @@ public class PeacekeeperCommand extends BaseCommand {
         return true;
     }
 
-    public void usage(CommandSender sender) {
+    private void usage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_RED + "Usage: /pk reload to reload config files");
         sender.sendMessage(ChatColor.DARK_RED + "Usage: /pk confirm to confirm punishment");
     }

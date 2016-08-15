@@ -12,9 +12,9 @@ import java.util.List;
 public class PunishmentHelper {
 
     // Milliseconds in one 30 day month
-    public static final Long THIRTY_DAY_MONTH = 2592000000L;
+    private static final Long THIRTY_DAY_MONTH = 2592000000L;
 
-    Peacekeeper peacekeeper;
+    private Peacekeeper peacekeeper;
 
     public PunishmentHelper(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;

@@ -148,7 +148,7 @@ public class SuspendCommand extends BaseCommand {
         return true;
     }
 
-    public void updateSuspend(final CommandSender sender, final PlayerData playerData, final BanData banData, final String reason, String previousBanner, final boolean selves) {
+    private void updateSuspend(final CommandSender sender, final PlayerData playerData, final BanData banData, final String reason, String previousBanner, final boolean selves) {
         final String oldBanner = previousBanner + "'s";
         Bukkit.getScheduler().runTask(peacekeeper, new Runnable() {
             @Override
@@ -172,7 +172,7 @@ public class SuspendCommand extends BaseCommand {
 
     // If the command isn't send by the player handle it as manual override since conversations won't work with
     // console without it being annoying
-    public void handleConsole(final CommandSender sender, final String args[]) {
+    private void handleConsole(final CommandSender sender, final String args[]) {
         if (args.length < 3) {
             sender.sendMessage("Args: suspend <player> <length> <reason>");
             return;

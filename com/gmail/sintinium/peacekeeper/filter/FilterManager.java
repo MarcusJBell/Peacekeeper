@@ -16,11 +16,11 @@ import java.util.UUID;
 
 public class FilterManager implements Listener {
 
-    public HashMap<UUID, FilteredPlayer> players;
     public boolean filterEnabled = true;
     public String message = "";
     public long length = 0, striketime = 0;
     public int strikecount = 1;
+    private HashMap<UUID, FilteredPlayer> players;
     private Peacekeeper peacekeeper;
 
     public FilterManager(Peacekeeper peacekeeper) {

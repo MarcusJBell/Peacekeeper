@@ -18,7 +18,7 @@ import java.util.*;
 
 public class PowerToolCommand extends BaseCommand implements Listener {
 
-    public List<PowerToolData> powerTools;
+    private List<PowerToolData> powerTools;
 
     public PowerToolCommand(Peacekeeper peacekeeper) {
         super(peacekeeper);
@@ -82,7 +82,7 @@ public class PowerToolCommand extends BaseCommand implements Listener {
     }
 
     @Nullable
-    public PowerToolData getPowerTool(UUID uuid, Material item) {
+    private PowerToolData getPowerTool(UUID uuid, Material item) {
         for (PowerToolData data : powerTools) {
             if (data.player.equals(uuid) && data.item == item) {
                 return data;
@@ -91,7 +91,7 @@ public class PowerToolCommand extends BaseCommand implements Listener {
         return null;
     }
 
-    public boolean clearItem(UUID uuid, Material item) {
+    private boolean clearItem(UUID uuid, Material item) {
         PowerToolData data = getPowerTool(uuid, item);
         if (data != null) {
             powerTools.remove(data);

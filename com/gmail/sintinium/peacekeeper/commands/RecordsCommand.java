@@ -21,8 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RecordsCommand extends BaseCommand {
 
-    public Map<CommandSender, List<RecordData>> viewingPlayers;
-    int pageLength = 7;
+    private Map<CommandSender, List<RecordData>> viewingPlayers;
+    private int pageLength = 7;
 
     public RecordsCommand(Peacekeeper peacekeeper) {
         super(peacekeeper);
@@ -180,11 +180,11 @@ public class RecordsCommand extends BaseCommand {
         return true;
     }
 
-    public void usage(CommandSender sender) {
+    private void usage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_AQUA + "Use '" + ChatColor.AQUA + "/records ?" + ChatColor.DARK_AQUA + "' for help and usages");
     }
 
-    public void fullUsage(CommandSender sender) {
+    private void fullUsage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_AQUA + "---- Record Help ----");
         sendUsageElement(sender, "/records all", "Shows all records");
         sendUsageElement(sender, "/records id <ID>", "Shows advanced info for the given record ID");
@@ -203,11 +203,11 @@ public class RecordsCommand extends BaseCommand {
         }
     }
 
-    public void sendUsageElement(CommandSender sender, String command, String description) {
+    private void sendUsageElement(CommandSender sender, String command, String description) {
         sender.sendMessage(ChatColor.DARK_AQUA + command + ": " + ChatColor.AQUA + description);
     }
 
-    public SortedMap<Integer, String> recordDataToPages(List<RecordData> datas, boolean player) {
+    private SortedMap<Integer, String> recordDataToPages(List<RecordData> datas, boolean player) {
         SortedMap<Integer, String> map = new TreeMap<>(Collections.reverseOrder());
         for (int i = 0; i < datas.size(); i++) {
             if (!player) {
@@ -219,7 +219,7 @@ public class RecordsCommand extends BaseCommand {
         return map;
     }
 
-    public JsonBuilder recordDataFromDB(RecordData data) {
+    private JsonBuilder recordDataFromDB(RecordData data) {
         JsonBuilder builder = new JsonBuilder();
         builder.withText("").withHoverEvent(JsonBuilder.HoverAction.SHOW_TEXT, advancedDataToString(data)).withClickEvent(JsonBuilder.ClickAction.RUN_COMMAND, "/records id " + data.recordID);
         builder.withText("RecordID: ").withColor(ChatColor.DARK_AQUA).withText("" + data.recordID).withColor(ChatColor.AQUA).withText(", ").withColor(ChatColor.DARK_AQUA);
@@ -241,7 +241,7 @@ public class RecordsCommand extends BaseCommand {
      * @param data RecordData to process
      * @return returns RecordData as a string
      */
-    public String recordDataToStringFromDB(RecordData data) {
+    private String recordDataToStringFromDB(RecordData data) {
         String result = "";
         result += "RecordID:" + ChatColor.AQUA + data.recordID + ChatColor.DARK_AQUA + ", ";
         if (data.type != PlayerRecordTable.IP)
@@ -252,7 +252,7 @@ public class RecordsCommand extends BaseCommand {
         return result;
     }
 
-    public String advancedDataToString(RecordData data) {
+    private String advancedDataToString(RecordData data) {
         StringBuilder builder = new StringBuilder();
 
 //        builder.append("§3").append("RecordID: ").append("§b").append(data.recordID).append("\n");
@@ -281,7 +281,7 @@ public class RecordsCommand extends BaseCommand {
         return builder.toString();
     }
 
-    public String advancedDataToChat(CommandSender sender, RecordData data) {
+    private String advancedDataToChat(CommandSender sender, RecordData data) {
         String result = "";
         sender.sendMessage(ChatColor.DARK_AQUA + "---- Advanced Record Info ----");
         sender.sendMessage(ChatColor.DARK_AQUA + "RecordID: " + ChatColor.AQUA + data.recordID);
@@ -318,7 +318,7 @@ public class RecordsCommand extends BaseCommand {
         return result;
     }
 
-    public void clearCached() {
+    private void clearCached() {
         viewingPlayers.clear();
     }
 

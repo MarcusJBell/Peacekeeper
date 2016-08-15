@@ -25,7 +25,7 @@ public class TimeManager {
         configMap = new HashMap<>();
     }
 
-    public void reloadDefaultConfig() {
+    private void reloadDefaultConfig() {
         try {
             Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("TimeConfig.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
@@ -36,7 +36,7 @@ public class TimeManager {
         }
     }
 
-    public File getFile() {
+    private File getFile() {
         File file = peacekeeper.getDataFolder();
         if (!file.exists())
             file.mkdir();
@@ -68,7 +68,7 @@ public class TimeManager {
         }
     }
 
-    public void loadType(FileConfiguration config, String parentKey, String type, boolean time) {
+    private void loadType(FileConfiguration config, String parentKey, String type, boolean time) {
         ArrayList<TimeResult> results = new ArrayList<>();
         for (String key : config.getConfigurationSection(parentKey).getKeys(false)) {
             String actualKey = parentKey + "." + key;

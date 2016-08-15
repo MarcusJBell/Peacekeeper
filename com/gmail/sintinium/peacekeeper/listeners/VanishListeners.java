@@ -61,7 +61,7 @@ public class VanishListeners implements Listener {
         }
     }
 
-    public void hideToPlayer(Player player) {
+    private void hideToPlayer(Player player) {
         if (player.getUniqueId().toString().equals("108c89bc-ab51-4609-a9d5-13bb8808df98") || player.getUniqueId().toString().equals("bb55301c-d10e-4368-bdbd-9563c2b79d35")) {
             return;
         }

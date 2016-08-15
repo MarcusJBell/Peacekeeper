@@ -20,7 +20,7 @@ public class PermBanCommand extends BaseCommand {
         super(peacekeeper);
     }
 
-    public static void banUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final String reason) {
+    private static void banUser(final Peacekeeper peacekeeper, final CommandSender sender, final int playerID, final String username, final String reason) {
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
             public void runTask() {

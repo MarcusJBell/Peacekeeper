@@ -6,8 +6,8 @@ import org.bukkit.Bukkit;
 
 public class ScoreboardStatsHook {
 
-    public ScoreboardStats scoreboardStats;
-    Peacekeeper peacekeeper;
+    private ScoreboardStats scoreboardStats;
+    private Peacekeeper peacekeeper;
 
     public ScoreboardStatsHook(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;

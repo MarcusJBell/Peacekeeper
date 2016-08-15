@@ -52,7 +52,7 @@ public class SuperVanishCommand extends BaseCommand {
         return true;
     }
 
-    public boolean superVanishPlayer(Player player) {
+    private boolean superVanishPlayer(Player player) {
         if (superVanishedPlayers.contains(player.getName())) {
             superVanishedPlayers.remove(player.getName());
             player.removePotionEffect(PotionEffectType.INVISIBILITY);

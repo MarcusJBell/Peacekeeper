@@ -4,14 +4,13 @@ import java.util.regex.Pattern;
 
 public class CommandUtils {
 
-    // Regex pattern to check if string is IP or not
-    public static final String IP_ADDRESS_PATTERN = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
-    public static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
     public static final String CONTAINS_NUMBER_PATTERN = ".*\\d+.*";
     public static final String CONTAINS_SPECIAL_CHAR_NOBACK = "[^A-Za-z0-9\\\\ ]";
     public static final String CONTAINS_SPECIAL_CHAR = "[^A-Za-z0-9 ]";
     public static final String CONTAINS_PUNCH = "[.!? ]";
-
+    // Regex pattern to check if string is IP or not
+    private static final String IP_ADDRESS_PATTERN = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+    private static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
 
     // Turns array to single string starting at 'startIndex' index
     public static String argsToReason(String[] args, int startIndex) {

@@ -12,18 +12,16 @@ public class ConversationData {
 
     public List<TimeManager.TimeResult> results;
     public List<String> missedMessages;
-    public ConversationListener.ConversationType conversationType;
-
     public Set<TimeManager.TimeResult> timeResults;
     public long finalTime = 0;
     public int page = 0;
-
     public String header;
     public String reason;
     public String punishedUUID, punishedUsername;
     public Integer playerID, adminID;
+    private ConversationListener.ConversationType conversationType;
 
-    public ConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType, String header) {
+    ConversationData(List<TimeManager.TimeResult> results, ConversationListener.ConversationType conversationType, String header) {
         this.results = results;
         this.conversationType = conversationType;
         missedMessages = new ArrayList<>();

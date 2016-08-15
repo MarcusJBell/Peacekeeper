@@ -24,8 +24,8 @@ import java.util.*;
 
 public class ConversationListener implements Listener {
 
-    public static final String cancel = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}}]";
-    public static final String cancelFinish = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}},{\"text\":\"[SUBMIT]\",\"color\":\"green\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"FINISHEDCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to submit\"}]}}}]";
+    private static final String cancel = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}}]";
+    private static final String cancelFinish = "[\"\",{\"text\":\"[CANCEL] \",\"color\":\"red\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"CANCELCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to cancel\"}]}}},{\"text\":\"[SUBMIT]\",\"color\":\"green\",\"bold\":true,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"FINISHEDCONVERSATION\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Click to submit\"}]}}}]";
     private static final int pageCount = 8;
     public Map<Player, ConversationData> conversations;
     private Peacekeeper peacekeeper;
@@ -36,7 +36,7 @@ public class ConversationListener implements Listener {
     }
 
     // Removes the player from the conversation and sends missed messages.
-    public void removeConversation(final Player sender, final boolean cancelled) {
+    private void removeConversation(final Player sender, final boolean cancelled) {
         final ConversationData data = peacekeeper.conversationListener.conversations.get(sender);
         peacekeeper.databaseQueueManager.scheduleTask(new IQueueableTask() {
             @Override
@@ -144,7 +144,7 @@ public class ConversationListener implements Listener {
         }
     }
 
-    public void handleReportChat(final AsyncPlayerChatEvent event) {
+    private void handleReportChat(final AsyncPlayerChatEvent event) {
         final ReportConversationData data = (ReportConversationData) conversations.get(event.getPlayer());
         if (event.getMessage().startsWith("SELECTCATEGORY")) {
             Integer select = splitSelect(event.getMessage());
@@ -167,7 +167,7 @@ public class ConversationListener implements Listener {
     }
 
     // If the person is in a mute conversation handle it here
-    public void handleMuteChat(final AsyncPlayerChatEvent event) {
+    private void handleMuteChat(final AsyncPlayerChatEvent event) {
         if (!event.getMessage().startsWith("SELECTCATEGORY")) {
             sendConversationInstructions(event.getPlayer());
             return;
@@ -195,7 +195,7 @@ public class ConversationListener implements Listener {
     }
 
     // If the person is in a suspend conversation handle it here
-    public void handleSuspendChat(final AsyncPlayerChatEvent event) {
+    private void handleSuspendChat(final AsyncPlayerChatEvent event) {
         if (!event.getMessage().startsWith("SELECTCATEGORY")) {
             sendConversationInstructions(event.getPlayer());
             return;
@@ -224,14 +224,14 @@ public class ConversationListener implements Listener {
         });
     }
 
-    public void onReportFinish(final Player player) {
+    private void onReportFinish(final Player player) {
         final ReportConversationData data = (ReportConversationData) conversations.get(player);
         peacekeeper.commandManager.reportCommand.submitReport(player, data.getFinalMessage(), categoriesToString(data), data.reportingUsers);
         player.sendMessage(ChatColor.GREEN + "Thank you for your report.");
         conversations.remove(player);
     }
 
-    public void onMuteChatFinish(final Player sender) {
+    private void onMuteChatFinish(final Player sender) {
         final ConversationData data = conversations.get(sender);
         MuteCommand.muteUser(sender, peacekeeper, data.punishedUUID, data.punishedUsername, data.playerID, calcTime(data.timeResults), data.reason, categoriesToString(data), (MuteConversationData) data);
 
@@ -244,7 +244,7 @@ public class ConversationListener implements Listener {
 //        sendConfirm(sender, r, shouldWarn(data), data.punishedUsername, ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + data.punishedUsername, ChatColor.DARK_AQUA + "Reason: " + ChatColor.AQUA + data.reason, ChatColor.DARK_AQUA + "Categories: " + ChatColor.AQUA + categoriesToString(data));
     }
 
-    public void onSuspendChatFinish(final Player sender) {
+    private void onSuspendChatFinish(final Player sender) {
         final ConversationData data = conversations.get(sender);
         Runnable r = new Runnable() {
             @Override
@@ -356,7 +356,7 @@ public class ConversationListener implements Listener {
         conversations.remove(event.getPlayer());
     }
 
-    public String categoriesToString(ConversationData conversationData) {
+    private String categoriesToString(ConversationData conversationData) {
         String categoryString = null;
         for (TimeManager.TimeResult r : conversationData.timeResults) {
             if (categoryString == null) {
@@ -368,14 +368,14 @@ public class ConversationListener implements Listener {
         return categoryString;
     }
 
-    public boolean shouldWarn(ConversationData data) {
+    private boolean shouldWarn(ConversationData data) {
         for (TimeManager.TimeResult r : data.timeResults) {
             if (r.shouldWarn) return true;
         }
         return false;
     }
 
-    public Integer splitSelect(String message) {
+    private Integer splitSelect(String message) {
         String[] split = message.split(" ");
         if (split.length == 0) {
             return null;
@@ -386,7 +386,7 @@ public class ConversationListener implements Listener {
         return Integer.parseInt(split[1]);
     }
 
-    public long calcTime(Set<TimeManager.TimeResult> timeResults) {
+    private long calcTime(Set<TimeManager.TimeResult> timeResults) {
         List<TimeManager.TimeResult> result = new ArrayList<>(timeResults);
         Collections.sort(result, new Comparator<TimeManager.TimeResult>() {
             @Override

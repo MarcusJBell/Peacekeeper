@@ -57,11 +57,11 @@ public PlayerWarnTable warnTable;
     public DatabaseQueueManager databaseQueueManager;
     public ScoreboardStatsHook scoreboardStatsHook;
     public EssentialsHook essentialsHook;
-    public ConfigFile configFile;
     public FilterFile chatFilter;
     public ChatBlockingFilterListener chatBlockingFilterListener;
     public ChatSpamFilterListener chatSpamFilterListener;
     public FilterManager filterManager;
+    private ConfigFile configFile;
 
     // Gets online players from incomplete username. Ex: If the player Sintinium is online and the CommandSender types 'Sint' it will return Sintinium
     public static Player getPlayer(String name) {
@@ -148,7 +148,7 @@ public PlayerWarnTable warnTable;
         HandlerList.unregisterAll(this);
     }
 
-    public boolean loadCompatibilities() {
+    private boolean loadCompatibilities() {
         String packageName = getServer().getClass().getPackage().getName();
         String version = packageName.substring(packageName.lastIndexOf('.') + 1);
         craftVersion = version;
@@ -174,7 +174,7 @@ public PlayerWarnTable warnTable;
 
 
     // Load database from file
-    public void loadDatabase() {
+    private void loadDatabase() {
         database = new SQLite(Logger.getLogger("Minecraft"), "[Peacekeeper]", getDataFolder().getAbsolutePath(), "Peacekeeper");
         try {
             database.open();
@@ -185,7 +185,7 @@ public PlayerWarnTable warnTable;
         }
     }
 
-    public void initializeTables() {
+    private void initializeTables() {
         userTable = new UserTable(this);
         banTable = new PlayerBanTable(this);
         recordTable = new PlayerRecordTable(this);
@@ -194,7 +194,7 @@ public PlayerWarnTable warnTable;
         warnTable = new PlayerWarnTable(this);
     }
 
-    public void registerListeners() {
+    private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(banListener = new BanListener(this), this);
         Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new VanishListeners(this), this);
@@ -210,7 +210,7 @@ public PlayerWarnTable warnTable;
         Bukkit.getPluginManager().registerEvents(new CreativePatchListener(), this);
     }
 
-    public boolean loadDependencies() {
+    private boolean loadDependencies() {
         if (getServer().getPluginManager().getPlugin("SQLibrary") == null) {
             getLogger().log(Level.SEVERE, "COULDN'T LOAD SQLIBRARY FOR DATABASE PLEASE INSURE YOU HAVE THE PLUGIN INSTALLED.");
             return false;
@@ -259,7 +259,7 @@ public PlayerWarnTable warnTable;
         return this.handleBan(playerID);
     }
 
-    public boolean isPlayerBeingVoteMuted(String player) {
+    private boolean isPlayerBeingVoteMuted(String player) {
         for (Map.Entry<String, VoteMuteData> set : commandManager.voteMuteCommand.voteMutes.entrySet()) {
             if (set.getKey().equals(player)) {
                 return true;
@@ -268,7 +268,7 @@ public PlayerWarnTable warnTable;
         return false;
     }
 
-    public boolean hasPlayerVotedForPlayer(String caller, String accused) {
+    private boolean hasPlayerVotedForPlayer(String caller, String accused) {
         for (Map.Entry<String, VoteMuteData> set : commandManager.voteMuteCommand.voteMutes.entrySet()) {
             if (set.getKey().equals(accused) && set.getValue().votedPlayers.contains(caller)) {
                 return true;
@@ -277,7 +277,7 @@ public PlayerWarnTable warnTable;
         return false;
     }
 
-    public VoteMuteData getVoteMuteData(String player) {
+    private VoteMuteData getVoteMuteData(String player) {
         return commandManager.voteMuteCommand.voteMutes.get(player);
     }
 

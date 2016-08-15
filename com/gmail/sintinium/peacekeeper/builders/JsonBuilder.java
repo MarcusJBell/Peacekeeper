@@ -17,7 +17,7 @@ public class JsonBuilder {
             parse(extra);
     }
 
-    public JsonBuilder parse(String text) {
+    private JsonBuilder parse(String text) {
         String regex = "[&§]{1}([a-fA-Fl-oL-O0-9]){1}";
         text = text.replaceAll(regex, "§$1");
         if (!Pattern.compile(regex).matcher(text).find()) {
@@ -49,7 +49,7 @@ public class JsonBuilder {
         return this;
     }
 
-    public JsonBuilder withColor(String color) {
+    private JsonBuilder withColor(String color) {
         while (color.length() != 1) color = color.substring(1).trim();
         withColor(ChatColor.getByChar(color));
         return this;

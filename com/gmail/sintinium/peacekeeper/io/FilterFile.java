@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class FilterFile {
 
-    public Set<String> blockedWords, semiblocked, exceptions, wholeOnly;
+    public Set<String> blockedWords, semiblocked, exceptions, wholeOnly, checkedCommands;
     public Map<String, String> replacedWords;
     //    public Map<String, Long> strictWords;
     public Map<String, Long> strict;
@@ -31,7 +31,7 @@ public class FilterFile {
         loadSpamFilter();
     }
 
-    public void reloadDefaultConfig() {
+    private void reloadDefaultConfig() {
         try {
             Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("Filter.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
@@ -42,7 +42,7 @@ public class FilterFile {
         }
     }
 
-    public File getFile() {
+    private File getFile() {
         File file = peacekeeper.getDataFolder();
         if (!file.exists())
             file.mkdir();
@@ -54,7 +54,7 @@ public class FilterFile {
     }
 
 
-    public void loadSpamFilter() {
+    private void loadSpamFilter() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         ChatSpamFilterListener filter = peacekeeper.chatSpamFilterListener;
@@ -69,7 +69,7 @@ public class FilterFile {
         filter.spamCount = config.getInt("spamfilter.amounts.characterspamcount");
     }
 
-    public void loadToggles() {
+    private void loadToggles() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
@@ -78,10 +78,9 @@ public class FilterFile {
         peacekeeper.chatBlockingFilterListener.filterBook = config.getBoolean("filter.toggles.books");
         peacekeeper.chatBlockingFilterListener.filterItems = config.getBoolean("filter.toggles.items");
         peacekeeper.chatBlockingFilterListener.filterSign = config.getBoolean("filter.toggles.signs");
-        peacekeeper.chatBlockingFilterListener.leniency = config.getInt("filter.settings.leniency") - 1;
     }
 
-    public void loadFilter() {
+    private void loadFilter() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         if (config.contains("filter.filteredwords.blocked")) {
@@ -115,6 +114,9 @@ public class FilterFile {
                 replacedWords.put(s, config.getString("filter.filteredwords.replaced." + s));
             }
         }
+
+        peacekeeper.chatBlockingFilterListener.leniency = config.getInt("filter.settings.leniency") - 1;
+        checkedCommands = new HashSet<>(config.getStringList("filter.checkedcommands"));
 
 //        strictWords = new HashMap<>();
         strict = new HashMap<>();

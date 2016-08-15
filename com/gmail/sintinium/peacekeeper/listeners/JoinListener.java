@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
 
-    Peacekeeper peacekeeper;
+    private Peacekeeper peacekeeper;
 
     public JoinListener(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;

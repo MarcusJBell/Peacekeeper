@@ -14,16 +14,16 @@ import java.sql.SQLException;
 public abstract class BaseTable {
 
     public Database db;
-    public String tableName;
-    public Peacekeeper peacekeeper;
+    String tableName;
+    Peacekeeper peacekeeper;
 
-    public BaseTable(@Nonnull Peacekeeper peacekeeper, @Nonnull String tableName) {
+    BaseTable(@Nonnull Peacekeeper peacekeeper, @Nonnull String tableName) {
         this.peacekeeper = peacekeeper;
         db = peacekeeper.database;
         this.tableName = tableName;
     }
 
-    public void init(@Nonnull String tableSet) {
+    void init(@Nonnull String tableSet) {
         try {
             db.query("CREATE TABLE IF NOT EXISTS " +
                     "" + tableName +
@@ -39,7 +39,7 @@ public abstract class BaseTable {
      * @param replace    Should insert or should replace if already exists
      * @return returns the primary key of the inserted values. Returns null if SQLException is thrown
      */
-    public Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
+    Integer insert(@Nonnull Object[] columnList, @Nonnull Object[] valueList) {
         String cols = SQLUtils.getAsSQLStringList(columnList);
         String values = SQLUtils.getAsSQLStringList(valueList);
         try {
@@ -88,7 +88,7 @@ public abstract class BaseTable {
      * @param where Name of variable to find
      * @param value Value of variable by the name of 'where'
      */
-    public void deleteRow(@Nonnull String where, @Nonnull String value) {
+    void deleteRow(@Nonnull String where, @Nonnull String value) {
         if (!StringUtils.isNumeric(value))
             value = "'" + value.replaceAll("\'", "'") + "'";
         try {
@@ -115,7 +115,7 @@ public abstract class BaseTable {
      * @param where Name of variable to update
      * @param value Old value to be replaced
      */
-    public void updateValue(@Nonnull String set, @Nonnull String where, @Nonnull String value) {
+    void updateValue(@Nonnull String set, @Nonnull String where, @Nonnull String value) {
         try {
             if (!StringUtils.isNumeric(value))
                 value = "'" + value.replaceAll("\'", "'") + "'";
@@ -135,7 +135,7 @@ public abstract class BaseTable {
      * @param where Name of variable to update
      * @param value Old value to be replaced
      */
-    public void updateValue(@Nonnull String set, @Nonnull String where, int value) {
+    void updateValue(@Nonnull String set, @Nonnull String where, int value) {
         updateValue(set, where, String.valueOf(value));
     }
 
@@ -179,7 +179,7 @@ public abstract class BaseTable {
      * @param value  Value of variable found
      * @return returns String of found column
      */
-    public String getString(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
+    private String getString(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
         return getString(select, where, value, false);
     }
 
@@ -191,7 +191,7 @@ public abstract class BaseTable {
      * @param value  Value of variable found
      * @return returns String of found column
      */
-    public String getString(@Nonnull String select, @Nonnull String where, int value) {
+    String getString(@Nonnull String select, @Nonnull String where, int value) {
         return getString(select, where, String.valueOf(value), false);
     }
 
@@ -216,7 +216,7 @@ public abstract class BaseTable {
      * @return returns String of found column like value
      */
     @Nullable
-    public Long getLong(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
+    private Long getLong(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
         String string = getString(select, where, value);
         if (string == null) return null;
         Long result;
@@ -237,7 +237,7 @@ public abstract class BaseTable {
      * @return returns String of found column like value
      */
     @Nullable
-    public Long getLong(@Nonnull String select, @Nonnull String where, int value) {
+    Long getLong(@Nonnull String select, @Nonnull String where, int value) {
         return getLong(select, where, String.valueOf(value));
     }
 
@@ -250,7 +250,7 @@ public abstract class BaseTable {
      * @return returns String of found column like value
      */
     @Nullable
-    public Integer getInt(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
+    Integer getInt(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
         Long getLong = getLong(select, where, value);
         if (getLong == null) return null;
         if (getLong < Integer.MIN_VALUE || getLong > Integer.MAX_VALUE) {
@@ -267,7 +267,7 @@ public abstract class BaseTable {
      * @param value  Value of variable found
      * @return returns String of found column like value
      */
-    public Integer getInt(@Nonnull String select, @Nonnull String where, int value) {
+    Integer getInt(@Nonnull String select, @Nonnull String where, int value) {
         return getInt(select, where, String.valueOf(value));
     }
 
@@ -279,7 +279,7 @@ public abstract class BaseTable {
      * @param like  Should find value like the input value
      * @return returns true if value is found in the table
      */
-    public boolean doesValueExist(@Nonnull String where, @Nonnull String value, boolean like) {
+    private boolean doesValueExist(@Nonnull String where, @Nonnull String value, boolean like) {
         try {
             if (!StringUtils.isNumeric(value))
                 value = "'" + value.replaceAll("\'", "'") + "'";
@@ -331,7 +331,7 @@ public abstract class BaseTable {
      * @return returns ResultSet of found rows
      */
     @Nullable
-    public ResultSet getSet(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
+    private ResultSet getSet(@Nonnull String select, @Nonnull String where, @Nonnull String value) {
         ResultSet set = null;
         try {
             if (!StringUtils.isNumeric(value)) {
@@ -355,7 +355,7 @@ public abstract class BaseTable {
      * @return Returns a result set for all columns in a row
      * @throws SQLException Thrown if database exception occurred
      */
-    public ResultSet getStarSet(int rowID) throws SQLException {
+    ResultSet getStarSet(int rowID) throws SQLException {
         return db.query("SELECT * FROM " + tableName + " WHERE rowID=" + rowID + ";");
     }
 
@@ -379,7 +379,7 @@ public abstract class BaseTable {
      * @param value Value of variable found
      * @return returns Count of variables
      */
-    public Integer valueCount(@Nonnull String where, @Nonnull String value) {
+    Integer valueCount(@Nonnull String where, @Nonnull String value) {
         ResultSet set = null;
         Integer count = null;
         try {
@@ -396,7 +396,7 @@ public abstract class BaseTable {
         return count;
     }
 
-    public int tableRowCount() {
+    int tableRowCount() {
         try {
             ResultSet set = db.query("SELECT COUNT(*) FROM " + tableName + ";");
             if (!set.next()) {
@@ -419,7 +419,7 @@ public abstract class BaseTable {
      * @param value Value of variable found
      * @return returns Count of variables
      */
-    public Integer valueCount(@Nonnull String where, int value) {
+    Integer valueCount(@Nonnull String where, int value) {
         return valueCount(where, String.valueOf(value));
     }
 

@@ -34,6 +34,7 @@ public class ChatBlockingFilterListener implements Listener {
     private Set<String> blockedWords;
     private Set<String> foundBlocked;
 
+
     public ChatBlockingFilterListener(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;
         blockedWords = new HashSet<>();
@@ -59,13 +60,13 @@ public class ChatBlockingFilterListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onCommandProcess(PlayerCommandPreprocessEvent event) {
-        if (!filterCommands) return;
+        if (!filterCommands || event.getMessage().isEmpty()) return;
         if (event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
-
-        String split[] = event.getMessage().split("\\s+");
+        String split[] = event.getMessage().trim().split("\\s+");
         if (split.length <= 0) return;
         String m = split[0].toLowerCase();
-        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
+//        if (m.equalsIgnoreCase("/r") || m.equalsIgnoreCase("/msg") || m.equalsIgnoreCase("/tell") || m.equalsIgnoreCase("/me") || m.equalsIgnoreCase("/say") || m.equalsIgnoreCase("/m") || m.equalsIgnoreCase("/whisper")) {
+        if (peacekeeper.chatFilter.checkedCommands.contains(m.replaceAll("/", ""))) {
             if (checkFilter(event.getPlayer(), event.getMessage())) {
                 event.setCancelled(true);
                 broadcastFilter(event.getPlayer(), event.getMessage(), 1);
@@ -106,7 +107,7 @@ public class ChatBlockingFilterListener implements Listener {
         }
     }
 
-    public boolean handleBook(Player player, BookMeta bookMeta) {
+    private boolean handleBook(Player player, BookMeta bookMeta) {
         String book;
         StringBuilder builder = new StringBuilder();
         for (String s : bookMeta.getPages()) {
@@ -159,8 +160,7 @@ public class ChatBlockingFilterListener implements Listener {
     }
 
     private boolean checkFilter(Player player, String message) {
-        boolean r = checkFilter(player, message, false);
-        return r;
+        return checkFilter(player, message, false);
     }
 
     private boolean checkFilter(final Player player, String message, boolean book) {

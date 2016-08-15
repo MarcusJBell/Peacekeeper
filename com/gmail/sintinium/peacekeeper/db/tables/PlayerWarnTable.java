@@ -45,7 +45,7 @@ public class PlayerWarnTable extends BaseTable {
         deleteRow("WarnID", warnID);
     }
 
-    public WarnData getWarnDataFromStarSet(ResultSet set) throws SQLException {
+    private WarnData getWarnDataFromStarSet(ResultSet set) throws SQLException {
         Integer adminID = set.getInt("AdminID");
         if (set.wasNull()) adminID = null;
         return new WarnData(set.getInt("WarnID"), set.getLong("WarnTime"), set.getInt("PlayerID"), set.getString("Reason"), adminID, set.getInt("RecordID"));

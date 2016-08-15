@@ -9,7 +9,7 @@ import java.util.List;
 
 public class FilterUtils {
 
-    static char[] symbols = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', '\\', '|', ':', ';', '"', '\'', '?', '/', '>', '.', '<', ',', '~', '`'};
+    private static char[] symbols = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', '\\', '|', ':', ';', '"', '\'', '?', '/', '>', '.', '<', ',', '~', '`'};
 
     public static boolean isSpecial(String s) {
         for (char c : s.toCharArray()) {
@@ -66,7 +66,7 @@ public class FilterUtils {
         return String.valueOf(chars);
     }
 
-    public static String properCaptilize(String s) {
+    private static String properCaptilize(String s) {
         StringBuilder result = new StringBuilder();
         char[] chars = s.toCharArray();
         boolean capitalize = true;

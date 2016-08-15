@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class VanishCommand extends BaseCommand {
 
-    public Set<String> vanishedPlayers = new HashSet<>();
+    private Set<String> vanishedPlayers = new HashSet<>();
 
     public VanishCommand(Peacekeeper peacekeeper) {
         super(peacekeeper);
@@ -44,7 +44,7 @@ public class VanishCommand extends BaseCommand {
         return true;
     }
 
-    public boolean vanishPlayer(Player player) {
+    private boolean vanishPlayer(Player player) {
         if (vanishedPlayers.contains(player.getName())) {
             vanishedPlayers.remove(player.getName());
             player.removePotionEffect(PotionEffectType.INVISIBILITY);

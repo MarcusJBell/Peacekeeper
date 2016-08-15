@@ -9,7 +9,7 @@ public class MutablePair<K, V> {
         set(key, value);
     }
 
-    public void set(K key, V value) {
+    private void set(K key, V value) {
         this.key = key;
         this.value = value;
     }

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class ConfigFile {
 
-    Peacekeeper peacekeeper;
+    private Peacekeeper peacekeeper;
 
     public ConfigFile(Peacekeeper peacekeeper) {
         this.peacekeeper = peacekeeper;

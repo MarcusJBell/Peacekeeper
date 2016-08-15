@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ShadowBanFile {
+class ShadowBanFile {
 
-    public Set<String> banned;
+    private Set<String> banned;
     private Peacekeeper peacekeeper;
 
     public ShadowBanFile(Peacekeeper peacekeeper) {
@@ -23,7 +23,7 @@ public class ShadowBanFile {
         loadBans();
     }
 
-    public void reloadDefaultConfig() {
+    private void reloadDefaultConfig() {
         try {
             Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("Shadowbanned.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
@@ -34,7 +34,7 @@ public class ShadowBanFile {
         }
     }
 
-    public File getFile() {
+    private File getFile() {
         File file = peacekeeper.getDataFolder();
         if (!file.exists())
             file.mkdir();
@@ -50,14 +50,14 @@ public class ShadowBanFile {
         saveBans();
     }
 
-    public void loadBans() {
+    private void loadBans() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         if (!config.contains("shadowbanned.uuid")) return;
         banned = new HashSet<>(config.getStringList("shadowbanned.uuid"));
     }
 
-    public void saveBans() {
+    private void saveBans() {
         File file = getFile();
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set("shadowbanned.uuid", new ArrayList<>(banned));

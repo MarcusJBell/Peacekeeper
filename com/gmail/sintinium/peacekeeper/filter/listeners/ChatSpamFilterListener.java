@@ -35,7 +35,7 @@ public class ChatSpamFilterListener implements Listener {
         this.peacekeeper = peacekeeper;
     }
 
-    public boolean allDisabled() {
+    private boolean allDisabled() {
         return capType.equalsIgnoreCase("off") || capType.equalsIgnoreCase("off") || excessiveCharType.equalsIgnoreCase("off");
     }
 
@@ -64,12 +64,13 @@ public class ChatSpamFilterListener implements Listener {
         }
     }
 
-    public void filterEvent(FilterEvent event) {
+    private void filterEvent(FilterEvent event) {
         if (peacekeeper.conversationListener.conversations.containsKey(event.getPlayer()) || event.getPlayer().hasPermission("peacekeeper.filter.bypass")) return;
         if (allDisabled()) return;
         boolean filtered = false;
         if (!categories.isEmpty()) categories.clear();
         final String originalMessage = event.getMessage();
+        if (event.getMessage() == null) return;
 
         if (handleSpecials(event)) filtered = true;
         if (handleCaps(event)) filtered = true;
@@ -187,7 +188,7 @@ public class ChatSpamFilterListener implements Listener {
         }
     }
 
-    public void broadcastBlocked(Player player, String message, String category) {
+    private void broadcastBlocked(Player player, String message, String category) {
         String m = ChatColor.DARK_RED + player.getName() + "'s" + ChatColor.RED + " messaged was blocked:\n \"" + message + "\"";
         m += "\n" + ChatColor.DARK_AQUA + "Category: " + ChatColor.AQUA + category;
 
