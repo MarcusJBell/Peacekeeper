@@ -74,17 +74,29 @@ public class PlayerInfoCommand extends BaseCommand {
                 if (banData != null) {
                     String message;
                     isPunished = true;
-                    if ((banData.banTime + banData.banLength) - System.currentTimeMillis() >= 1000) {
+
+                    if (banData.banLength == null) {
                         if (banData.type == PlayerBanTable.PLAYER) {
-                            if (banData.banLength != null)
-                                message = ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is suspended for " + ChatColor.YELLOW + TimeUtils.millsToString((banData.banTime + banData.banLength) - System.currentTimeMillis());
-                            else
-                                message = ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is permanently banned";
+                            message = ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is permanently banned";
                         } else {
                             message = ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is IP banned";
                         }
-                        sender.sendMessage(message + ChatColor.YELLOW + " RecordID: " + banData.recordId);
+                    } else {
+                        message = ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is suspended for " + ChatColor.YELLOW + TimeUtils.millsToString((banData.banTime + banData.banLength) - System.currentTimeMillis());
                     }
+                    sender.sendMessage(message + ChatColor.YELLOW + " RecordID: " + banData.recordId);
+
+//                    if ((banData.banTime + banData.banLength) - System.currentTimeMillis() >= 1000) {
+//                        if (banData.type == PlayerBanTable.PLAYER) {
+//                            if (banData.banLength != null)
+//                                message = ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is suspended for " + ChatColor.YELLOW + TimeUtils.millsToString((banData.banTime + banData.banLength) - System.currentTimeMillis());
+//                            else
+//                                message = ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is permanently banned";
+//                        } else {
+//                            message = ChatColor.DARK_AQUA + "Player: " + ChatColor.AQUA + playerData.username + ChatColor.DARK_RED + " is IP banned";
+//                        }
+//                        sender.sendMessage(message + ChatColor.YELLOW + " RecordID: " + banData.recordId);
+//                    }
                 }
 
                 if (peacekeeper.muteTable.isPlayerMuted(playerData.playerID)) {
