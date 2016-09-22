@@ -5,7 +5,7 @@ import com.gmail.sintinium.peacekeeper.data.MutablePair;
 import com.gmail.sintinium.peacekeeper.utils.ChatUtils;
 import com.gmail.sintinium.peacekeeper.utils.CommandUtils;
 import com.gmail.sintinium.peacekeeper.utils.FilterUtils;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

@@ -33,9 +33,9 @@ public class FilterFile {
 
     private void reloadDefaultConfig() {
         try {
-            Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("Filter.yml"), "UTF8");
+            Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("filter.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
-            File file = new File(peacekeeper.getDataFolder(), "Filter.yml");
+            File file = new File(peacekeeper.getDataFolder(), "filter.yml");
             config.save(file);
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,7 +46,7 @@ public class FilterFile {
         File file = peacekeeper.getDataFolder();
         if (!file.exists())
             file.mkdir();
-        File config = new File(peacekeeper.getDataFolder(), "Filter.yml");
+        File config = new File(peacekeeper.getDataFolder(), "filter.yml");
         if (!config.exists()) {
             reloadDefaultConfig();
         }

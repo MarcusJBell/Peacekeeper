@@ -27,9 +27,9 @@ public class TimeManager {
 
     private void reloadDefaultConfig() {
         try {
-            Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("TimeConfig.yml"), "UTF8");
+            Reader defConfigStream = new InputStreamReader(peacekeeper.getResource("timeconfig.yml"), "UTF8");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(defConfigStream);
-            File file = new File(peacekeeper.getDataFolder(), "TimeConfig.yml");
+            File file = new File(peacekeeper.getDataFolder(), "timeconfig.yml");
             config.save(file);
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class TimeManager {
         File file = peacekeeper.getDataFolder();
         if (!file.exists())
             file.mkdir();
-        File config = new File(peacekeeper.getDataFolder(), "TimeConfig.yml");
+        File config = new File(peacekeeper.getDataFolder(), "timeconfig.yml");
         if (!config.exists()) {
             reloadDefaultConfig();
         }

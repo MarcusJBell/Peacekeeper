@@ -1,5 +1,10 @@
+#Times are set by the following (s - second, m - minute, h - hour, d - day, w - week, y - 365 year). Note there are no month times.
+#Examples 1h5s - 1 hour 5 seconds, 1h1h10m - 2 hours 10 minutes, 1y5w2d - 1 year 5 weeks and 2 days.
+
+#Note: This plugin automatically calculates time based on the default 'length' it will scale the times based on how many categories and how many
+#previous offenses
 Types:
-  Suspend:
+  Suspend: #Categories for suspension.
     Harassment:
       description: Harassment
       length: 1h
@@ -24,7 +29,7 @@ Types:
     Trolling:
       description: Malicious Trolling
       length: 1w
-  Mute:
+  Mute: #Categories for muting
     CapsSpam:
       description: Excessive Caps
       length: 10m
@@ -43,7 +48,7 @@ Types:
     Advertising:
       description: Advertising
       length: 1h
-  Report:
+  Report: #Categories to report for
     Inappropriate:
       description: Inappropriate or offensive content
     Cursing:

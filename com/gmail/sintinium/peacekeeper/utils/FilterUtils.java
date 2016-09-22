@@ -1,7 +1,7 @@
 package com.gmail.sintinium.peacekeeper.utils;
 
 import com.gmail.sintinium.peacekeeper.data.MutablePair;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class FilterUtils {
     public static Pair<Character, Integer> highestRepeatedCharacterCount(String s, boolean ignoreNumbers) {
         s = s.toLowerCase();
         Character last = null;
-        Pair<Character, Integer> highest = new Pair<>(null, 0);
+        Pair<Character, Integer> highest = new org.apache.commons.lang3.tuple.MutablePair<>(null, 0);
         int streakCount = 1;
         for (char c : s.toCharArray()) {
             if (Character.isDigit(c) && ignoreNumbers) continue;
@@ -127,7 +127,7 @@ public class FilterUtils {
             }
             if (c == last) {
                 if (streakCount > highest.getValue()) {
-                    highest = new Pair<>(c, streakCount);
+                    highest = new org.apache.commons.lang3.tuple.MutablePair<>(c, streakCount);
                 }
                 streakCount++;
             } else {

@@ -13,14 +13,10 @@ public class CommandManager {
 
     public PeacekeeperCommand peacekeeperCommand;
     public ReportCommand reportCommand;
-    public SuperVanishCommand superVanishCommand;
-    public PowerToolCommand powerToolCommand;
     public WarnCommand warnCommand;
-    public VoteMuteCommand voteMuteCommand;
     private Set<PluginCommand> commands;
     private MuteCommand muteCommand;
     private SuspendCommand suspendCommand;
-    private VanishCommand vanishCommand;
     private Peacekeeper peacekeeper;
 
     public CommandManager(Peacekeeper peacekeeper) {
@@ -39,13 +35,7 @@ public class CommandManager {
         registerCommand("playerinfo", new PlayerInfoCommand(peacekeeper));
         registerCommand("records", new RecordsCommand(peacekeeper));
         registerCommand("warn", warnCommand = new WarnCommand(peacekeeper));
-//        registerCommand("vanish", vanishCommand = new VanishCommand(peacekeeper));
-        vanishCommand = new VanishCommand(peacekeeper);
         registerCommand("peacekeeper", peacekeeperCommand = new PeacekeeperCommand(peacekeeper));
-//        registerCommand("supervanish", superVanishCommand = new SuperVanishCommand(peacekeeper));
-        superVanishCommand = new SuperVanishCommand(peacekeeper);
-        powerToolCommand = new PowerToolCommand(peacekeeper);
-        voteMuteCommand = new VoteMuteCommand(peacekeeper);
     }
 
     private void registerCommand(String commandName, CommandExecutor executor) {

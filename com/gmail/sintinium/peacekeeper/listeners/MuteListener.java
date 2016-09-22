@@ -115,11 +115,6 @@ public class MuteListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
-        peacekeeper.commandManager.powerToolCommand.onInteract(event);
-    }
-
     public MuteData isMuted(final Player player, final int playerID) {
         final PlayerMuteTable muteTable = peacekeeper.muteTable;
 

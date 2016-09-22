@@ -1,0 +1,49 @@
+spamfilter:
+  #types: blocking, filtering, off
+  #blocking - blocks message entirely
+  #filtering - filters the message to remove unnessessary spam
+  #off - disables this type of filtering
+  type:
+    specialchars: "blocking"      #Filter for special chars (alt codes)
+    caps: "filtering"             #Filter for excessive caps
+    spam: "blocking"              #Filter for repeated messages (Only accepts blocking or off)
+    excessivechars: "filtering"   #Filter for excessive charactors in a message
+  amounts:
+    caps: 75                      #Percentage threshold for filter to kick in (range from 0-100)
+    spam: 90                      #How identical to the last message it has to be (range from 0-100)
+    excessivechars: 6             #Amount of charators that needs to be reapted for filter
+filter:
+  settings: #How many letters to allow word collapsing for 'blocked' words but not 'wholeonly' (Ex. 1 will work for 'h e c k' but not 'h ec k' where a setting of 2 would etc..) (Default: 2)
+    leniency: 2
+  toggles: #Things that the plugin will block. (true or false)
+    chat: true
+    commands: true
+    books: true
+    items: true
+    signs: true
+  checkedcommands: #Commands that this plugin will be blocked while muted.
+  - msg
+  - tell
+  - m
+  - t
+  - whisper
+  - mail
+  - email
+  - say
+  - me
+  - action
+  - describe
+  filteredwords:
+    blocked: #Words that will be blocked if found anywhere in sentence
+    #- blockedword1
+    #- blocked words 2
+    #- blocked words 3
+    wholeonly: #Will only pickup the entire word. Good for blocked words that are used in other words. (example: ice is in icecream so it would be blocked)
+    #- onlythis
+    #- wholewordsonly
+    semiblocked:
+    exception:
+    replaced:
+      #Examples remove # to use or make your own.
+      #word: replacedword
+      #god: gosh

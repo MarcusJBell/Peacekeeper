@@ -1,16 +1,13 @@
 package com.gmail.sintinium.peacekeeper;
 
-import com.gmail.sintinium.peacekeeper.commands.VoteMuteCommand;
 import com.gmail.sintinium.peacekeeper.data.BanData;
 import com.gmail.sintinium.peacekeeper.data.MuteData;
-import com.gmail.sintinium.peacekeeper.data.VoteMuteData;
 import com.gmail.sintinium.peacekeeper.data.conversation.ConversationData;
 import com.gmail.sintinium.peacekeeper.db.tables.*;
 import com.gmail.sintinium.peacekeeper.filter.FilterManager;
 import com.gmail.sintinium.peacekeeper.filter.listeners.ChatBlockingFilterListener;
 import com.gmail.sintinium.peacekeeper.filter.listeners.ChatSpamFilterListener;
 import com.gmail.sintinium.peacekeeper.hooks.EssentialsHook;
-import com.gmail.sintinium.peacekeeper.hooks.ScoreboardStatsHook;
 import com.gmail.sintinium.peacekeeper.io.ConfigFile;
 import com.gmail.sintinium.peacekeeper.io.FilterFile;
 import com.gmail.sintinium.peacekeeper.io.LogFile;
@@ -46,8 +43,7 @@ public class Peacekeeper extends JavaPlugin {
     public PlayerMuteTable muteTable;
     public PlayerBanTable banTable;
 
-//    public ShadowBanFile shadowBanFile;
-public PlayerWarnTable warnTable;
+    public PlayerWarnTable warnTable;
     public CommandManager commandManager;
     public TimeManager timeManager;
     public PunishmentHelper punishmentHelper;
@@ -55,7 +51,6 @@ public PlayerWarnTable warnTable;
     public MuteListener muteListener;
     public BanListener banListener;
     public DatabaseQueueManager databaseQueueManager;
-    public ScoreboardStatsHook scoreboardStatsHook;
     public EssentialsHook essentialsHook;
     public FilterFile chatFilter;
     public ChatBlockingFilterListener chatBlockingFilterListener;
@@ -143,7 +138,7 @@ public PlayerWarnTable warnTable;
         }
         getServer().getScheduler().cancelTasks(this);
         database.close();
-        
+
         //Unregister listeners
         HandlerList.unregisterAll(this);
     }
@@ -197,7 +192,6 @@ public PlayerWarnTable warnTable;
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(banListener = new BanListener(this), this);
         Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new VanishListeners(this), this);
         Bukkit.getPluginManager().registerEvents(new WarnListener(this), this);
         Bukkit.getPluginManager().registerEvents(muteListener = new MuteListener(this), this);
         Bukkit.getPluginManager().registerEvents(conversationListener = new ConversationListener(this), this);
@@ -215,8 +209,6 @@ public PlayerWarnTable warnTable;
             getLogger().log(Level.SEVERE, "COULDN'T LOAD SQLIBRARY FOR DATABASE PLEASE INSURE YOU HAVE THE PLUGIN INSTALLED.");
             return false;
         }
-        scoreboardStatsHook = new ScoreboardStatsHook(this);
-        scoreboardStatsHook.loadPlugin();
         essentialsHook = new EssentialsHook(this);
         return true;
     }
@@ -257,47 +249,6 @@ public PlayerWarnTable warnTable;
             return null;
         }
         return this.handleBan(playerID);
-    }
-
-    private boolean isPlayerBeingVoteMuted(String player) {
-        for (Map.Entry<String, VoteMuteData> set : commandManager.voteMuteCommand.voteMutes.entrySet()) {
-            if (set.getKey().equals(player)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasPlayerVotedForPlayer(String caller, String accused) {
-        for (Map.Entry<String, VoteMuteData> set : commandManager.voteMuteCommand.voteMutes.entrySet()) {
-            if (set.getKey().equals(accused) && set.getValue().votedPlayers.contains(caller)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private VoteMuteData getVoteMuteData(String player) {
-        return commandManager.voteMuteCommand.voteMutes.get(player);
-    }
-
-    public boolean callVoteMute(Player callerPlayer, Player accusedPlayer) {
-        String caller = callerPlayer.getUniqueId().toString();
-        String accused = accusedPlayer.getUniqueId().toString();
-        if (hasPlayerVotedForPlayer(caller, accused)) return false;
-        if (isPlayerBeingVoteMuted(accused)) {
-            VoteMuteData data = getVoteMuteData(accused);
-            data.count++;
-            data.votedPlayers.add(caller);
-        } else {
-            VoteMuteData data = new VoteMuteData();
-            data.votedPlayers.add(caller);
-            commandManager.voteMuteCommand.voteMutes.put(accused, data);
-        }
-        VoteMuteCommand.broadcastVote(ChatColor.AQUA + callerPlayer.getName() + ChatColor.DARK_AQUA + " has called a voted for " + ChatColor.GOLD + accusedPlayer.getName() + ChatColor
-                .DARK_AQUA + " to be muted.");
-        VoteMuteCommand.broadcastVote(ChatColor.DARK_AQUA + "Use /votemute <player> <reason> to vote a player to be muted!");
-        return true;
     }
 
 }
